@@ -170,7 +170,7 @@ def flickr_latest(nsid):
         img_url = thumb["url"]
     if not img_url:
         # fallback: look for _m.jpg or _z.jpg in any tag
-        m = re.search(r'https://[^"']+_[mzb]\.jpg', r.text)
+        m = re.search(r"https://[^\"']+_[mzb]\.jpg", r.text)
         if m:
             img_url = m.group(0)
     if pub:
