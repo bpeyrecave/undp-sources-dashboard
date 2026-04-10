@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNDP Photo &amp; Story Sources</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:13px;background:#f4f4f4;color:#222}
+a{color:#0070c0;text-decoration:none}
+a:hover{text-decoration:underline}
+
+header{background:#009edb;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+header h1{font-size:17px;font-weight:700}
+header .meta{font-size:11px;opacity:.8}
+
+.toolbar{background:#fff;border-bottom:1px solid #ddd;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.toolbar input,.toolbar select{border:1px solid #ccc;border-radius:4px;padding:5px 9px;font-size:12px;background:#fff}
+.toolbar input{width:200px}
+.count{margin-left:auto;font-size:11px;color:#888}
+
+.table-wrap{padding:0 24px 40px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #ddd;border-radius:4px;overflow:hidden;font-size:12px;min-width:900px}
+thead tr{background:#f0f0f0}
+th{padding:8px 10px;text-align:left;font-weight:600;color:#333;border-bottom:1px solid #ddd;white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{background:#e6e6e6}
+th .si{color:#bbb;font-size:10px;margin-left:3px}
+td{padding:6px 10px;border-bottom:1px solid #f2f2f2;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+
+/* platform cell: link + badge stacked */
+.pcell{display:flex;flex-direction:column;gap:3px;min-width:90px}
+.pdate{font-size:12px;font-weight:500}
+.pdate.r{color:#1a7f37}
+.pdate.y{color:#b45309}
+.pdate.o{color:#c0392b}
+.pdate.n{color:#aaa;font-weight:400}
+
+.badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;width:fit-content}
+.badge.a{background:#dcfce7;color:#166534}
+.badge.i{background:#fee2e2;color:#991b1b}
+
+.country{font-weight:600;font-size:12px}
+
+.nodata{text-align:center;padding:40px;color:#aaa}
+
+.legend{display:flex;gap:16px;padding:8px 24px;font-size:11px;color:#666;flex-wrap:wrap;background:#fff;border-bottom:1px solid #eee}
+.legend span{display:flex;align-items:center;gap:4px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>UNDP Photo &amp; Story Sources</h1>
+    <p style="font-size:11px;opacity:.8;margin-top:2px">Flickr · Exposure · UNDP Stories · UNDP Blog</p>
+  </div>
+  <div class="meta" id="updated"></div>
+</header>
+
+<div class="legend">
+  <span><span class="dot" style="background:#1a7f37"></span> Published &lt; 3 months ago</span>
+  <span><span class="dot" style="background:#b45309"></span> 3–12 months ago</span>
+  <span><span class="dot" style="background:#c0392b"></span> Over 1 year ago</span>
+  <span><span class="dot" style="background:#ccc"></span> No data</span>
+</div>
+
+<div class="toolbar">
+  <input type="text" id="q" placeholder="Search country…" oninput="render()">
+  <select id="fStatus" onchange="render()">
+    <option value="">All Flickr statuses</option>
+    <option value="active">Flickr active</option>
+    <option value="inactive">Flickr not active</option>
+  </select>
+  <select id="fPlatform" onchange="render()">
+    <option value="">All platforms</option>
+    <option value="flickr">Has Flickr date</option>
+    <option value="exposure">Has Exposure</option>
+    <option value="stories">Has Stories</option>
+    <option value="blog">Has Blog</option>
+  </select>
+  <span class="count" id="countLabel"></span>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th onclick="sort('country')">Country / Area<span class="si" id="s-country">↕</span></th>
+        <th onclick="sort('flickr_date')">Flickr<span class="si" id="s-flickr_date">↕</span></th>
+        <th onclick="sort('exposure_date')">Exposure<span class="si" id="s-exposure_date">↕</span></th>
+        <th onclick="sort('stories_date')">UNDP Stories<span class="si" id="s-stories_date">↕</span></th>
+        <th onclick="sort('blog_date')">UNDP Blog<span class="si" id="s-blog_date">↕</span></th>
+      </tr>
+    </thead>
+    <tbody id="tbody">
+      <tr><td colspan="5" class="nodata">Loading data…</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+let DATA = [], sortCol = 'country', sortDir = 1;
+
+function ageClass(iso){
+  if(!iso) return 'n';
+  const months = (Date.now() - new Date(iso)) / (1000*60*60*24*30.5);
+  if(months < 3)  return 'r';
+  if(months < 12) return 'y';
+  return 'o';
+}
+
+function fmtDate(iso){
+  if(!iso) return null;
+  const [y,m] = iso.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[+m-1]} ${y}`;
+}
+
+function platformCell(platform){
+  const {url, date, latest_url} = platform;
+  if(!url) return '<td><span class="pdate n">—</span></td>';
+  const cls = ageClass(date);
+  const label = fmtDate(date);
+  const linkUrl = latest_url || url;
+  const dateHtml = label
+    ? `<a href="${linkUrl}" target="_blank" class="pdate ${cls}">${label}</a>`
+    : `<a href="${url}" target="_blank" class="pdate n">Visit</a>`;
+  // Active = published within 18 months
+  const isActive = date && (Date.now() - new Date(date)) / (1000*60*60*24*30.5) < 18;
+  const badge = `<span class="badge ${isActive?'a':'i'}">${isActive?'Active':'Not active'}</span>`;
+  return `<td><div class="pcell">${dateHtml}${badge}</div></td>`;
+}
+
+function sort(col){
+  if(sortCol===col) sortDir*=-1; else {sortCol=col;sortDir=1;}
+  document.querySelectorAll('.si').forEach(e=>e.textContent='↕');
+  const el=document.getElementById('s-'+col);
+  if(el) el.textContent=sortDir===1?'↑':'↓';
+  render();
+}
+
+function render(){
+  const q   = document.getElementById('q').value.toLowerCase();
+  const fS  = document.getElementById('fStatus').value;
+  const fP  = document.getElementById('fPlatform').value;
+
+  let rows = DATA.filter(r=>{
+    if(q && !r.country.toLowerCase().includes(q)) return false;
+    if(fS){
+      const months = r.flickr.date
+        ? (Date.now()-new Date(r.flickr.date))/(1000*60*60*24*30.5) : 999;
+      const active = months < 18;
+      if(fS==='active'   && !active) return false;
+      if(fS==='inactive' &&  active) return false;
+    }
+    if(fP==='flickr'   && !r.flickr.date)   return false;
+    if(fP==='exposure' && !r.exposure.url)  return false;
+    if(fP==='stories'  && !r.stories.url)   return false;
+    if(fP==='blog'     && !r.blog.url)      return false;
+    return true;
+  });
+
+  const key = sortCol;
+  rows.sort((a,b)=>{
+    let va, vb;
+    if(key==='country'){va=a.country;vb=b.country;}
+    else {
+      const plat = key.replace('_date','');
+      va = a[plat]?.date || '';
+      vb = b[plat]?.date || '';
+    }
+    return (va<vb?-1:va>vb?1:0)*sortDir;
+  });
+
+  document.getElementById('countLabel').textContent=`${rows.length} of ${DATA.length} offices`;
+
+  const tbody=document.getElementById('tbody');
+  if(!rows.length){
+    tbody.innerHTML='<tr><td colspan="5" class="nodata">No results match your filters.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=rows.map(r=>`
+    <tr>
+      <td class="country">${r.country}</td>
+      ${platformCell(r.flickr)}
+      ${platformCell(r.exposure)}
+      ${platformCell(r.stories)}
+      ${platformCell(r.blog)}
+    </tr>`).join('');
+}
+
+fetch('data.json')
+  .then(r=>r.json())
+  .then(json=>{
+    DATA=json.offices;
+    const upd=document.getElementById('updated');
+    if(json.updated){
+      const d=new Date(json.updated);
+      upd.textContent='Last updated: '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    }
+    render();
+  })
+  .catch(()=>{
+    document.getElementById('tbody').innerHTML=
+      '<tr><td colspan="5" class="nodata">Could not load data.json — make sure the scraper has run at least once.</td></tr>';
+  });
+</script>
+</body>
+</html>
