@@ -644,18 +644,19 @@ function fmtDateFull(iso) {
 }
 
 function buildGalleryCards(rows) {
-  // Flatten each office into one card per platform that has a date
+  // Flatten each office into one card per platform that has a URL
   const cards = [];
   rows.forEach(r => {
     ['stories','blog','exposure','flickr'].forEach(plat => {
       const p = r[plat];
-      if (p && p.date) {
+      const url = p?.latest_url || p?.url || '';
+      if (p && url) {
         cards.push({
           country: r.country,
           type: r.type,
           platform: plat,
-          date: p.date,
-          url: p.latest_url || p.url,
+          date: p.date || null,
+          url: url,
           image_url: p.image_url || null,
         });
       }
