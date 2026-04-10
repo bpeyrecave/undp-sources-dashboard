@@ -190,43 +190,51 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 /* ── Gallery grid ── */
 .gallery-wrap{
   display:none;padding:24px 32px 48px;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
   gap:20px;
 }
 .gallery-wrap.visible{display:grid}
 
 /* ── Gallery card ── */
 .gcard{
-  background:var(--white);border:1px solid #E0E0E0;
+  background:var(--white);
+  border:1px solid #E0E0E0;
+  box-shadow:0 2px 4px rgba(16,24,40,.03);
   display:flex;flex-direction:column;
-  transition:box-shadow .15s,transform .15s;cursor:pointer;
-  text-decoration:none;color:inherit;
+  transition:box-shadow .15s,transform .15s;
+  cursor:pointer;text-decoration:none;color:inherit;
 }
-.gcard:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);transform:translateY(-2px)}
+.gcard:hover{box-shadow:0 6px 20px rgba(16,24,40,.1);transform:translateY(-2px)}
 .gcard-img{
   width:100%;aspect-ratio:16/10;overflow:hidden;
-  background:var(--gray-section);flex-shrink:0;position:relative;
+  background:#EDEFF0;flex-shrink:0;position:relative;
 }
 .gcard-img img{width:100%;height:100%;object-fit:cover;display:block}
 .gcard-img .img-placeholder{
   width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,#EDEFF0 0%,#D8DCE0 100%);
+  background:#EDEFF0;
 }
-.gcard-img .img-placeholder svg{width:32px;height:32px;stroke:#A9B1B7;fill:none;stroke-width:1.5}
-.gcard-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
-.gcard-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.gcard-flag{font-size:16px;line-height:1}
-.gcard-country{font-size:11px;font-weight:700;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.06em}
-.gcard-date{font-size:11px;color:var(--gray-mid);margin-left:auto;white-space:nowrap}
+.gcard-img .img-placeholder svg{width:36px;height:36px;stroke:#C4C9CE;fill:none;stroke-width:1}
+.gcard-body{padding:16px;display:flex;flex-direction:column;gap:16px;flex:1}
+.gcard-meta{display:flex;flex-direction:column;gap:2px}
+.gcard-meta-top{display:flex;align-items:center;gap:6px}
+.gcard-flag{font-size:14px;line-height:1;flex-shrink:0}
+.gcard-country{font-size:11px;font-weight:600;color:#677383;line-height:1.4}
+.gcard-date{font-size:11px;font-weight:400;color:#677383;line-height:1.4}
+.gcard-title-row{display:flex;gap:8px;align-items:flex-start}
+.gcard-title{
+  flex:1;font-size:14px;font-weight:600;color:#101828;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.gcard-ext{flex-shrink:0;margin-top:2px;width:14px;height:14px;display:flex;align-items:center;justify-content:center}
+.gcard-ext svg{width:14px;height:14px;stroke:var(--red);fill:none;stroke-width:2}
 .gcard-platform{
-  display:inline-flex;align-items:center;gap:4px;
-  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-  padding:2px 8px;border-radius:20px;align-self:flex-start;margin-top:2px;
+  display:inline-flex;align-items:center;
+  font-size:11px;font-weight:400;font-family:var(--font);
+  color:#677383;padding:3px 10px;border-radius:20px;
+  background:#EDEFF0;box-shadow:0 0.5px 1px rgba(0,0,0,.2);
+  align-self:flex-start;white-space:nowrap;
 }
-.gcard-platform.flickr  {background:#FFE8E5;color:#EE402D}
-.gcard-platform.stories {background:#E5F0FF;color:#006EB5}
-.gcard-platform.blog    {background:#E8F5E9;color:#2E7D32}
-.gcard-platform.exposure{background:#FFF8E1;color:#F9A825}
 .gallery-nodata{
   display:none;padding:48px;text-align:center;
   color:var(--gray-dark);font-style:italic;font-size:13px;
@@ -252,7 +260,8 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
     <select id="fSection" onchange="currentView==='gallery'?renderGallery():render()">
       <option value="">All Offices</option>
       <option value="co">Country Offices</option>
-      <option value="regional">Regional &amp; Thematic</option>
+      <option value="bureau">Regional Bureaux</option>
+      <option value="thematic">Thematic &amp; Programme</option>
     </select>
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="#232E3D" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
@@ -428,29 +437,31 @@ const META = [
   {country:"Vietnam",                 type:"co",flickrUrl:"https://www.flickr.com/people/73471477@N07/",exposureUrl:"https://undpvietnam.exposure.co/",storiesUrl:"https://www.undp.org/viet-nam/stories",blogUrl:"https://www.undp.org/viet-nam/blog"},
   {country:"Zambia",                  type:"co",flickrUrl:"https://www.flickr.com/people/143320674@N04/",exposureUrl:"https://undpinzambia.exposure.co/",storiesUrl:"https://www.undp.org/zambia/stories",blogUrl:"https://www.undp.org/zambia/blog"},
   // Regional / Thematic
-  {country:"RBA (Africa)",                    type:"regional",flickrUrl:"https://www.flickr.com/people/201539903@N07/",exposureUrl:"",storiesUrl:"",blogUrl:""},
-  {country:"BMO Phase II UNDP Ukraine",       type:"regional",flickrUrl:"https://www.flickr.com/people/194152175@N08/",exposureUrl:"https://undpukraine.exposure.co/",storiesUrl:"",blogUrl:""},
-  {country:"Business and Human Rights",       type:"regional",flickrUrl:"https://www.flickr.com/people/197823823@N06/",exposureUrl:"",storiesUrl:"",blogUrl:""},
-  {country:"Climate",                         type:"regional",flickrUrl:"https://www.flickr.com/people/undpclimatechangeadaptation/",exposureUrl:"https://undp-climate.exposure.co/",storiesUrl:"",blogUrl:""},
-  {country:"Czech-UNDP Partnership for SDGs", type:"regional",flickrUrl:"https://www.flickr.com/people/188532807@N05/",exposureUrl:"",storiesUrl:"",blogUrl:""},
-  {country:"Eurasia",                         type:"regional",flickrUrl:"https://www.flickr.com/people/undpeurasia/",exposureUrl:"https://undpeurasia.exposure.co/",storiesUrl:"",blogUrl:""},
-  {country:"Europe and CIS",                  type:"regional",flickrUrl:"https://www.flickr.com/photos/undpeuropeandcis/",exposureUrl:"",storiesUrl:"",blogUrl:""},
-  {country:"HDRO Human Development Report",   type:"regional",flickrUrl:"https://www.flickr.com/people/undp_hdro/",exposureUrl:"",storiesUrl:"",blogUrl:""},
-  {country:"IEO (Evaluation Office)",         type:"regional",flickrUrl:"https://www.flickr.com/people/undpevaluation/",exposureUrl:"",storiesUrl:"",blogUrl:""},
-  {country:"Latin America & Caribbean",       type:"regional",flickrUrl:"https://www.flickr.com/people/undplac/",exposureUrl:"",storiesUrl:"https://www.undp.org/latin-america-caribbean/stories",blogUrl:"https://www.undp.org/latin-america-caribbean/blog"},
-  {country:"LHSP Lebanon Host Communities",   type:"regional",flickrUrl:"https://www.flickr.com/people/undp_lhsp/",exposureUrl:"",storiesUrl:"",blogUrl:""},
-  {country:"Nature",                          type:"regional",flickrUrl:"https://www.flickr.com/people/undp-ebd/",exposureUrl:"https://undp-nature.exposure.co/",storiesUrl:"",blogUrl:""},
-  {country:"Pacific Office in Fiji",          type:"regional",flickrUrl:"https://www.flickr.com/people/undppc/",exposureUrl:"https://pacificundp.exposure.co/",storiesUrl:"https://www.undp.org/pacific/stories",blogUrl:"https://www.undp.org/pacific/blog"},
-  {country:"Seoul Facility Centre",           type:"regional",flickrUrl:"https://www.flickr.com/photos/uspc/",exposureUrl:"",storiesUrl:"",blogUrl:""},
-  {country:"Small Grants Programme",          type:"regional",flickrUrl:"https://www.flickr.com/people/160133712@N07/",exposureUrl:"",storiesUrl:"",blogUrl:""},
-  {country:"Tokyo",                           type:"regional",flickrUrl:"https://www.flickr.com/photos/63970428@N08/",exposureUrl:"",storiesUrl:"",blogUrl:""},
-  {country:"UNDP Global",                     type:"regional",flickrUrl:"https://www.flickr.com/people/unitednationsdevelopmentprogramme/",exposureUrl:"https://undp.exposure.co/",storiesUrl:"",blogUrl:""},
+  {country:"Regional Bureau for Africa",             type:"bureau", flickrUrl:"https://www.flickr.com/people/201539903@N07/",  exposureUrl:"",storiesUrl:"https://www.undp.org/africa/stories",           blogUrl:"https://www.undp.org/africa/blogs"},
+  {country:"Regional Bureau for Arab States",          type:"bureau", flickrUrl:"https://www.flickr.com/people/undparabstats/",     exposureUrl:"",storiesUrl:"https://www.undp.org/arab-states/stories",      blogUrl:"https://www.undp.org/arab-states/blogs"},
+  {country:"Regional Bureau for Asia and the Pacific", type:"bureau", flickrUrl:"https://www.flickr.com/photos/undp-aprc/",          exposureUrl:"",storiesUrl:"https://www.undp.org/asia-pacific/stories",     blogUrl:"https://www.undp.org/asia-pacific/blogs"},
+  {country:"BMO Phase II UNDP Ukraine",       type:"thematic",flickrUrl:"https://www.flickr.com/people/194152175@N08/",exposureUrl:"https://undpukraine.exposure.co/",storiesUrl:"",blogUrl:""},
+  {country:"Business and Human Rights",       type:"thematic",flickrUrl:"https://www.flickr.com/people/197823823@N06/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Climate",                         type:"thematic",flickrUrl:"https://www.flickr.com/people/undpclimatechangeadaptation/",exposureUrl:"https://undp-climate.exposure.co/",storiesUrl:"",blogUrl:""},
+  {country:"Czech-UNDP Partnership for SDGs", type:"thematic",flickrUrl:"https://www.flickr.com/people/188532807@N05/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Eurasia",                         type:"thematic",flickrUrl:"https://www.flickr.com/people/undpeurasia/",exposureUrl:"https://undpeurasia.exposure.co/",storiesUrl:"",blogUrl:""},
+  {country:"Regional Bureau for Europe and Central Asia", type:"bureau", flickrUrl:"https://www.flickr.com/photos/undpeuropeandcis/",exposureUrl:"",storiesUrl:"https://www.undp.org/europe-central-asia/stories",blogUrl:"https://www.undp.org/europe-central-asia/blogs"},
+  {country:"HDRO Human Development Report",   type:"thematic",flickrUrl:"https://www.flickr.com/people/undp_hdro/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"IEO (Evaluation Office)",         type:"thematic",flickrUrl:"https://www.flickr.com/people/undpevaluation/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Latin America & Caribbean",       type:"bureau",  flickrUrl:"https://www.flickr.com/people/undplac/",exposureUrl:"https://undplac.exposure.co/categories/latin-america-and-the-caribbean",storiesUrl:"https://www.undp.org/latin-america-caribbean/stories",blogUrl:"https://www.undp.org/latin-america-caribbean/blog"},
+  {country:"LHSP Lebanon Host Communities",   type:"thematic",flickrUrl:"https://www.flickr.com/people/undp_lhsp/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Nature Hub",                      type:"thematic",flickrUrl:"https://www.flickr.com/people/undp-ebd/",exposureUrl:"https://undp-nature.exposure.co/",storiesUrl:"https://www.undp.org/nature/stories",blogUrl:"https://www.undp.org/nature/blogs"},
+  {country:"Pacific Office in Fiji",          type:"thematic",flickrUrl:"https://www.flickr.com/people/undppc/",exposureUrl:"https://pacificundp.exposure.co/",storiesUrl:"https://www.undp.org/pacific/stories",blogUrl:"https://www.undp.org/pacific/blog"},
+  {country:"Seoul Facility Centre",           type:"thematic",flickrUrl:"https://www.flickr.com/photos/uspc/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Small Grants Programme",          type:"thematic",flickrUrl:"https://www.flickr.com/people/160133712@N07/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Tokyo",                           type:"thematic",flickrUrl:"https://www.flickr.com/photos/63970428@N08/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"UNDP Global",                     type:"thematic",flickrUrl:"https://www.flickr.com/people/unitednationsdevelopmentprogramme/",exposureUrl:"https://undp.exposure.co/",storiesUrl:"",blogUrl:""},
 ];
 
 let DATA = [];
 let sortCol = 'country', sortDir = 1;
-const collapsed = {co: false, regional: false};
-const sectionSort = {co: 1, regional: 1}; // 1 = A→Z, -1 = Z→A
+const collapsed = {co: false, bureau: false, thematic: false};
+const sectionSort = {co: 1, bureau: 1, thematic: 1}; // 1 = A→Z, -1 = Z→A
 
 function fmt(iso) {
   if (!iso) return null;
@@ -506,10 +517,10 @@ function merge(meta, json) {
   return meta.map(m => {
     const d = map[m.country] || {};
     return { ...m,
-      flickr:   {url:m.flickrUrl,   date:d.flickr?.date||null,   latest_url:d.flickr?.latest_url||m.flickrUrl},
-      exposure: {url:m.exposureUrl, date:d.exposure?.date||null, latest_url:d.exposure?.latest_url||m.exposureUrl},
-      stories:  {url:m.storiesUrl,  date:d.stories?.date||null,  latest_url:d.stories?.latest_url||m.storiesUrl},
-      blog:     {url:m.blogUrl,     date:d.blog?.date||null,     latest_url:d.blog?.latest_url||m.blogUrl},
+      flickr:   {url:m.flickrUrl,   date:d.flickr?.date||null,   latest_url:d.flickr?.latest_url||m.flickrUrl,   title:d.flickr?.title||null},
+      exposure: {url:m.exposureUrl, date:d.exposure?.date||null, latest_url:d.exposure?.latest_url||m.exposureUrl, title:d.exposure?.title||null},
+      stories:  {url:m.storiesUrl,  date:d.stories?.date||null,  latest_url:d.stories?.latest_url||m.storiesUrl,  title:d.stories?.title||null},
+      blog:     {url:m.blogUrl,     date:d.blog?.date||null,     latest_url:d.blog?.latest_url||m.blogUrl,        title:d.blog?.title||null},
     };
   });
 }
@@ -541,7 +552,8 @@ function render() {
   // Split rows into sections and sort each independently by country name
   const sections = [
     { type: 'co',       items: rows.filter(r => r.type === 'co') },
-    { type: 'regional', items: rows.filter(r => r.type === 'regional') },
+    { type: 'bureau',   items: rows.filter(r => r.type === 'bureau') },
+    { type: 'thematic', items: rows.filter(r => r.type === 'thematic') },
   ].filter(s => s.items.length > 0);
 
   sections.forEach(s => {
@@ -556,9 +568,9 @@ function render() {
   sections.forEach(s => {
     if (!isFiltering) {
       const isCollapsed = collapsed[s.type];
-      const label = s.type === 'co'
-        ? 'Country Offices'
-        : 'Regional Bureaux, Thematic &amp; Programme Accounts';
+      const label = s.type === 'co' ? 'Country Offices'
+        : s.type === 'bureau' ? 'Regional Bureaux'
+        : 'Thematic &amp; Programme Accounts';
       const cls = s.type === 'co' ? 'co' : 'regional';
       const chevHtml = isCollapsed ? CHEV_CLOSE : CHEV_OPEN;
       const sd = sectionSort[s.type];
@@ -631,7 +643,7 @@ const FLAGS = {
   Turkmenistan:'🇹🇲',Uganda:'🇺🇬',Ukraine:'🇺🇦',Uruguay:'🇺🇾',
   Uzbekistan:'🇺🇿',Vietnam:'🇻🇳',Zambia:'🇿🇲',
   'Barbados and Eastern Caribbean':'🇧🇧',Bissau:'🇬🇼',
-  'Palestinian People (PAPP)':'🇵🇸',
+  'Palestinian People (PAPP)':'🇵🇸','Regional Bureau for Africa':'🌍','Regional Bureau for Arab States':'🌍','Regional Bureau for Asia and the Pacific':'🌏','Regional Bureau for Europe and Central Asia':'🌍','Latin America & Caribbean':'🌎','Nature Hub':'🌿',
 };
 
 const PLATFORM_LABELS = {flickr:'Flickr', stories:'Story', blog:'Blog', exposure:'Exposure'};
@@ -658,6 +670,7 @@ function buildGalleryCards(rows) {
           date: p.date || null,
           url: url,
           image_url: p.image_url || null,
+          title: p.title || null,
         });
       }
     });
@@ -711,9 +724,13 @@ function renderGallery() {
 
   cards.forEach(c => {
     const flag = FLAGS[c.country] || '🌐';
+    const PLACEHOLDER = `<div class="img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>`;
     const imgHtml = c.image_url
-      ? `<img src="${c.image_url}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=img-placeholder><svg viewBox=\'0 0 24 24\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/>\<line x1=\'3\' y1=\'9\' x2=\'21\' y2=\'9\'/>\<line x1=\'9\' y1=\'21\' x2=\'9\' y2=\'9\'/></svg></div>'">`
-      : `<div class="img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>`;
+      ? `<img src="${c.image_url}" alt="" loading="lazy" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend',${JSON.stringify(PLACEHOLDER)})">`
+      : PLACEHOLDER;
+
+    const EXT = `<svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+    const dateStr = fmtDateFull(c.date);
 
     const card = document.createElement('a');
     card.className = 'gcard';
@@ -724,11 +741,17 @@ function renderGallery() {
       <div class="gcard-img">${imgHtml}</div>
       <div class="gcard-body">
         <div class="gcard-meta">
-          <span class="gcard-flag">${flag}</span>
-          <span class="gcard-country">${c.country}</span>
-          <span class="gcard-date">${fmtDateFull(c.date)}</span>
+          <div class="gcard-meta-top">
+            <span class="gcard-flag">${flag}</span>
+            <span class="gcard-country">${c.country}</span>
+          </div>
+          ${dateStr ? `<span class="gcard-date">${dateStr}</span>` : ''}
         </div>
-        <span class="gcard-platform ${c.platform}">${PLATFORM_LABELS[c.platform]}</span>
+        <div class="gcard-title-row">
+          <span class="gcard-title">${c.title || PLATFORM_LABELS[c.platform]}</span>
+          <span class="gcard-ext">${EXT}</span>
+        </div>
+        <span class="gcard-platform">${PLATFORM_LABELS[c.platform]}</span>
       </div>`;
     wrap.appendChild(card);
   });
