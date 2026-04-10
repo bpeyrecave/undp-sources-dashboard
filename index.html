@@ -85,6 +85,19 @@ th .th-inner:hover{opacity:.8}
 .sort-btn.asc svg.up{fill:#fff}
 .sort-btn.desc svg.dn{fill:#fff}
 
+/* Chevron sort buttons for date columns */
+.az-btn{
+  background:none;border:none;cursor:pointer;padding:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.az-btn svg{
+  width:16px;height:16px;stroke:rgba(255,255,255,.35);fill:none;stroke-width:2.5;
+  transition:transform .2s, stroke .2s;
+}
+.az-btn.asc svg{ stroke:#fff; transform:rotate(0deg); }
+.az-btn.desc svg{ stroke:#fff; transform:rotate(180deg); }
+
 /* ── Section rows ── */
 tr.sec-row td{
   background:var(--gray-section);
@@ -103,17 +116,17 @@ tr.sec-row td{
 .sec-chevron.open{transform:rotate(0deg)}
 .sec-chevron.closed{transform:rotate(-90deg)}
 
-/* ── Section sort chevron ── */
-.sec-sort-chevron{
-  width:14px;height:14px;flex-shrink:0;
-  stroke:currentColor;fill:none;stroke-width:2.5;
-  margin-left:6px;cursor:pointer;opacity:.6;
-  transition:transform .2s, opacity .2s;
+/* ── Section sort button (A→Z icon) ── */
+.sec-sort-btn{
+  display:inline-flex;align-items:center;
+  margin-left:8px;cursor:pointer;opacity:.55;
+  transition:opacity .15s;flex-shrink:0;
+}
+.sec-sort-btn:hover{opacity:1}
+.sec-sort-icon{
+  width:18px;height:18px;color:currentColor;
   flex-shrink:0;
 }
-.sec-sort-chevron:hover{opacity:1}
-.sec-sort-chevron.asc{transform:rotate(0deg)}
-.sec-sort-chevron.desc{transform:rotate(180deg)}
 
 /* ── Data rows ── */
 td{
@@ -186,48 +199,36 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 <table>
   <thead>
     <tr>
-      <th style="width:200px">
-        <div class="th-inner" onclick="sort('country')">
-          Type of Content
-          <button class="sort-btn" id="sb-country">
-            <svg class="up" viewBox="0 0 10 6"><path d="M5 0L10 6H0z"/></svg>
-            <svg class="dn" viewBox="0 0 10 6"><path d="M5 6L0 0H10z"/></svg>
-          </button>
-        </div>
-      </th>
+      <th style="width:200px"></th>
       <th>
         <div class="th-inner" onclick="sort('stories_date')">
           Stories
-          <button class="sort-btn" id="sb-stories_date">
-            <svg class="up" viewBox="0 0 10 6"><path d="M5 0L10 6H0z"/></svg>
-            <svg class="dn" viewBox="0 0 10 6"><path d="M5 6L0 0H10z"/></svg>
+          <button class="sort-btn az-btn" id="sb-stories_date">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
         </div>
       </th>
       <th>
         <div class="th-inner" onclick="sort('blog_date')">
           Blogs
-          <button class="sort-btn" id="sb-blog_date">
-            <svg class="up" viewBox="0 0 10 6"><path d="M5 0L10 6H0z"/></svg>
-            <svg class="dn" viewBox="0 0 10 6"><path d="M5 6L0 0H10z"/></svg>
+          <button class="sort-btn az-btn" id="sb-blog_date">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
         </div>
       </th>
       <th>
         <div class="th-inner" onclick="sort('exposure_date')">
           Exposure
-          <button class="sort-btn" id="sb-exposure_date">
-            <svg class="up" viewBox="0 0 10 6"><path d="M5 0L10 6H0z"/></svg>
-            <svg class="dn" viewBox="0 0 10 6"><path d="M5 6L0 0H10z"/></svg>
+          <button class="sort-btn az-btn" id="sb-exposure_date">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
         </div>
       </th>
       <th>
         <div class="th-inner" onclick="sort('flickr_date')">
           Flickr
-          <button class="sort-btn" id="sb-flickr_date">
-            <svg class="up" viewBox="0 0 10 6"><path d="M5 0L10 6H0z"/></svg>
-            <svg class="dn" viewBox="0 0 10 6"><path d="M5 6L0 0H10z"/></svg>
+          <button class="sort-btn az-btn" id="sb-flickr_date">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
         </div>
       </th>
@@ -464,7 +465,14 @@ function render() {
       const cls = s.type === 'co' ? 'co' : 'regional';
       const chevHtml = isCollapsed ? CHEV_CLOSE : CHEV_OPEN;
       const sd = sectionSort[s.type];
-      const sortChev = `<svg class="sec-sort-chevron ${sd === 1 ? 'asc' : 'desc'}" viewBox="0 0 24 24" onclick="toggleSectionSort('${s.type}', event)" title="${sd === 1 ? 'A→Z — click for Z→A' : 'Z→A — click for A→Z'}"><polyline points="6 9 12 15 18 9"/></svg>`;
+      const azLabel = sd === 1 ? 'A→Z' : 'Z→A';
+      const sortChev = `<span class="sec-sort-btn" onclick="toggleSectionSort('${s.type}', event)" title="${sd === 1 ? 'A→Z — click for Z→A' : 'Z→A — click for A→Z'}">`
+        + `<svg class="sec-sort-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">`
+        + `<text x="1" y="8" font-size="6" font-weight="700" font-family="Arial,sans-serif" fill="currentColor">A</text>`
+        + `<text x="1" y="16" font-size="6" font-weight="700" font-family="Arial,sans-serif" fill="currentColor">Z</text>`
+        + `<polyline points="12,2 12,16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`
+        + `<polyline points="${sd === 1 ? '8,12 12,16 16,12' : '8,6 12,2 16,6'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`
+        + `</svg></span>`;
       html += `<tr class="sec-row">
         <td colspan="5">
           <div class="sec-inner ${cls}" onclick="toggleSection('${s.type}')">
