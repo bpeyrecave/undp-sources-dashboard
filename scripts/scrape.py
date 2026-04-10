@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
 
 SESSION = requests.Session()
 SESSION.headers.update({
@@ -16,6 +17,7 @@ SESSION.headers.update({
 })
 
 TIMEOUT = 15
+PLAYWRIGHT_TIMEOUT = 20_000  # ms
 
 # ─── Source definitions ──────────────────────────────────────────────────────
 # Each entry: [country, flickr_url, flickr_nsid, exposure_url, stories_url, blog_url]
@@ -205,30 +207,75 @@ def exposure_latest(base_url):
     return None, base_url
 
 
+# ─── Shared Playwright browser (lazy-initialised) ────────────────────────────
+_pw_instance = None
+_pw_browser = None
+
+def _get_browser():
+    global _pw_instance, _pw_browser
+    if _pw_browser is None:
+        _pw_instance = sync_playwright().start()
+        _pw_browser = _pw_instance.chromium.launch(headless=True)
+    return _pw_browser
+
+
+def close_browser():
+    global _pw_instance, _pw_browser
+    if _pw_browser:
+        _pw_browser.close()
+        _pw_browser = None
+    if _pw_instance:
+        _pw_instance.stop()
+        _pw_instance = None
+
+
 def undp_page_latest(page_url):
     """
-    Scrape an undp.org /stories or /blog listing page.
-    Dates appear either in <time> tags or in image src paths like
-    /public/YYYY-MM/ or /files/YYYY-MM/.
-    Returns (iso_date, article_url) or (None, None).
+    Scrape an undp.org /stories or /blog listing page using a headless browser
+    so that the JS-rendered article cards are fully loaded before we parse.
+    Returns (iso_date, article_url) or (None, page_url).
     """
-    r = get(page_url)
-    if not r:
-        return None, None
-    soup = BeautifulSoup(r.text, "html.parser")
+    try:
+        browser = _get_browser()
+        page = browser.new_page()
+        page.set_extra_http_headers({"User-Agent": "Mozilla/5.0 (compatible; UNDPSourcesBot/1.0)"})
+        page.goto(page_url, timeout=PLAYWRIGHT_TIMEOUT, wait_until="domcontentloaded")
 
-    # Strategy 1: <time datetime="YYYY-MM-DD">
+        # Wait for article cards to appear (they carry <time> or date-stamped images)
+        try:
+            page.wait_for_selector("time[datetime], article, .card", timeout=10_000)
+        except Exception:
+            pass  # proceed with whatever is loaded
+
+        html = page.content()
+        page.close()
+    except Exception as e:
+        print(f"  WARN playwright {page_url}: {e}", file=sys.stderr)
+        return None, page_url
+
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Strategy 1: <time datetime="YYYY-MM-DD"> — pick the most recent
+    time_dates = []
     for t in soup.find_all("time", attrs={"datetime": True}):
         raw = t["datetime"]
         m = re.match(r"(\d{4}-\d{2}-\d{2})", raw)
         if m:
-            parent_a = t.find_parent("a") or soup.find("a", href=re.compile(r"^/"))
+            # Try to find the closest article link
+            parent_a = t.find_parent("a")
+            if not parent_a:
+                parent = t.find_parent(["article", "li", "div"])
+                parent_a = parent.find("a", href=True) if parent else None
             link = ("https://www.undp.org" + parent_a["href"]
                     if parent_a and parent_a.get("href", "").startswith("/")
                     else page_url)
-            return m.group(1), link
+            time_dates.append((m.group(1), link))
 
-    # Strategy 2: image src date path
+    if time_dates:
+        time_dates.sort(key=lambda x: x[0], reverse=True)
+        return time_dates[0]
+
+    # Strategy 2: date embedded in image src paths  /public/YYYY-MM/ or /files/YYYY-MM/
     dates = []
     article_links = []
     for a in soup.find_all("a", href=True):
@@ -301,6 +348,7 @@ def scrape_all():
     with open("data.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
+    close_browser()
     print(f"\nDone — wrote data.json with {len(results)} offices.")
 
 
