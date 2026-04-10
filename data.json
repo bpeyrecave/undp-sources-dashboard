@@ -1,11 +1,11 @@
 {
-  "updated": "seed-data-run-scraper-to-update",
+  "updated": "2026-04-10T03:03:54Z",
   "offices": [
     {
       "country": "Afghanistan",
       "flickr": {
         "url": "https://www.flickr.com/people/undpafghanistan/",
-        "date": "2024-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpafghanistan/"
       },
       "exposure": {
@@ -28,36 +28,36 @@
       "country": "Africa",
       "flickr": {
         "url": "https://www.flickr.com/people/201539903@N07/",
-        "date": "2024-10-01",
-        "latest_url": "https://www.flickr.com/people/201539903@N07/"
+        "date": "2024-10-03",
+        "latest_url": "https://www.flickr.com/photos/201539903@N07/54039244552/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Barbados and Eastern Caribbean",
       "flickr": {
         "url": "https://www.flickr.com/people/undpbarbadosec/",
-        "date": "2025-03-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpbarbadosec/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/barbados/stories",
@@ -74,13 +74,13 @@
       "country": "Belize",
       "flickr": {
         "url": "https://www.flickr.com/people/undpbelize/",
-        "date": "2024-12-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpbelize/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/belize/stories",
@@ -97,8 +97,8 @@
       "country": "BMO Phase II UNDP Ukraine",
       "flickr": {
         "url": "https://www.flickr.com/people/194152175@N08/",
-        "date": "2024-10-01",
-        "latest_url": "https://www.flickr.com/people/194152175@N08/"
+        "date": "2024-10-14",
+        "latest_url": "https://www.flickr.com/photos/194152175@N08/54067063838/"
       },
       "exposure": {
         "url": "https://undpukraine.exposure.co/",
@@ -108,25 +108,25 @@
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Brasil",
       "flickr": {
         "url": "https://www.flickr.com/people/195696709@N04/",
-        "date": "2024-10-01",
-        "latest_url": "https://www.flickr.com/people/195696709@N04/"
+        "date": "2025-12-10",
+        "latest_url": "https://www.flickr.com/photos/195696709@N04/54975219067/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/brazil/stories",
@@ -143,13 +143,13 @@
       "country": "Burkina Faso",
       "flickr": {
         "url": "https://www.flickr.com/people/196676637@N05/",
-        "date": "2025-01-01",
-        "latest_url": "https://www.flickr.com/people/196676637@N05/"
+        "date": "2026-04-02",
+        "latest_url": "https://www.flickr.com/photos/196676637@N05/55183466918/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/burkina-faso/stories",
@@ -166,7 +166,7 @@
       "country": "Climate",
       "flickr": {
         "url": "https://www.flickr.com/people/undpclimatechangeadaptation/",
-        "date": "2025-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpclimatechangeadaptation/"
       },
       "exposure": {
@@ -177,20 +177,20 @@
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Colombia",
       "flickr": {
         "url": "https://www.flickr.com/people/143329027@N03/",
-        "date": "2025-04-01",
-        "latest_url": "https://www.flickr.com/people/143329027@N03/"
+        "date": "2026-03-31",
+        "latest_url": "https://www.flickr.com/photos/143329027@N03/55180117985/"
       },
       "exposure": {
         "url": "https://pnudcolombia.exposure.co/",
@@ -212,36 +212,36 @@
       "country": "Czech-UNDP Partnership for SDGs",
       "flickr": {
         "url": "https://www.flickr.com/people/188532807@N05/",
-        "date": "2025-02-01",
-        "latest_url": "https://www.flickr.com/people/188532807@N05/"
+        "date": "2026-03-25",
+        "latest_url": "https://www.flickr.com/photos/188532807@N05/55166752637/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Ecuador",
       "flickr": {
         "url": "https://www.flickr.com/people/pnudecuador/",
-        "date": "2025-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/pnudecuador/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/ecuador/stories",
@@ -258,13 +258,13 @@
       "country": "Egypt",
       "flickr": {
         "url": "https://www.flickr.com/people/undpegypt/",
-        "date": "2025-03-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpegypt/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/egypt/stories",
@@ -281,7 +281,7 @@
       "country": "Eurasia",
       "flickr": {
         "url": "https://www.flickr.com/people/undpeurasia/",
-        "date": "2025-02-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpeurasia/"
       },
       "exposure": {
@@ -292,25 +292,25 @@
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Guatemala",
       "flickr": {
         "url": "https://www.flickr.com/people/92899514@N04/",
-        "date": "2025-04-01",
-        "latest_url": "https://www.flickr.com/people/92899514@N04/"
+        "date": "2026-03-30",
+        "latest_url": "https://www.flickr.com/photos/92899514@N04/55178014348/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/guatemala/stories",
@@ -327,59 +327,59 @@
       "country": "HDRO Human Development Report",
       "flickr": {
         "url": "https://www.flickr.com/people/undp_hdro/",
-        "date": "2025-03-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undp_hdro/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "IEO (independent Evaluation Office)",
       "flickr": {
         "url": "https://www.flickr.com/people/undpevaluation/",
-        "date": "2024-11-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpevaluation/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Irak",
       "flickr": {
         "url": "https://www.flickr.com/people/undpiraq/",
-        "date": "2025-03-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpiraq/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/iraq/stories",
@@ -396,7 +396,7 @@
       "country": "Kosovo",
       "flickr": {
         "url": "https://www.flickr.com/people/undpkosovo/",
-        "date": "2025-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpkosovo/"
       },
       "exposure": {
@@ -419,13 +419,13 @@
       "country": "Kyrgyz Republic",
       "flickr": {
         "url": "https://www.flickr.com/people/undpkg/",
-        "date": "2025-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpkg/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/kyrgyzstan/stories",
@@ -442,13 +442,13 @@
       "country": "Latin America and the Caribbean",
       "flickr": {
         "url": "https://www.flickr.com/people/undplac/",
-        "date": "2025-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undplac/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/latin-america-caribbean/stories",
@@ -465,13 +465,13 @@
       "country": "Lebanon",
       "flickr": {
         "url": "https://www.flickr.com/people/undplebanon/",
-        "date": "2025-03-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undplebanon/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/lebanon/stories",
@@ -488,36 +488,36 @@
       "country": "LHSP Lebanon Host Communities",
       "flickr": {
         "url": "https://www.flickr.com/people/undp_lhsp/",
-        "date": "2025-03-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undp_lhsp/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Mauritius",
       "flickr": {
         "url": "https://www.flickr.com/people/183529514@N02/",
-        "date": "2024-12-01",
-        "latest_url": "https://www.flickr.com/people/183529514@N02/"
+        "date": "2026-01-12",
+        "latest_url": "https://www.flickr.com/photos/183529514@N02/55037484005/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/mauritius/stories",
@@ -534,7 +534,7 @@
       "country": "Moldova",
       "flickr": {
         "url": "https://www.flickr.com/people/undpmoldova/",
-        "date": "2025-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpmoldova/"
       },
       "exposure": {
@@ -557,13 +557,13 @@
       "country": "Mongolia",
       "flickr": {
         "url": "https://www.flickr.com/people/142250687@N05/",
-        "date": "2024-12-01",
-        "latest_url": "https://www.flickr.com/people/142250687@N05/"
+        "date": "2024-12-12",
+        "latest_url": "https://www.flickr.com/photos/142250687@N05/54199401386/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/mongolia/stories",
@@ -580,8 +580,8 @@
       "country": "Montenegro",
       "flickr": {
         "url": "https://www.flickr.com/people/106991185@N05/",
-        "date": "2025-04-01",
-        "latest_url": "https://www.flickr.com/people/106991185@N05/"
+        "date": "2026-03-24",
+        "latest_url": "https://www.flickr.com/photos/106991185@N05/55166516949/"
       },
       "exposure": {
         "url": "https://undpmontenegro.exposure.co/",
@@ -603,7 +603,7 @@
       "country": "Nature",
       "flickr": {
         "url": "https://www.flickr.com/people/undp-ebd/",
-        "date": "2025-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undp-ebd/"
       },
       "exposure": {
@@ -614,19 +614,19 @@
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Pacific Office in Fiji",
       "flickr": {
         "url": "https://www.flickr.com/people/undppc/",
-        "date": "2025-03-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undppc/"
       },
       "exposure": {
@@ -649,7 +649,7 @@
       "country": "Pakistan",
       "flickr": {
         "url": "https://www.flickr.com/people/undppakistan/",
-        "date": "2025-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undppakistan/"
       },
       "exposure": {
@@ -669,16 +669,16 @@
       }
     },
     {
-      "country": "Panam\u00e1",
+      "country": "Panamá",
       "flickr": {
         "url": "https://www.flickr.com/people/155976344@N02/",
-        "date": "2025-03-01",
-        "latest_url": "https://www.flickr.com/people/155976344@N02/"
+        "date": "2026-03-16",
+        "latest_url": "https://www.flickr.com/photos/155976344@N02/55151505935/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/panama/stories",
@@ -695,13 +695,13 @@
       "country": "Papua New Guinea",
       "flickr": {
         "url": "https://www.flickr.com/people/148279672@N05/",
-        "date": "2024-12-01",
-        "latest_url": "https://www.flickr.com/people/148279672@N05/"
+        "date": "2024-12-16",
+        "latest_url": "https://www.flickr.com/photos/148279672@N05/54207314966/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/papua-new-guinea/stories",
@@ -718,7 +718,7 @@
       "country": "Rwanda",
       "flickr": {
         "url": "https://www.flickr.com/people/undp_rwanda/",
-        "date": "2025-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undp_rwanda/"
       },
       "exposure": {
@@ -741,13 +741,13 @@
       "country": "Senegal",
       "flickr": {
         "url": "https://www.flickr.com/people/194545654@N04/",
-        "date": "2025-03-01",
-        "latest_url": "https://www.flickr.com/people/194545654@N04/"
+        "date": "2025-08-06",
+        "latest_url": "https://www.flickr.com/photos/194545654@N04/54703447100/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/senegal/stories",
@@ -764,30 +764,30 @@
       "country": "Small Grants Programme",
       "flickr": {
         "url": "https://www.flickr.com/people/160133712@N07/",
-        "date": "2025-03-01",
-        "latest_url": "https://www.flickr.com/people/160133712@N07/"
+        "date": "2026-04-09",
+        "latest_url": "https://www.flickr.com/photos/160133712@N07/55196221413/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Sri Lanka",
       "flickr": {
         "url": "https://www.flickr.com/people/undpsrilanka/",
-        "date": "2025-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpsrilanka/"
       },
       "exposure": {
@@ -810,13 +810,13 @@
       "country": "Syria",
       "flickr": {
         "url": "https://www.flickr.com/people/undpsyria/",
-        "date": "2025-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpsyria/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/syria/stories",
@@ -833,8 +833,8 @@
       "country": "Thailand",
       "flickr": {
         "url": "https://www.flickr.com/people/122929707@N08/",
-        "date": "2025-03-01",
-        "latest_url": "https://www.flickr.com/people/122929707@N08/"
+        "date": "2025-09-22",
+        "latest_url": "https://www.flickr.com/photos/122929707@N08/54803829078/"
       },
       "exposure": {
         "url": "https://undpthailand.exposure.co/",
@@ -856,36 +856,36 @@
       "country": "Tokyo",
       "flickr": {
         "url": "https://www.flickr.com/photos/63970428@N08/",
-        "date": "2024-12-01",
-        "latest_url": "https://www.flickr.com/photos/63970428@N08/"
+        "date": "2024-12-23",
+        "latest_url": "https://www.flickr.com/photos/63970428@N08/54222252574/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
-      "country": "Turkmenistan",
+      "country": "Turkmenistan (active)",
       "flickr": {
         "url": "https://www.flickr.com/people/193591905@N07/",
-        "date": "2025-04-01",
-        "latest_url": "https://www.flickr.com/people/193591905@N07/"
+        "date": "2025-12-18",
+        "latest_url": "https://www.flickr.com/photos/193591905@N07/54991612953/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/turkmenistan/stories",
@@ -902,7 +902,7 @@
       "country": "Ukraine",
       "flickr": {
         "url": "https://www.flickr.com/people/undpukraine/",
-        "date": "2025-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpukraine/"
       },
       "exposure": {
@@ -925,13 +925,13 @@
       "country": "Uzbekistan",
       "flickr": {
         "url": "https://www.flickr.com/people/90476166@N07/",
-        "date": "2025-04-01",
-        "latest_url": "https://www.flickr.com/people/90476166@N07/"
+        "date": "2026-04-08",
+        "latest_url": "https://www.flickr.com/photos/90476166@N07/55195370335/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/uzbekistan/stories",
@@ -948,13 +948,13 @@
       "country": "Albania",
       "flickr": {
         "url": "https://www.flickr.com/people/124761789@N08/",
-        "date": "2018-01-01",
-        "latest_url": "https://www.flickr.com/people/124761789@N08/"
+        "date": "2018-10-02",
+        "latest_url": "https://www.flickr.com/photos/124761789@N08/45002226272/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/albania/stories",
@@ -971,13 +971,13 @@
       "country": "Argentina",
       "flickr": {
         "url": "https://www.flickr.com/photos/131208323@N07/",
-        "date": "2018-01-01",
-        "latest_url": "https://www.flickr.com/photos/131208323@N07/"
+        "date": "2018-11-20",
+        "latest_url": "https://www.flickr.com/photos/131208323@N07/31033383347/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/argentina/stories",
@@ -994,13 +994,13 @@
       "country": "Azerbaijan",
       "flickr": {
         "url": "https://www.flickr.com/people/undp_azerbaijan/",
-        "date": "2019-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undp_azerbaijan/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/azerbaijan/stories",
@@ -1017,13 +1017,13 @@
       "country": "Bangladesh",
       "flickr": {
         "url": "https://www.flickr.com/people/98606405@N05/",
-        "date": "2017-12-01",
-        "latest_url": "https://www.flickr.com/people/98606405@N05/"
+        "date": "2017-12-07",
+        "latest_url": "https://www.flickr.com/photos/98606405@N05/27109103279/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/bangladesh/stories",
@@ -1040,13 +1040,13 @@
       "country": "Belarus",
       "flickr": {
         "url": "https://www.flickr.com/people/99592520@N04/",
-        "date": "2013-01-01",
-        "latest_url": "https://www.flickr.com/people/99592520@N04/"
+        "date": "2013-07-31",
+        "latest_url": "https://www.flickr.com/photos/99592520@N04/9408004446/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/belarus/stories",
@@ -1063,13 +1063,13 @@
       "country": "Bissau",
       "flickr": {
         "url": "https://www.flickr.com/people/undpbissau/",
-        "date": "2015-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpbissau/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/guinea-bissau/stories",
@@ -1086,13 +1086,13 @@
       "country": "Bolivia",
       "flickr": {
         "url": "https://www.flickr.com/people/152771673@N06/",
-        "date": "2018-01-01",
-        "latest_url": "https://www.flickr.com/people/152771673@N06/"
+        "date": "2018-07-12",
+        "latest_url": "https://www.flickr.com/photos/152771673@N06/28492687847/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/bolivia/stories",
@@ -1109,13 +1109,13 @@
       "country": "Bosnia and Herzegovina",
       "flickr": {
         "url": "https://www.flickr.com/people/undp_bosnia-herzegovina/",
-        "date": "2023-05-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undp_bosnia-herzegovina/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/bosnia-herzegovina/stories",
@@ -1132,13 +1132,13 @@
       "country": "Burundi",
       "flickr": {
         "url": "https://www.flickr.com/people/66132733@N03/",
-        "date": "2018-01-01",
-        "latest_url": "https://www.flickr.com/people/66132733@N03/"
+        "date": "2018-04-21",
+        "latest_url": "https://www.flickr.com/photos/66132733@N03/39790465510/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/burundi/stories",
@@ -1155,36 +1155,36 @@
       "country": "Business and Human Rights",
       "flickr": {
         "url": "https://www.flickr.com/people/197823823@N06/",
-        "date": "2024-10-01",
-        "latest_url": "https://www.flickr.com/people/197823823@N06/"
+        "date": "2025-11-04",
+        "latest_url": "https://www.flickr.com/photos/197823823@N06/54901402930/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Cambodia",
       "flickr": {
         "url": "https://www.flickr.com/people/undpcambodia/",
-        "date": "2025-02-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpcambodia/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/cambodia/stories",
@@ -1201,13 +1201,13 @@
       "country": "Chile",
       "flickr": {
         "url": "https://www.flickr.com/people/pnud_chile/",
-        "date": "2017-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/pnud_chile/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/chile/stories",
@@ -1224,13 +1224,13 @@
       "country": "China",
       "flickr": {
         "url": "https://www.flickr.com/people/undpchina/",
-        "date": "2011-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpchina/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/china/stories",
@@ -1247,13 +1247,13 @@
       "country": "Costa Rica",
       "flickr": {
         "url": "https://www.flickr.com/people/183280342@N05/",
-        "date": "2019-01-01",
-        "latest_url": "https://www.flickr.com/people/183280342@N05/"
+        "date": "2019-10-17",
+        "latest_url": "https://www.flickr.com/photos/183280342@N05/48913823128/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/costa-rica/stories",
@@ -1270,36 +1270,36 @@
       "country": "Cyprus",
       "flickr": {
         "url": "https://www.flickr.com/people/undp-pff/",
-        "date": "2021-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undp-pff/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "El Salvador",
       "flickr": {
         "url": "https://www.flickr.com/people/pnud_el_salvador/",
-        "date": "2017-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/pnud_el_salvador/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/el-salvador/stories",
@@ -1316,13 +1316,13 @@
       "country": "Eritrea",
       "flickr": {
         "url": "https://www.flickr.com/photos/138144707@N08/",
-        "date": "2018-01-01",
-        "latest_url": "https://www.flickr.com/photos/138144707@N08/"
+        "date": "2018-09-06",
+        "latest_url": "https://www.flickr.com/photos/138144707@N08/43598810125/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/eritrea/stories",
@@ -1339,13 +1339,13 @@
       "country": "Ethiopia",
       "flickr": {
         "url": "https://www.flickr.com/people/undpethiopia/",
-        "date": "2023-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpethiopia/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/ethiopia/stories",
@@ -1362,36 +1362,36 @@
       "country": "Europe and Cis",
       "flickr": {
         "url": "https://www.flickr.com/photos/undpeuropeandcis/",
-        "date": "2015-02-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/photos/undpeuropeandcis/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Ghana",
       "flickr": {
         "url": "https://www.flickr.com/people/42913191@N02/",
-        "date": "2017-07-01",
-        "latest_url": "https://www.flickr.com/people/42913191@N02/"
+        "date": "2017-07-20",
+        "latest_url": "https://www.flickr.com/photos/42913191@N02/35237967173/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/ghana/stories",
@@ -1408,13 +1408,13 @@
       "country": "Honduras",
       "flickr": {
         "url": "https://www.flickr.com/photos/pnudhn/",
-        "date": "2019-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/photos/pnudhn/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/honduras/stories",
@@ -1431,7 +1431,7 @@
       "country": "India",
       "flickr": {
         "url": "https://www.flickr.com/photos/undp-india/albums/",
-        "date": "2018-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/photos/undp-india/albums/"
       },
       "exposure": {
@@ -1454,8 +1454,8 @@
       "country": "Indonesia",
       "flickr": {
         "url": "https://www.flickr.com/photos/93491749@N08/",
-        "date": "2013-01-01",
-        "latest_url": "https://www.flickr.com/photos/93491749@N08/"
+        "date": "2013-02-21",
+        "latest_url": "https://www.flickr.com/photos/93491749@N08/8493418375/"
       },
       "exposure": {
         "url": "https://undpid.exposure.co/",
@@ -1477,7 +1477,7 @@
       "country": "Jamaica",
       "flickr": {
         "url": "https://www.flickr.com/people/undpjamaica/",
-        "date": "2017-09-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpjamaica/"
       },
       "exposure": {
@@ -1500,7 +1500,7 @@
       "country": "Kenya",
       "flickr": {
         "url": "https://www.flickr.com/people/undpkenya/",
-        "date": "2021-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpkenya/"
       },
       "exposure": {
@@ -1523,13 +1523,13 @@
       "country": "Kuwait",
       "flickr": {
         "url": "https://www.flickr.com/photos/kwundp/",
-        "date": "2019-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/photos/kwundp/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/kuwait/stories",
@@ -1546,13 +1546,13 @@
       "country": "Liberia",
       "flickr": {
         "url": "https://www.flickr.com/photos/132967828@N08/",
-        "date": "2018-01-01",
-        "latest_url": "https://www.flickr.com/photos/132967828@N08/"
+        "date": "2018-12-19",
+        "latest_url": "https://www.flickr.com/photos/132967828@N08/31439695537/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/liberia/stories",
@@ -1569,13 +1569,13 @@
       "country": "Malaysia",
       "flickr": {
         "url": "https://www.flickr.com/people/myundp/",
-        "date": "2020-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/myundp/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/malaysia/stories",
@@ -1592,13 +1592,13 @@
       "country": "Maldives",
       "flickr": {
         "url": "https://www.flickr.com/people/undpmaldives/",
-        "date": "2013-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpmaldives/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/maldives/stories",
@@ -1615,13 +1615,13 @@
       "country": "Mali",
       "flickr": {
         "url": "https://www.flickr.com/people/132226887@N03/",
-        "date": "2016-01-01",
-        "latest_url": "https://www.flickr.com/people/132226887@N03/"
+        "date": "2016-02-09",
+        "latest_url": "https://www.flickr.com/photos/132226887@N03/24623501520/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/mali/stories",
@@ -1638,13 +1638,13 @@
       "country": "Maroc",
       "flickr": {
         "url": "https://www.flickr.com/people/120267337@N06/",
-        "date": "2015-01-01",
-        "latest_url": "https://www.flickr.com/people/120267337@N06/"
+        "date": "2015-11-09",
+        "latest_url": "https://www.flickr.com/photos/120267337@N06/22477755337/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/morocco/stories",
@@ -1658,16 +1658,16 @@
       }
     },
     {
-      "country": "M\u00e9xico",
+      "country": "México",
       "flickr": {
         "url": "https://www.flickr.com/photos/pnudmx/",
-        "date": "2022-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/photos/pnudmx/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/mexico/stories",
@@ -1684,7 +1684,7 @@
       "country": "Nepal",
       "flickr": {
         "url": "https://www.flickr.com/people/undpnepal/",
-        "date": "2021-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpnepal/"
       },
       "exposure": {
@@ -1707,13 +1707,13 @@
       "country": "Niger",
       "flickr": {
         "url": "https://www.flickr.com/people/pnudniger/",
-        "date": "2019-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/pnudniger/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/niger/stories",
@@ -1727,16 +1727,16 @@
       }
     },
     {
-      "country": "Per\u00fa",
+      "country": "Perú",
       "flickr": {
         "url": "https://www.flickr.com/people/pnudperu/",
-        "date": "2017-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/pnudperu/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/peru/stories",
@@ -1753,13 +1753,13 @@
       "country": "Philippines",
       "flickr": {
         "url": "https://www.flickr.com/people/undpph/",
-        "date": "2018-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpph/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/philippines/stories",
@@ -1776,13 +1776,13 @@
       "country": "Programme of Assistance to the Palestinian People",
       "flickr": {
         "url": "https://www.flickr.com/people/undp-palestinian/",
-        "date": "2023-06-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undp-palestinian/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/papp/stories",
@@ -1799,13 +1799,13 @@
       "country": "RDC",
       "flickr": {
         "url": "https://www.flickr.com/people/pnudrdc/",
-        "date": "2018-09-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/pnudrdc/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/democratic-republic-congo/stories",
@@ -1822,13 +1822,13 @@
       "country": "Republica Dominicana",
       "flickr": {
         "url": "https://www.flickr.com/people/pnudrd/",
-        "date": "2022-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/pnudrd/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/dominican-republic/stories",
@@ -1845,36 +1845,36 @@
       "country": "Russia",
       "flickr": {
         "url": "https://www.flickr.com/people/98900690@N05/",
-        "date": "2015-01-01",
-        "latest_url": "https://www.flickr.com/people/98900690@N05/"
+        "date": "2015-06-02",
+        "latest_url": "https://www.flickr.com/photos/98900690@N05/18379318632/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Samoa",
       "flickr": {
         "url": "https://www.flickr.com/people/61881570@N05/",
-        "date": "2018-01-01",
-        "latest_url": "https://www.flickr.com/people/61881570@N05/"
+        "date": "2018-11-08",
+        "latest_url": "https://www.flickr.com/photos/61881570@N05/45050123134/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/samoa/stories",
@@ -1891,36 +1891,36 @@
       "country": "Seoul Facility Centre",
       "flickr": {
         "url": "https://www.flickr.com/photos/uspc/",
-        "date": "2019-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/photos/uspc/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Serbia",
       "flickr": {
         "url": "https://www.flickr.com/photos/undp_serbia/",
-        "date": "2016-11-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/photos/undp_serbia/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/serbia/stories",
@@ -1937,13 +1937,13 @@
       "country": "Solomon Islands",
       "flickr": {
         "url": "https://www.flickr.com/people/193805107@N08/",
-        "date": "2023-03-01",
-        "latest_url": "https://www.flickr.com/people/193805107@N08/"
+        "date": "2023-03-24",
+        "latest_url": "https://www.flickr.com/photos/193805107@N08/52767568728/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/solomon-islands/stories",
@@ -1960,7 +1960,7 @@
       "country": "Somalia",
       "flickr": {
         "url": "https://www.flickr.com/people/undpsomalia/",
-        "date": "2023-04-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpsomalia/"
       },
       "exposure": {
@@ -1983,13 +1983,13 @@
       "country": "South Sudan",
       "flickr": {
         "url": "https://www.flickr.com/people/undpsouthsudan/",
-        "date": "2019-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpsouthsudan/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/south-sudan/stories",
@@ -2006,13 +2006,13 @@
       "country": "Sudan",
       "flickr": {
         "url": "https://www.flickr.com/people/undpsudan/",
-        "date": "2015-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/undpsudan/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/sudan/stories",
@@ -2029,13 +2029,13 @@
       "country": "Tchad",
       "flickr": {
         "url": "https://www.flickr.com/people/199227871@N04/",
-        "date": "2023-11-01",
-        "latest_url": "https://www.flickr.com/people/199227871@N04/"
+        "date": "2023-11-09",
+        "latest_url": "https://www.flickr.com/photos/199227871@N04/53319477692/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/chad/stories",
@@ -2052,13 +2052,13 @@
       "country": "TimorLeste",
       "flickr": {
         "url": "https://www.flickr.com/people/155674736@N07/",
-        "date": "2024-02-01",
-        "latest_url": "https://www.flickr.com/people/155674736@N07/"
+        "date": "2024-02-06",
+        "latest_url": "https://www.flickr.com/photos/155674736@N07/53512317419/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/timor-leste/stories",
@@ -2075,13 +2075,13 @@
       "country": "Togo",
       "flickr": {
         "url": "https://www.flickr.com/people/pnudtogo/",
-        "date": "2022-01-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/pnudtogo/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/togo/stories",
@@ -2098,13 +2098,13 @@
       "country": "Tunisia",
       "flickr": {
         "url": "https://www.flickr.com/people/128649079@N08/",
-        "date": "2015-04-01",
-        "latest_url": "https://www.flickr.com/people/128649079@N08/"
+        "date": "2015-04-07",
+        "latest_url": "https://www.flickr.com/photos/128649079@N08/16443824004/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/tunisia/stories",
@@ -2121,13 +2121,13 @@
       "country": "Uganda",
       "flickr": {
         "url": "https://www.flickr.com/photos/undpuganda/",
-        "date": "2018-08-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/photos/undpuganda/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/uganda/stories",
@@ -2144,7 +2144,7 @@
       "country": "United Nations Development Programme",
       "flickr": {
         "url": "https://www.flickr.com/people/unitednationsdevelopmentprogramme/",
-        "date": "2022-09-01",
+        "date": null,
         "latest_url": "https://www.flickr.com/people/unitednationsdevelopmentprogramme/"
       },
       "exposure": {
@@ -2155,25 +2155,25 @@
       "stories": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "blog": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       }
     },
     {
       "country": "Uruguay",
       "flickr": {
         "url": "https://www.flickr.com/people/132265388@N07/",
-        "date": "2022-01-01",
-        "latest_url": "https://www.flickr.com/people/132265388@N07/"
+        "date": "2022-12-01",
+        "latest_url": "https://www.flickr.com/photos/132265388@N07/52534978367/"
       },
       "exposure": {
         "url": "",
         "date": null,
-        "latest_url": ""
+        "latest_url": null
       },
       "stories": {
         "url": "https://www.undp.org/uruguay/stories",
@@ -2190,8 +2190,8 @@
       "country": "Vietnam",
       "flickr": {
         "url": "https://www.flickr.com/people/73471477@N07/",
-        "date": "2023-04-01",
-        "latest_url": "https://www.flickr.com/people/73471477@N07/"
+        "date": "2023-04-26",
+        "latest_url": "https://www.flickr.com/photos/73471477@N07/52847419490/"
       },
       "exposure": {
         "url": "https://undpvietnam.exposure.co/",
@@ -2213,8 +2213,8 @@
       "country": "Zambia",
       "flickr": {
         "url": "https://www.flickr.com/people/143320674@N04/",
-        "date": "2015-01-01",
-        "latest_url": "https://www.flickr.com/people/143320674@N04/"
+        "date": "2016-06-05",
+        "latest_url": "https://www.flickr.com/photos/143320674@N04/27471335635/"
       },
       "exposure": {
         "url": "https://undpinzambia.exposure.co/",
