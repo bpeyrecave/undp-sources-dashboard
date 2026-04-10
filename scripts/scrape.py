@@ -182,36 +182,120 @@ def flickr_latest(nsid):
     return None, url, img_url
 
 
+# Month name → number map for parsing Exposure's "January 1st, 2025" format
+_MONTH_MAP = {
+    "january": "01", "february": "02", "march": "03", "april": "04",
+    "may": "05", "june": "06", "july": "07", "august": "08",
+    "september": "09", "october": "10", "november": "11", "december": "12",
+}
+
+def _parse_exposure_date(text):
+    """Parse 'July 1st, 2025' or 'September 17th, 2025' → '2025-07-01'."""
+    m = re.search(
+        r'(january|february|march|april|may|june|july|august|september|october|november|december)'
+        r'\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})',
+        text.lower()
+    )
+    if m:
+        month = _MONTH_MAP[m.group(1)]
+        day   = m.group(2).zfill(2)
+        year  = m.group(3)
+        return f"{year}-{month}-{day}"
+    return None
+
+
 def exposure_latest(base_url):
     """
-    Exposure doesn't expose RSS, so we scrape the homepage.
-    Returns (iso_date, story_url, image_url) or (None, base_url, None).
+    Scrape an Exposure.co profile page using a headless browser (it's a JS SPA).
+    Finds the most recent story: returns (iso_date, story_url, image_url).
     """
-    r = get(base_url)
-    if not r:
-        return None, None, None
-    soup = BeautifulSoup(r.text, "html.parser")
+    try:
+        browser = _get_browser()
+        page = browser.new_page()
+        page.set_extra_http_headers({"User-Agent": "Mozilla/5.0 (compatible; UNDPSourcesBot/1.0)"})
+        page.goto(base_url, timeout=PLAYWRIGHT_TIMEOUT, wait_until="networkidle")
+        # Wait for story cards — Exposure renders <article> or <section> elements
+        for sel in ["article a[href]", "section a[href]", ".story a[href]", "a[href*='/']"]:
+            try:
+                page.wait_for_selector(sel, timeout=8_000)
+                break
+            except Exception:
+                continue
+        html = page.content()
+        page.close()
+    except Exception as e:
+        print(f"  WARN playwright exposure {base_url}: {e}", file=sys.stderr)
+        return None, base_url, None
 
-    # Try <time datetime="..."> tags
-    time_tag = soup.find("time", attrs={"datetime": True})
-    if time_tag:
-        raw = time_tag["datetime"][:10]
-        parent_a = time_tag.find_parent("a")
-        link = parent_a["href"] if parent_a and parent_a.get("href") else base_url
-        # Grab first meaningful image near the story card
+    soup = BeautifulSoup(html, "html.parser")
+    parsed_url = urlparse(base_url)
+    site_origin = f"{parsed_url.scheme}://{parsed_url.netloc}"
+
+    candidates = []
+
+    # Strategy 1: <time datetime="YYYY-MM-DD"> tags (some Exposure sites use these)
+    for t in soup.find_all("time", attrs={"datetime": True}):
+        m = re.match(r"(\d{4}-\d{2}-\d{2})", t["datetime"])
+        if not m:
+            continue
+        iso = m.group(1)
+        # Walk up to find the enclosing story link
+        story_url = base_url
         img_url = None
-        card = time_tag.find_parent(["article", "li", "div", "section"])
+        card = t.find_parent(["article", "section", "li", "div"])
         if card:
-            img = card.find("img", src=True)
+            a = card.find("a", href=True)
+            if a:
+                href = a["href"]
+                story_url = href if href.startswith("http") else site_origin + href
+            img = card.find("img")
             if img:
-                img_url = img["src"]
-        return raw, link, img_url
+                src = img.get("src") or img.get("data-src") or ""
+                img_url = src if src.startswith("http") else (site_origin + src if src.startswith("/") else None)
+        candidates.append((iso, story_url, img_url))
 
-    # Fallback: extract YYYY-MM from image src paths
+    # Strategy 2: Parse inline date text "Month Nth, YYYY" that appears next to story links
+    # Exposure renders each story as a block with a cover image, title, and date string.
+    # Walk all <a> tags that look like story links (same domain, non-trivial path)
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        # Only intra-site story links (e.g. /a-growing-business)
+        if not (href.startswith("/") and len(href) > 2 and "." not in href.split("/")[-1]):
+            continue
+        story_url = site_origin + href
+        # Look for a date string in the surrounding container
+        container = a.find_parent(["article", "section", "li"]) or a.find_parent("div")
+        if not container:
+            continue
+        text = container.get_text(" ", strip=True)
+        iso = _parse_exposure_date(text)
+        if not iso:
+            continue
+        # Grab cover image
+        img_url = None
+        img = container.find("img")
+        if img:
+            src = img.get("src") or img.get("data-src") or img.get("data-lazy-src") or ""
+            if src.startswith("http"):
+                img_url = src
+            elif src.startswith("/"):
+                img_url = site_origin + src
+        candidates.append((iso, story_url, img_url))
+
+    if candidates:
+        # Deduplicate by URL, keep latest date per URL
+        seen = {}
+        for iso, url, img in candidates:
+            if url not in seen or iso > seen[url][0]:
+                seen[url] = (iso, url, img)
+        best = sorted(seen.values(), key=lambda x: x[0], reverse=True)[0]
+        return best
+
+    # Strategy 3: image src paths containing a date segment
     dates = []
     imgs_by_date = {}
     for img in soup.find_all("img", src=True):
-        m = re.search(r"/public/(\d{4}-\d{2})/", img["src"])
+        m = re.search(r"/(\d{4}-\d{2})/", img["src"])
         if m:
             key = m.group(1) + "-01"
             dates.append(key)
