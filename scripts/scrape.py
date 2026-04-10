@@ -255,11 +255,21 @@ def undp_page_latest(page_url):
         browser = _get_browser()
         page = browser.new_page()
         page.set_extra_http_headers({"User-Agent": "Mozilla/5.0 (compatible; UNDPSourcesBot/1.0)"})
-        page.goto(page_url, timeout=PLAYWRIGHT_TIMEOUT, wait_until="domcontentloaded")
-        try:
-            page.wait_for_selector("time[datetime], article, .card", timeout=10_000)
-        except Exception:
-            pass
+        page.goto(page_url, timeout=PLAYWRIGHT_TIMEOUT, wait_until="networkidle")
+        # Wait for cards to appear — UNDP uses various card/article selectors
+        for sel in [
+            "[class*='card'] time[datetime]",
+            "[class*='story'] time[datetime]",
+            "[class*='post'] time[datetime]",
+            "article time[datetime]",
+            "time[datetime]",
+            "[class*='card']",
+        ]:
+            try:
+                page.wait_for_selector(sel, timeout=8_000)
+                break
+            except Exception:
+                continue
         html = page.content()
         page.close()
     except Exception as e:
@@ -267,6 +277,38 @@ def undp_page_latest(page_url):
         return None, page_url, None
 
     soup = BeautifulSoup(html, "html.parser")
+
+    # Strategy 0: JSON-LD structured data (most reliable when present)
+    for script in soup.find_all("script", type="application/ld+json"):
+        try:
+            data = json.loads(script.string or "")
+            items = data if isinstance(data, list) else [data]
+            candidates = []
+            for item in items:
+                # Handle ItemList wrapping articles
+                if item.get("@type") == "ItemList":
+                    for el in item.get("itemListElement", []):
+                        it = el.get("item", el)
+                        date = it.get("datePublished") or it.get("dateModified", "")
+                        url = it.get("url", page_url)
+                        img = (it.get("image") or {})
+                        img_url = img.get("url") if isinstance(img, dict) else (img if isinstance(img, str) else None)
+                        m = re.match(r"(\d{4}-\d{2}-\d{2})", date)
+                        if m:
+                            candidates.append((m.group(1), url, img_url))
+                else:
+                    date = item.get("datePublished") or item.get("dateModified", "")
+                    url = item.get("url", page_url)
+                    img = item.get("image") or {}
+                    img_url = img.get("url") if isinstance(img, dict) else (img if isinstance(img, str) else None)
+                    m = re.match(r"(\d{4}-\d{2}-\d{2})", date)
+                    if m:
+                        candidates.append((m.group(1), url, img_url))
+            if candidates:
+                candidates.sort(key=lambda x: x[0], reverse=True)
+                return candidates[0]
+        except Exception:
+            pass
 
     # Strategy 1: <time datetime="YYYY-MM-DD"> — pick the most recent, grab nearby image
     time_dates = []
@@ -285,9 +327,9 @@ def undp_page_latest(page_url):
             img_url = None
             card = t.find_parent(["article", "li"]) or t.find_parent("div", class_=re.compile(r"card|item|story|post", re.I))
             if card:
-                img = card.find("img", src=True)
+                img = card.find("img")
                 if img:
-                    src = img.get("src") or img.get("data-src", "")
+                    src = img.get("src") or img.get("data-src") or img.get("data-lazy-src", "")
                     if src.startswith("http"):
                         img_url = src
                     elif src.startswith("/"):
@@ -316,6 +358,13 @@ def undp_page_latest(page_url):
         dates.sort(reverse=True)
         best = dates[0]
         return best, article_links[0] if article_links else page_url, img_by_date.get(best)
+
+    # Strategy 3: date in meta tags
+    for meta in soup.find_all("meta", attrs={"property": re.compile(r"article:published_time|og:updated_time")}):
+        content = meta.get("content", "")
+        m = re.match(r"(\d{4}-\d{2}-\d{2})", content)
+        if m:
+            return m.group(1), page_url, None
 
     return None, page_url, None
 
