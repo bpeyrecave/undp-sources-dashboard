@@ -157,6 +157,82 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 .inexistent svg{width:10px;height:10px;stroke:var(--gray-dark);fill:none;stroke-width:2.5}
 
 .nodata-row td{text-align:center;padding:48px;color:var(--gray-dark);font-style:italic}
+
+/* ── View toggle ── */
+.view-toggle{display:flex;gap:4px;margin-left:8px}
+.view-btn{
+  background:none;border:1.5px solid var(--navy);padding:6px 8px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--navy);transition:background .15s,color .15s;
+}
+.view-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.view-btn.active{background:var(--navy);color:var(--white)}
+.view-btn:hover:not(.active){background:var(--gray-bg)}
+
+/* ── Gallery sort control ── */
+.gallery-sort{
+  position:relative;flex:0 0 180px;display:none;
+}
+.gallery-sort.visible{display:block}
+.gallery-sort select{
+  width:100%;appearance:none;-webkit-appearance:none;
+  border:1.5px solid var(--navy);padding:8px 36px 8px 12px;
+  font-size:13px;font-family:var(--font);font-weight:600;
+  color:var(--navy);background:var(--white);cursor:pointer;outline:none;
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.gallery-sort select:focus{border-color:var(--blue)}
+.gallery-sort .chev{
+  pointer-events:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  width:18px;height:18px;
+}
+
+/* ── Gallery grid ── */
+.gallery-wrap{
+  display:none;padding:24px 32px 48px;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:20px;
+}
+.gallery-wrap.visible{display:grid}
+
+/* ── Gallery card ── */
+.gcard{
+  background:var(--white);border:1px solid #E0E0E0;
+  display:flex;flex-direction:column;
+  transition:box-shadow .15s,transform .15s;cursor:pointer;
+  text-decoration:none;color:inherit;
+}
+.gcard:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);transform:translateY(-2px)}
+.gcard-img{
+  width:100%;aspect-ratio:16/10;overflow:hidden;
+  background:var(--gray-section);flex-shrink:0;position:relative;
+}
+.gcard-img img{width:100%;height:100%;object-fit:cover;display:block}
+.gcard-img .img-placeholder{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#EDEFF0 0%,#D8DCE0 100%);
+}
+.gcard-img .img-placeholder svg{width:32px;height:32px;stroke:#A9B1B7;fill:none;stroke-width:1.5}
+.gcard-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.gcard-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.gcard-flag{font-size:16px;line-height:1}
+.gcard-country{font-size:11px;font-weight:700;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.06em}
+.gcard-date{font-size:11px;color:var(--gray-mid);margin-left:auto;white-space:nowrap}
+.gcard-platform{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 8px;border-radius:20px;align-self:flex-start;margin-top:2px;
+}
+.gcard-platform.flickr  {background:#FFE8E5;color:#EE402D}
+.gcard-platform.stories {background:#E5F0FF;color:#006EB5}
+.gcard-platform.blog    {background:#E8F5E9;color:#2E7D32}
+.gcard-platform.exposure{background:#FFF8E1;color:#F9A825}
+.gallery-nodata{
+  display:none;padding:48px;text-align:center;
+  color:var(--gray-dark);font-style:italic;font-size:13px;
+  grid-column:1/-1;
+}
+.gallery-nodata.visible{display:block}
 </style>
 </head>
 <body>
@@ -169,11 +245,11 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 <div class="controls">
   <div class="search-wrap">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
-    <input type="text" id="q" placeholder="Search Office" oninput="render()">
+    <input type="text" id="q" placeholder="Search Office" oninput="currentView==='gallery'?renderGallery():render()">
   </div>
 
   <div class="filter-select">
-    <select id="fSection" onchange="render()">
+    <select id="fSection" onchange="currentView==='gallery'?renderGallery():render()">
       <option value="">All Offices</option>
       <option value="co">Country Offices</option>
       <option value="regional">Regional &amp; Thematic</option>
@@ -182,7 +258,7 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
   </div>
 
   <div class="filter-select">
-    <select id="fPlatform" onchange="render()">
+    <select id="fPlatform" onchange="currentView==='gallery'?renderGallery():render()">
       <option value="">All Platforms</option>
       <option value="stories">Has Stories</option>
       <option value="blog">Has Blog</option>
@@ -192,7 +268,26 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="#232E3D" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
 
+  <div class="gallery-sort" id="gallerySortWrap">
+    <select id="gallerySort" onchange="renderGallery()">
+      <option value="date_desc">Most Recent</option>
+      <option value="date_asc">Oldest First</option>
+      <option value="country_asc">Country A→Z</option>
+      <option value="country_desc">Country Z→A</option>
+    </select>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="#232E3D" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+
   <span class="count" id="countLabel"></span>
+
+  <div class="view-toggle">
+    <button class="view-btn active" id="btnList" onclick="setView('list')" title="List view">
+      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    </button>
+    <button class="view-btn" id="btnGallery" onclick="setView('gallery')" title="Gallery view">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    </button>
+  </div>
 </div>
 
 <div class="table-wrap">
@@ -238,6 +333,10 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
     <tr class="nodata-row"><td colspan="5">Loading…</td></tr>
   </tbody>
 </table>
+</div>
+
+<div class="gallery-wrap" id="galleryWrap">
+  <div class="gallery-nodata" id="galleryNodata">No results match your filters.</div>
 </div>
 
 <script>
@@ -496,6 +595,144 @@ function render() {
 
   tbody.innerHTML = html;
   updateSortButtons();
+}
+
+// ── View state ───────────────────────────────────────────────────────────────
+let currentView = 'list';
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('btnList').classList.toggle('active', v === 'list');
+  document.getElementById('btnGallery').classList.toggle('active', v === 'gallery');
+  document.querySelector('.table-wrap').style.display = v === 'list' ? '' : 'none';
+  document.getElementById('galleryWrap').classList.toggle('visible', v === 'gallery');
+  document.getElementById('gallerySortWrap').classList.toggle('visible', v === 'gallery');
+  if (v === 'gallery') renderGallery();
+  else render();
+}
+
+// Country → flag emoji map (ISO2 codes)
+const FLAGS = {
+  Afghanistan:'🇦🇫',Albania:'🇦🇱',Argentina:'🇦🇷',Azerbaijan:'🇦🇿',
+  Bangladesh:'🇧🇩',Belarus:'🇧🇾',Belize:'🇧🇿',Bolivia:'🇧🇴',
+  'Bosnia and Herzegovina':'🇧🇦',Brasil:'🇧🇷','Burkina Faso':'🇧🇫',
+  Burundi:'🇧🇮',Cambodia:'🇰🇭',Chile:'🇨🇱',China:'🇨🇳',Colombia:'🇨🇴',
+  'Costa Rica':'🇨🇷',Cyprus:'🇨🇾',Ecuador:'🇪🇨',Egypt:'🇪🇬',
+  'El Salvador':'🇸🇻',Eritrea:'🇪🇷',Ethiopia:'🇪🇹',Ghana:'🇬🇭',
+  Guatemala:'🇬🇹','Guinea-Bissau':'🇬🇼',Honduras:'🇭🇳',India:'🇮🇳',
+  Indonesia:'🇮🇩',Irak:'🇮🇶',Jamaica:'🇯🇲',Kenya:'🇰🇪',Kosovo:'🇽🇰',
+  Kuwait:'🇰🇼','Kyrgyz Republic':'🇰🇬',Lebanon:'🇱🇧',Liberia:'🇱🇷',
+  Malaysia:'🇲🇾',Maldives:'🇲🇻',Mali:'🇲🇱',Maroc:'🇲🇦',Mauritius:'🇲🇺',
+  México:'🇲🇽',Moldova:'🇲🇩',Mongolia:'🇲🇳',Montenegro:'🇲🇪',
+  Nepal:'🇳🇵',Niger:'🇳🇪',Pakistan:'🇵🇰',Panamá:'🇵🇦',
+  'Papua New Guinea':'🇵🇬',Perú:'🇵🇪',Philippines:'🇵🇭',RDC:'🇨🇩',
+  'Republica Dominicana':'🇩🇴',Russia:'🇷🇺',Rwanda:'🇷🇼',Samoa:'🇼🇸',
+  Senegal:'🇸🇳',Serbia:'🇷🇸','Solomon Islands':'🇸🇧',Somalia:'🇸🇴',
+  'South Sudan':'🇸🇸','Sri Lanka':'🇱🇰',Sudan:'🇸🇩',Syria:'🇸🇾',
+  Tchad:'🇹🇩',Thailand:'🇹🇭',TimorLeste:'🇹🇱',Togo:'🇹🇬',Tunisia:'🇹🇳',
+  Turkmenistan:'🇹🇲',Uganda:'🇺🇬',Ukraine:'🇺🇦',Uruguay:'🇺🇾',
+  Uzbekistan:'🇺🇿',Vietnam:'🇻🇳',Zambia:'🇿🇲',
+  'Barbados and Eastern Caribbean':'🇧🇧',Bissau:'🇬🇼',
+  'Palestinian People (PAPP)':'🇵🇸',
+};
+
+const PLATFORM_LABELS = {flickr:'Flickr', stories:'Story', blog:'Blog', exposure:'Exposure'};
+
+function fmtDateFull(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${parseInt(d||1)} ${months[parseInt(m)-1]} ${y}`;
+}
+
+function buildGalleryCards(rows) {
+  // Flatten each office into one card per platform that has a date
+  const cards = [];
+  rows.forEach(r => {
+    ['stories','blog','exposure','flickr'].forEach(plat => {
+      const p = r[plat];
+      if (p && p.date) {
+        cards.push({
+          country: r.country,
+          type: r.type,
+          platform: plat,
+          date: p.date,
+          url: p.latest_url || p.url,
+          image_url: p.image_url || null,
+        });
+      }
+    });
+  });
+  return cards;
+}
+
+function renderGallery() {
+  const q   = document.getElementById('q').value.toLowerCase();
+  const fS  = document.getElementById('fSection').value;
+  const fP  = document.getElementById('fPlatform').value;
+  const sortVal = document.getElementById('gallerySort').value;
+
+  let rows = DATA.filter(r => {
+    if (q  && !r.country.toLowerCase().includes(q)) return false;
+    if (fS && r.type !== fS)                         return false;
+    if (fP === 'stories'  && !r.storiesUrl)          return false;
+    if (fP === 'blog'     && !r.blogUrl)             return false;
+    if (fP === 'exposure' && !r.exposureUrl)         return false;
+    if (fP === 'flickr'   && !r.flickrUrl)           return false;
+    return true;
+  });
+
+  let cards = buildGalleryCards(rows);
+
+  // Apply platform filter to cards too
+  if (fP) cards = cards.filter(c => c.platform === fP);
+
+  // Sort
+  cards.sort((a, b) => {
+    if (sortVal === 'date_desc')    return (b.date||'') < (a.date||'') ? -1 : 1;
+    if (sortVal === 'date_asc')     return (a.date||'') < (b.date||'') ? -1 : 1;
+    if (sortVal === 'country_asc')  return a.country < b.country ? -1 : 1;
+    if (sortVal === 'country_desc') return b.country < a.country ? -1 : 1;
+    return 0;
+  });
+
+  document.getElementById('countLabel').textContent = `${rows.length} of ${DATA.length} offices`;
+
+  const wrap = document.getElementById('galleryWrap');
+  const nodata = document.getElementById('galleryNodata');
+
+  // Remove old cards (keep nodata div)
+  Array.from(wrap.children).forEach(el => { if (!el.id) el.remove(); });
+
+  if (!cards.length) {
+    nodata.classList.add('visible');
+    return;
+  }
+  nodata.classList.remove('visible');
+
+  cards.forEach(c => {
+    const flag = FLAGS[c.country] || '🌐';
+    const imgHtml = c.image_url
+      ? `<img src="${c.image_url}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=img-placeholder><svg viewBox=\'0 0 24 24\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/>\<line x1=\'3\' y1=\'9\' x2=\'21\' y2=\'9\'/>\<line x1=\'9\' y1=\'21\' x2=\'9\' y2=\'9\'/></svg></div>'">`
+      : `<div class="img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>`;
+
+    const card = document.createElement('a');
+    card.className = 'gcard';
+    card.href = c.url || '#';
+    card.target = '_blank';
+    card.rel = 'noopener';
+    card.innerHTML = `
+      <div class="gcard-img">${imgHtml}</div>
+      <div class="gcard-body">
+        <div class="gcard-meta">
+          <span class="gcard-flag">${flag}</span>
+          <span class="gcard-country">${c.country}</span>
+          <span class="gcard-date">${fmtDateFull(c.date)}</span>
+        </div>
+        <span class="gcard-platform ${c.platform}">${PLATFORM_LABELS[c.platform]}</span>
+      </div>`;
+    wrap.appendChild(card);
+  });
 }
 
 fetch('data.json')
