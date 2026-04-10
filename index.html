@@ -4,82 +4,88 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UNDP Photo &amp; Story Sources</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@undp/design-system-assets@latest/css/components.min.css">
 <style>
+:root {
+  --undp-blue:#006EB5;--undp-blue-dark:#004F85;--undp-red:#EE402D;
+  --undp-black:#232E3D;--undp-gray-dark:#55606E;--undp-gray-mid:#A9B1B7;
+  --undp-gray-light:#EDEFF0;--undp-white:#FFFFFF;
+  --font:proxima-nova,'Proxima Nova',Arial,sans-serif;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;font-size:13px;background:#f4f4f4;color:#222}
-a{color:#0070c0;text-decoration:none}
-a:hover{text-decoration:underline}
+body{font-family:var(--font);font-size:14px;background:var(--undp-gray-light);color:var(--undp-black);line-height:1.5}
+a{color:var(--undp-blue);text-decoration:none}
+a:hover{text-decoration:underline;color:var(--undp-blue-dark)}
 
-header{background:#009edb;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-header h1{font-size:17px;font-weight:700}
-header .meta{font-size:11px;opacity:.8}
+header{background:var(--undp-blue);color:#fff;padding:0 32px;display:flex;align-items:stretch;border-bottom:4px solid var(--undp-red)}
+.hlogo{display:flex;align-items:center;padding:14px 24px 14px 0;border-right:1px solid rgba(255,255,255,.25);margin-right:24px;font-size:28px;font-weight:900;letter-spacing:2px;color:#fff}
+.htitle{display:flex;flex-direction:column;justify-content:center;padding:14px 0}
+.htitle h1{font-size:17px;font-weight:700;letter-spacing:.01em}
+.htitle p{font-size:11px;opacity:.75;margin-top:2px;text-transform:uppercase;letter-spacing:.05em}
+.hmeta{margin-left:auto;display:flex;align-items:center;font-size:11px;opacity:.7}
 
-.toolbar{background:#fff;border-bottom:1px solid #ddd;padding:10px 24px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.toolbar input,.toolbar select{border:1px solid #ccc;border-radius:4px;padding:5px 9px;font-size:12px;background:#fff}
-.toolbar input{width:200px}
-.count{margin-left:auto;font-size:11px;color:#888}
+.legend{display:flex;gap:20px;padding:8px 32px;background:#fff;border-bottom:1px solid var(--undp-gray-light);font-size:11px;color:var(--undp-gray-dark);flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
-.table-wrap{padding:0 24px 40px;overflow-x:auto}
-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #ddd;border-radius:4px;overflow:hidden;font-size:12px;min-width:900px}
-thead tr{background:#f0f0f0}
-th{padding:8px 10px;text-align:left;font-weight:600;color:#333;border-bottom:1px solid #ddd;white-space:nowrap;cursor:pointer;user-select:none}
-th:hover{background:#e6e6e6}
-th .si{color:#bbb;font-size:10px;margin-left:3px}
-td{padding:6px 10px;border-bottom:1px solid #f2f2f2;vertical-align:top}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:#fafafa}
+.controls{background:#fff;border-bottom:1px solid var(--undp-gray-mid);padding:10px 32px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.controls input,.controls select{border:1px solid var(--undp-gray-mid);border-radius:0;padding:6px 10px;font-size:13px;font-family:var(--font);color:var(--undp-black);background:#fff;outline:none}
+.controls input:focus,.controls select:focus{border-color:var(--undp-blue)}
+.controls input{width:200px}
+.count{margin-left:auto;font-size:11px;color:var(--undp-gray-dark)}
 
-/* platform cell: link + badge stacked */
-.pcell{display:flex;flex-direction:column;gap:3px;min-width:90px}
-.pdate{font-size:12px;font-weight:500}
-.pdate.r{color:#1a7f37}
-.pdate.y{color:#b45309}
-.pdate.o{color:#c0392b}
-.pdate.n{color:#aaa;font-weight:400}
+.table-wrap{padding:24px 32px 48px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:13px;min-width:780px}
+thead tr{background:var(--undp-black)}
+th{padding:9px 14px;text-align:left;font-weight:700;color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;cursor:pointer;user-select:none;border-right:1px solid rgba(255,255,255,.1)}
+th:last-child{border-right:none}
+th:hover{background:var(--undp-blue-dark)}
+th .si{color:rgba(255,255,255,.35);margin-left:3px;font-size:10px}
+td{padding:9px 14px;border-bottom:1px solid var(--undp-gray-light);border-right:1px solid var(--undp-gray-light);vertical-align:middle}
+td:last-child{border-right:none}
+tr:hover td{background:#F0F6FB}
+.cname{font-weight:600;font-size:13px;white-space:nowrap}
 
-.badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;width:fit-content}
-.badge.a{background:#dcfce7;color:#166534}
-.badge.i{background:#fee2e2;color:#991b1b}
+tr.sec-hdr td{background:var(--undp-blue);color:#fff;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.07em;padding:5px 14px;border:none}
+tr.sec-div td{padding:0;height:4px;background:var(--undp-red);border:none}
 
-.country{font-weight:600;font-size:12px}
-
-.nodata{text-align:center;padding:40px;color:#aaa}
-
-.legend{display:flex;gap:16px;padding:8px 24px;font-size:11px;color:#666;flex-wrap:wrap;background:#fff;border-bottom:1px solid #eee}
-.legend span{display:flex;align-items:center;gap:4px}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dl{display:inline-block;font-size:12px;font-weight:600;white-space:nowrap}
+.dl.fresh{color:#1A6B2A}.dl.mid{color:#8B5E00}.dl.old{color:var(--undp-red)}.dl.visit{color:var(--undp-blue)}
+.nodt{color:var(--undp-gray-mid);font-size:12px}
+.nodata-row td{text-align:center;padding:40px;color:var(--undp-gray-dark);font-style:italic}
 </style>
 </head>
 <body>
 
 <header>
-  <div>
-    <h1>UNDP Photo &amp; Story Sources</h1>
-    <p style="font-size:11px;opacity:.8;margin-top:2px">Flickr · Exposure · UNDP Stories · UNDP Blog</p>
+  <div class="hlogo">UNDP</div>
+  <div class="htitle">
+    <h1>Photo &amp; Story Sources</h1>
+    <p>Country Offices · Regional Bureaux · Thematic Accounts</p>
   </div>
-  <div class="meta" id="updated"></div>
+  <div class="hmeta" id="updated"></div>
 </header>
 
 <div class="legend">
-  <span><span class="dot" style="background:#1a7f37"></span> Published &lt; 3 months ago</span>
-  <span><span class="dot" style="background:#b45309"></span> 3–12 months ago</span>
-  <span><span class="dot" style="background:#c0392b"></span> Over 1 year ago</span>
-  <span><span class="dot" style="background:#ccc"></span> No data</span>
+  <span><span class="dot" style="background:#1A6B2A"></span>Within 3 months</span>
+  <span><span class="dot" style="background:#8B5E00"></span>3–12 months ago</span>
+  <span><span class="dot" style="background:#EE402D"></span>Over 1 year ago</span>
+  <span><span class="dot" style="background:#A9B1B7"></span>No date available</span>
 </div>
 
-<div class="toolbar">
-  <input type="text" id="q" placeholder="Search country…" oninput="render()">
-  <select id="fStatus" onchange="render()">
-    <option value="">All Flickr statuses</option>
-    <option value="active">Flickr active</option>
-    <option value="inactive">Flickr not active</option>
+<div class="controls">
+  <input type="text" id="q" placeholder="Search office…" oninput="render()">
+  <select id="fSection" onchange="render()">
+    <option value="">All offices</option>
+    <option value="regional">Regional &amp; Thematic only</option>
+    <option value="co">Country Offices only</option>
   </select>
   <select id="fPlatform" onchange="render()">
     <option value="">All platforms</option>
-    <option value="flickr">Has Flickr date</option>
+    <option value="stories">Has Stories page</option>
+    <option value="blog">Has Blog page</option>
     <option value="exposure">Has Exposure</option>
-    <option value="stories">Has Stories</option>
-    <option value="blog">Has Blog</option>
+    <option value="flickr">Has Flickr</option>
   </select>
   <span class="count" id="countLabel"></span>
 </div>
@@ -88,125 +94,205 @@ tr:hover td{background:#fafafa}
   <table>
     <thead>
       <tr>
-        <th onclick="sort('country')">Country / Area<span class="si" id="s-country">↕</span></th>
-        <th onclick="sort('flickr_date')">Flickr<span class="si" id="s-flickr_date">↕</span></th>
+        <th onclick="sort('country')" style="width:190px">Office / Area<span class="si" id="s-country">↕</span></th>
+        <th onclick="sort('stories_date')">Stories<span class="si" id="s-stories_date">↕</span></th>
+        <th onclick="sort('blog_date')">Blog<span class="si" id="s-blog_date">↕</span></th>
         <th onclick="sort('exposure_date')">Exposure<span class="si" id="s-exposure_date">↕</span></th>
-        <th onclick="sort('stories_date')">UNDP Stories<span class="si" id="s-stories_date">↕</span></th>
-        <th onclick="sort('blog_date')">UNDP Blog<span class="si" id="s-blog_date">↕</span></th>
+        <th onclick="sort('flickr_date')">Flickr<span class="si" id="s-flickr_date">↕</span></th>
       </tr>
     </thead>
-    <tbody id="tbody">
-      <tr><td colspan="5" class="nodata">Loading data…</td></tr>
-    </tbody>
+    <tbody id="tbody"><tr class="nodata-row"><td colspan="5">Loading…</td></tr></tbody>
   </table>
 </div>
 
 <script>
-let DATA = [], sortCol = 'country', sortDir = 1;
+const META = [
+  // ── Regional / Thematic / Programmes ──
+  {country:"RBA (Africa)",                    type:"regional",flickrUrl:"https://www.flickr.com/people/201539903@N07/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Climate",                         type:"regional",flickrUrl:"https://www.flickr.com/people/undpclimatechangeadaptation/",exposureUrl:"https://undp-climate.exposure.co/",storiesUrl:"",blogUrl:""},
+  {country:"Eurasia",                         type:"regional",flickrUrl:"https://www.flickr.com/people/undpeurasia/",exposureUrl:"https://undpeurasia.exposure.co/",storiesUrl:"",blogUrl:""},
+  {country:"HDRO Human Development Report",   type:"regional",flickrUrl:"https://www.flickr.com/people/undp_hdro/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"IEO (Evaluation Office)",         type:"regional",flickrUrl:"https://www.flickr.com/people/undpevaluation/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Latin America & Caribbean",       type:"regional",flickrUrl:"https://www.flickr.com/people/undplac/",exposureUrl:"",storiesUrl:"https://www.undp.org/latin-america-caribbean/stories",blogUrl:"https://www.undp.org/latin-america-caribbean/blog"},
+  {country:"LHSP Lebanon Host Communities",   type:"regional",flickrUrl:"https://www.flickr.com/people/undp_lhsp/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Nature",                          type:"regional",flickrUrl:"https://www.flickr.com/people/undp-ebd/",exposureUrl:"https://undp-nature.exposure.co/",storiesUrl:"",blogUrl:""},
+  {country:"Small Grants Programme",          type:"regional",flickrUrl:"https://www.flickr.com/people/160133712@N07/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Business and Human Rights",       type:"regional",flickrUrl:"https://www.flickr.com/people/197823823@N06/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"BMO Phase II UNDP Ukraine",       type:"regional",flickrUrl:"https://www.flickr.com/people/194152175@N08/",exposureUrl:"https://undpukraine.exposure.co/",storiesUrl:"",blogUrl:""},
+  {country:"Czech-UNDP Partnership for SDGs", type:"regional",flickrUrl:"https://www.flickr.com/people/188532807@N05/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Europe and CIS",                  type:"regional",flickrUrl:"https://www.flickr.com/photos/undpeuropeandcis/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Pacific Office in Fiji",          type:"regional",flickrUrl:"https://www.flickr.com/people/undppc/",exposureUrl:"https://pacificundp.exposure.co/",storiesUrl:"https://www.undp.org/pacific/stories",blogUrl:"https://www.undp.org/pacific/blog"},
+  {country:"Seoul Facility Centre",           type:"regional",flickrUrl:"https://www.flickr.com/photos/uspc/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Tokyo",                           type:"regional",flickrUrl:"https://www.flickr.com/photos/63970428@N08/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"UNDP Global",                     type:"regional",flickrUrl:"https://www.flickr.com/people/unitednationsdevelopmentprogramme/",exposureUrl:"https://undp.exposure.co/",storiesUrl:"",blogUrl:""},
+  // ── Country Offices ──
+  {country:"Afghanistan",           type:"co",flickrUrl:"https://www.flickr.com/people/undpafghanistan/",exposureUrl:"https://undpafghanistan.exposure.co/",storiesUrl:"https://www.undp.org/afghanistan/stories",blogUrl:"https://www.undp.org/afghanistan/blog"},
+  {country:"Albania",               type:"co",flickrUrl:"https://www.flickr.com/people/124761789@N08/",exposureUrl:"",storiesUrl:"https://www.undp.org/albania/stories",blogUrl:"https://www.undp.org/albania/blog"},
+  {country:"Argentina",             type:"co",flickrUrl:"https://www.flickr.com/photos/131208323@N07/",exposureUrl:"",storiesUrl:"https://www.undp.org/argentina/stories",blogUrl:"https://www.undp.org/argentina/blog"},
+  {country:"Azerbaijan",            type:"co",flickrUrl:"https://www.flickr.com/people/undp_azerbaijan/",exposureUrl:"",storiesUrl:"https://www.undp.org/azerbaijan/stories",blogUrl:"https://www.undp.org/azerbaijan/blog"},
+  {country:"Bangladesh",            type:"co",flickrUrl:"https://www.flickr.com/people/98606405@N05/",exposureUrl:"",storiesUrl:"https://www.undp.org/bangladesh/stories",blogUrl:"https://www.undp.org/bangladesh/blog"},
+  {country:"Barbados & E. Caribbean",type:"co",flickrUrl:"https://www.flickr.com/people/undpbarbadosec/",exposureUrl:"",storiesUrl:"https://www.undp.org/barbados/stories",blogUrl:"https://www.undp.org/barbados/blog"},
+  {country:"Belarus",               type:"co",flickrUrl:"https://www.flickr.com/people/99592520@N04/",exposureUrl:"",storiesUrl:"https://www.undp.org/belarus/stories",blogUrl:"https://www.undp.org/belarus/blog"},
+  {country:"Belize",                type:"co",flickrUrl:"https://www.flickr.com/people/undpbelize/",exposureUrl:"",storiesUrl:"https://www.undp.org/belize/stories",blogUrl:"https://www.undp.org/belize/blog"},
+  {country:"Bolivia",               type:"co",flickrUrl:"https://www.flickr.com/people/152771673@N06/",exposureUrl:"",storiesUrl:"https://www.undp.org/bolivia/stories",blogUrl:"https://www.undp.org/bolivia/blog"},
+  {country:"Bosnia and Herzegovina",type:"co",flickrUrl:"https://www.flickr.com/people/undp_bosnia-herzegovina/",exposureUrl:"",storiesUrl:"https://www.undp.org/bosnia-herzegovina/stories",blogUrl:"https://www.undp.org/bosnia-herzegovina/blog"},
+  {country:"Brasil",                type:"co",flickrUrl:"https://www.flickr.com/people/195696709@N04/",exposureUrl:"",storiesUrl:"https://www.undp.org/brazil/stories",blogUrl:"https://www.undp.org/brazil/blog"},
+  {country:"Burkina Faso",          type:"co",flickrUrl:"https://www.flickr.com/people/196676637@N05/",exposureUrl:"",storiesUrl:"https://www.undp.org/burkina-faso/stories",blogUrl:"https://www.undp.org/burkina-faso/blog"},
+  {country:"Burundi",               type:"co",flickrUrl:"https://www.flickr.com/people/66132733@N03/",exposureUrl:"",storiesUrl:"https://www.undp.org/burundi/stories",blogUrl:"https://www.undp.org/burundi/blog"},
+  {country:"Cambodia",              type:"co",flickrUrl:"https://www.flickr.com/people/undpcambodia/",exposureUrl:"",storiesUrl:"https://www.undp.org/cambodia/stories",blogUrl:"https://www.undp.org/cambodia/blog"},
+  {country:"Chile",                 type:"co",flickrUrl:"https://www.flickr.com/people/pnud_chile/",exposureUrl:"",storiesUrl:"https://www.undp.org/chile/stories",blogUrl:"https://www.undp.org/chile/blog"},
+  {country:"China",                 type:"co",flickrUrl:"https://www.flickr.com/people/undpchina/",exposureUrl:"",storiesUrl:"https://www.undp.org/china/stories",blogUrl:"https://www.undp.org/china/blog"},
+  {country:"Colombia",              type:"co",flickrUrl:"https://www.flickr.com/people/143329027@N03/",exposureUrl:"https://pnudcolombia.exposure.co/",storiesUrl:"https://www.undp.org/colombia/stories",blogUrl:"https://www.undp.org/colombia/blog"},
+  {country:"Costa Rica",            type:"co",flickrUrl:"https://www.flickr.com/people/183280342@N05/",exposureUrl:"",storiesUrl:"https://www.undp.org/costa-rica/stories",blogUrl:"https://www.undp.org/costa-rica/blog"},
+  {country:"Cyprus",                type:"co",flickrUrl:"https://www.flickr.com/people/undp-pff/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Ecuador",               type:"co",flickrUrl:"https://www.flickr.com/people/pnudecuador/",exposureUrl:"",storiesUrl:"https://www.undp.org/ecuador/stories",blogUrl:"https://www.undp.org/ecuador/blog"},
+  {country:"Egypt",                 type:"co",flickrUrl:"https://www.flickr.com/people/undpegypt/",exposureUrl:"",storiesUrl:"https://www.undp.org/egypt/stories",blogUrl:"https://www.undp.org/egypt/blog"},
+  {country:"El Salvador",           type:"co",flickrUrl:"https://www.flickr.com/people/pnud_el_salvador/",exposureUrl:"",storiesUrl:"https://www.undp.org/el-salvador/stories",blogUrl:"https://www.undp.org/el-salvador/blog"},
+  {country:"Eritrea",               type:"co",flickrUrl:"https://www.flickr.com/photos/138144707@N08/",exposureUrl:"",storiesUrl:"https://www.undp.org/eritrea/stories",blogUrl:"https://www.undp.org/eritrea/blog"},
+  {country:"Ethiopia",              type:"co",flickrUrl:"https://www.flickr.com/people/undpethiopia/",exposureUrl:"",storiesUrl:"https://www.undp.org/ethiopia/stories",blogUrl:"https://www.undp.org/ethiopia/blog"},
+  {country:"Ghana",                 type:"co",flickrUrl:"https://www.flickr.com/people/42913191@N02/",exposureUrl:"",storiesUrl:"https://www.undp.org/ghana/stories",blogUrl:"https://www.undp.org/ghana/blog"},
+  {country:"Guatemala",             type:"co",flickrUrl:"https://www.flickr.com/people/92899514@N04/",exposureUrl:"",storiesUrl:"https://www.undp.org/guatemala/stories",blogUrl:"https://www.undp.org/guatemala/blog"},
+  {country:"Guinea-Bissau",         type:"co",flickrUrl:"https://www.flickr.com/people/undpbissau/",exposureUrl:"",storiesUrl:"https://www.undp.org/guinea-bissau/stories",blogUrl:"https://www.undp.org/guinea-bissau/blog"},
+  {country:"Honduras",              type:"co",flickrUrl:"https://www.flickr.com/photos/pnudhn/",exposureUrl:"",storiesUrl:"https://www.undp.org/honduras/stories",blogUrl:"https://www.undp.org/honduras/blog"},
+  {country:"India",                 type:"co",flickrUrl:"https://www.flickr.com/photos/undp-india/albums/",exposureUrl:"https://undp-india.exposure.co/",storiesUrl:"https://www.undp.org/india/stories",blogUrl:"https://www.undp.org/india/blog"},
+  {country:"Indonesia",             type:"co",flickrUrl:"https://www.flickr.com/photos/93491749@N08/",exposureUrl:"https://undpid.exposure.co/",storiesUrl:"https://www.undp.org/indonesia/stories",blogUrl:"https://www.undp.org/indonesia/blog"},
+  {country:"Irak",                  type:"co",flickrUrl:"https://www.flickr.com/people/undpiraq/",exposureUrl:"",storiesUrl:"https://www.undp.org/iraq/stories",blogUrl:"https://www.undp.org/iraq/blog"},
+  {country:"Jamaica",               type:"co",flickrUrl:"https://www.flickr.com/people/undpjamaica/",exposureUrl:"https://undpjamaica.exposure.co/",storiesUrl:"https://www.undp.org/jamaica/stories",blogUrl:"https://www.undp.org/jamaica/blog"},
+  {country:"Kenya",                 type:"co",flickrUrl:"https://www.flickr.com/people/undpkenya/",exposureUrl:"https://undpkenya.exposure.co/",storiesUrl:"https://www.undp.org/kenya/stories",blogUrl:"https://www.undp.org/kenya/blog"},
+  {country:"Kosovo",                type:"co",flickrUrl:"https://www.flickr.com/people/undpkosovo/",exposureUrl:"https://undpkosovo.exposure.co/",storiesUrl:"https://www.undp.org/kosovo/stories",blogUrl:"https://www.undp.org/kosovo/blog"},
+  {country:"Kuwait",                type:"co",flickrUrl:"https://www.flickr.com/photos/kwundp/",exposureUrl:"",storiesUrl:"https://www.undp.org/kuwait/stories",blogUrl:"https://www.undp.org/kuwait/blog"},
+  {country:"Kyrgyz Republic",       type:"co",flickrUrl:"https://www.flickr.com/people/undpkg/",exposureUrl:"",storiesUrl:"https://www.undp.org/kyrgyzstan/stories",blogUrl:"https://www.undp.org/kyrgyzstan/blog"},
+  {country:"Lebanon",               type:"co",flickrUrl:"https://www.flickr.com/people/undplebanon/",exposureUrl:"",storiesUrl:"https://www.undp.org/lebanon/stories",blogUrl:"https://www.undp.org/lebanon/blog"},
+  {country:"Liberia",               type:"co",flickrUrl:"https://www.flickr.com/photos/132967828@N08/",exposureUrl:"",storiesUrl:"https://www.undp.org/liberia/stories",blogUrl:"https://www.undp.org/liberia/blog"},
+  {country:"Malaysia",              type:"co",flickrUrl:"https://www.flickr.com/people/myundp/",exposureUrl:"",storiesUrl:"https://www.undp.org/malaysia/stories",blogUrl:"https://www.undp.org/malaysia/blog"},
+  {country:"Maldives",              type:"co",flickrUrl:"https://www.flickr.com/people/undpmaldives/",exposureUrl:"",storiesUrl:"https://www.undp.org/maldives/stories",blogUrl:"https://www.undp.org/maldives/blog"},
+  {country:"Mali",                  type:"co",flickrUrl:"https://www.flickr.com/people/132226887@N03/",exposureUrl:"",storiesUrl:"https://www.undp.org/mali/stories",blogUrl:"https://www.undp.org/mali/blog"},
+  {country:"Maroc",                 type:"co",flickrUrl:"https://www.flickr.com/people/120267337@N06/",exposureUrl:"",storiesUrl:"https://www.undp.org/morocco/stories",blogUrl:"https://www.undp.org/morocco/blog"},
+  {country:"Mauritius",             type:"co",flickrUrl:"https://www.flickr.com/people/183529514@N02/",exposureUrl:"",storiesUrl:"https://www.undp.org/mauritius/stories",blogUrl:"https://www.undp.org/mauritius/blog"},
+  {country:"México",                type:"co",flickrUrl:"https://www.flickr.com/photos/pnudmx/",exposureUrl:"",storiesUrl:"https://www.undp.org/mexico/stories",blogUrl:"https://www.undp.org/mexico/blog"},
+  {country:"Moldova",               type:"co",flickrUrl:"https://www.flickr.com/people/undpmoldova/",exposureUrl:"https://undpmoldova.exposure.co/",storiesUrl:"https://www.undp.org/moldova/stories",blogUrl:"https://www.undp.org/moldova/blog"},
+  {country:"Mongolia",              type:"co",flickrUrl:"https://www.flickr.com/people/142250687@N05/",exposureUrl:"",storiesUrl:"https://www.undp.org/mongolia/stories",blogUrl:"https://www.undp.org/mongolia/blog"},
+  {country:"Montenegro",            type:"co",flickrUrl:"https://www.flickr.com/people/106991185@N05/",exposureUrl:"https://undpmontenegro.exposure.co/",storiesUrl:"https://www.undp.org/montenegro/stories",blogUrl:"https://www.undp.org/montenegro/blog"},
+  {country:"Nepal",                 type:"co",flickrUrl:"https://www.flickr.com/people/undpnepal/",exposureUrl:"https://undpnepal.exposure.co/",storiesUrl:"https://www.undp.org/nepal/stories",blogUrl:"https://www.undp.org/nepal/blog"},
+  {country:"Niger",                 type:"co",flickrUrl:"https://www.flickr.com/people/pnudniger/",exposureUrl:"",storiesUrl:"https://www.undp.org/niger/stories",blogUrl:"https://www.undp.org/niger/blog"},
+  {country:"Pakistan",              type:"co",flickrUrl:"https://www.flickr.com/people/undppakistan/",exposureUrl:"https://undp-pakistan.exposure.co/",storiesUrl:"https://www.undp.org/pakistan/stories",blogUrl:"https://www.undp.org/pakistan/blog"},
+  {country:"Palestinian People (PAPP)",type:"co",flickrUrl:"https://www.flickr.com/people/undp-palestinian/",exposureUrl:"",storiesUrl:"https://www.undp.org/papp/stories",blogUrl:"https://www.undp.org/papp/blog"},
+  {country:"Panamá",                type:"co",flickrUrl:"https://www.flickr.com/people/155976344@N02/",exposureUrl:"",storiesUrl:"https://www.undp.org/panama/stories",blogUrl:"https://www.undp.org/panama/blog"},
+  {country:"Papua New Guinea",      type:"co",flickrUrl:"https://www.flickr.com/people/148279672@N05/",exposureUrl:"",storiesUrl:"https://www.undp.org/papua-new-guinea/stories",blogUrl:"https://www.undp.org/papua-new-guinea/blog"},
+  {country:"Perú",                  type:"co",flickrUrl:"https://www.flickr.com/people/pnudperu/",exposureUrl:"",storiesUrl:"https://www.undp.org/peru/stories",blogUrl:"https://www.undp.org/peru/blog"},
+  {country:"Philippines",           type:"co",flickrUrl:"https://www.flickr.com/people/undpph/",exposureUrl:"",storiesUrl:"https://www.undp.org/philippines/stories",blogUrl:"https://www.undp.org/philippines/blog"},
+  {country:"RDC",                   type:"co",flickrUrl:"https://www.flickr.com/people/pnudrdc/",exposureUrl:"",storiesUrl:"https://www.undp.org/democratic-republic-congo/stories",blogUrl:"https://www.undp.org/democratic-republic-congo/blog"},
+  {country:"Republica Dominicana",  type:"co",flickrUrl:"https://www.flickr.com/people/pnudrd/",exposureUrl:"",storiesUrl:"https://www.undp.org/dominican-republic/stories",blogUrl:"https://www.undp.org/dominican-republic/blog"},
+  {country:"Russia",                type:"co",flickrUrl:"https://www.flickr.com/people/98900690@N05/",exposureUrl:"",storiesUrl:"",blogUrl:""},
+  {country:"Rwanda",                type:"co",flickrUrl:"https://www.flickr.com/people/undp_rwanda/",exposureUrl:"https://undp-rwanda.exposure.co/",storiesUrl:"https://www.undp.org/rwanda/stories",blogUrl:"https://www.undp.org/rwanda/blog"},
+  {country:"Samoa",                 type:"co",flickrUrl:"https://www.flickr.com/people/61881570@N05/",exposureUrl:"",storiesUrl:"https://www.undp.org/samoa/stories",blogUrl:"https://www.undp.org/samoa/blog"},
+  {country:"Senegal",               type:"co",flickrUrl:"https://www.flickr.com/people/194545654@N04/",exposureUrl:"",storiesUrl:"https://www.undp.org/senegal/stories",blogUrl:"https://www.undp.org/senegal/blog"},
+  {country:"Serbia",                type:"co",flickrUrl:"https://www.flickr.com/photos/undp_serbia/",exposureUrl:"",storiesUrl:"https://www.undp.org/serbia/stories",blogUrl:"https://www.undp.org/serbia/blog"},
+  {country:"Solomon Islands",       type:"co",flickrUrl:"https://www.flickr.com/people/193805107@N08/",exposureUrl:"",storiesUrl:"https://www.undp.org/solomon-islands/stories",blogUrl:"https://www.undp.org/solomon-islands/blog"},
+  {country:"Somalia",               type:"co",flickrUrl:"https://www.flickr.com/people/undpsomalia/",exposureUrl:"https://undpsomalia.exposure.co/",storiesUrl:"https://www.undp.org/somalia/stories",blogUrl:"https://www.undp.org/somalia/blog"},
+  {country:"South Sudan",           type:"co",flickrUrl:"https://www.flickr.com/people/undpsouthsudan/",exposureUrl:"",storiesUrl:"https://www.undp.org/south-sudan/stories",blogUrl:"https://www.undp.org/south-sudan/blog"},
+  {country:"Sri Lanka",             type:"co",flickrUrl:"https://www.flickr.com/people/undpsrilanka/",exposureUrl:"https://undpsrilanka.exposure.co/",storiesUrl:"https://www.undp.org/sri-lanka/stories",blogUrl:"https://www.undp.org/sri-lanka/blog"},
+  {country:"Sudan",                 type:"co",flickrUrl:"https://www.flickr.com/people/undpsudan/",exposureUrl:"",storiesUrl:"https://www.undp.org/sudan/stories",blogUrl:"https://www.undp.org/sudan/blog"},
+  {country:"Syria",                 type:"co",flickrUrl:"https://www.flickr.com/people/undpsyria/",exposureUrl:"",storiesUrl:"https://www.undp.org/syria/stories",blogUrl:"https://www.undp.org/syria/blog"},
+  {country:"Tchad",                 type:"co",flickrUrl:"https://www.flickr.com/people/199227871@N04/",exposureUrl:"",storiesUrl:"https://www.undp.org/chad/stories",blogUrl:"https://www.undp.org/chad/blog"},
+  {country:"Thailand",              type:"co",flickrUrl:"https://www.flickr.com/people/122929707@N08/",exposureUrl:"https://undpthailand.exposure.co/",storiesUrl:"https://www.undp.org/thailand/stories",blogUrl:"https://www.undp.org/thailand/blog"},
+  {country:"TimorLeste",            type:"co",flickrUrl:"https://www.flickr.com/people/155674736@N07/",exposureUrl:"",storiesUrl:"https://www.undp.org/timor-leste/stories",blogUrl:"https://www.undp.org/timor-leste/blog"},
+  {country:"Togo",                  type:"co",flickrUrl:"https://www.flickr.com/people/pnudtogo/",exposureUrl:"",storiesUrl:"https://www.undp.org/togo/stories",blogUrl:"https://www.undp.org/togo/blog"},
+  {country:"Tunisia",               type:"co",flickrUrl:"https://www.flickr.com/people/128649079@N08/",exposureUrl:"",storiesUrl:"https://www.undp.org/tunisia/stories",blogUrl:"https://www.undp.org/tunisia/blog"},
+  {country:"Turkmenistan",          type:"co",flickrUrl:"https://www.flickr.com/people/193591905@N07/",exposureUrl:"",storiesUrl:"https://www.undp.org/turkmenistan/stories",blogUrl:"https://www.undp.org/turkmenistan/blog"},
+  {country:"Uganda",                type:"co",flickrUrl:"https://www.flickr.com/photos/undpuganda/",exposureUrl:"",storiesUrl:"https://www.undp.org/uganda/stories",blogUrl:"https://www.undp.org/uganda/blog"},
+  {country:"Ukraine",               type:"co",flickrUrl:"https://www.flickr.com/people/undpukraine/",exposureUrl:"https://undpukraine.exposure.co/",storiesUrl:"https://www.undp.org/ukraine/stories",blogUrl:"https://www.undp.org/ukraine/blog"},
+  {country:"Uruguay",               type:"co",flickrUrl:"https://www.flickr.com/people/132265388@N07/",exposureUrl:"",storiesUrl:"https://www.undp.org/uruguay/stories",blogUrl:"https://www.undp.org/uruguay/blog"},
+  {country:"Uzbekistan",            type:"co",flickrUrl:"https://www.flickr.com/people/90476166@N07/",exposureUrl:"",storiesUrl:"https://www.undp.org/uzbekistan/stories",blogUrl:"https://www.undp.org/uzbekistan/blog"},
+  {country:"Vietnam",               type:"co",flickrUrl:"https://www.flickr.com/people/73471477@N07/",exposureUrl:"https://undpvietnam.exposure.co/",storiesUrl:"https://www.undp.org/viet-nam/stories",blogUrl:"https://www.undp.org/viet-nam/blog"},
+  {country:"Zambia",                type:"co",flickrUrl:"https://www.flickr.com/people/143320674@N04/",exposureUrl:"https://undpinzambia.exposure.co/",storiesUrl:"https://www.undp.org/zambia/stories",blogUrl:"https://www.undp.org/zambia/blog"},
+];
 
-function ageClass(iso){
-  if(!iso) return 'n';
-  const months = (Date.now() - new Date(iso)) / (1000*60*60*24*30.5);
-  if(months < 3)  return 'r';
-  if(months < 12) return 'y';
-  return 'o';
+let DATA=[], sortCol='country', sortDir=1;
+
+function ageCls(iso){
+  if(!iso)return'';
+  const m=(Date.now()-new Date(iso))/(1000*60*60*24*30.5);
+  return m<3?'fresh':m<12?'mid':'old';
 }
-
-function fmtDate(iso){
-  if(!iso) return null;
-  const [y,m] = iso.split('-');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${months[+m-1]} ${y}`;
+function fmt(iso){
+  if(!iso)return null;
+  const[y,mo,d]=iso.split('-');
+  return`${d||'01'}/${mo}/${y}`;
 }
-
-function platformCell(platform){
-  const {url, date, latest_url} = platform;
-  if(!url) return '<td><span class="pdate n">—</span></td>';
-  const cls = ageClass(date);
-  const label = fmtDate(date);
-  const linkUrl = latest_url || url;
-  const dateHtml = label
-    ? `<a href="${linkUrl}" target="_blank" class="pdate ${cls}">${label}</a>`
-    : `<a href="${url}" target="_blank" class="pdate n">Visit</a>`;
-  // Active = published within 18 months
-  const isActive = date && (Date.now() - new Date(date)) / (1000*60*60*24*30.5) < 18;
-  const badge = `<span class="badge ${isActive?'a':'i'}">${isActive?'Active':'Not active'}</span>`;
-  return `<td><div class="pcell">${dateHtml}${badge}</div></td>`;
+function cell(p,fb){
+  const url=p?.url||fb||'';
+  if(!url)return'<td><span class="nodt">—</span></td>';
+  const d=p?.date||null;
+  const lu=p?.latest_url||url;
+  if(!d)return`<td><a href="${url}" target="_blank" class="dl visit">Visit ↗</a></td>`;
+  return`<td><a href="${lu}" target="_blank" class="dl ${ageCls(d)}">${fmt(d)}</a></td>`;
 }
-
 function sort(col){
-  if(sortCol===col) sortDir*=-1; else {sortCol=col;sortDir=1;}
+  if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}
   document.querySelectorAll('.si').forEach(e=>e.textContent='↕');
   const el=document.getElementById('s-'+col);
-  if(el) el.textContent=sortDir===1?'↑':'↓';
+  if(el)el.textContent=sortDir===1?'↑':'↓';
   render();
 }
-
+function merge(meta,json){
+  const map={};
+  if(json)json.forEach(o=>{map[o.country]=o;});
+  return meta.map(m=>{
+    const d=map[m.country]||{};
+    return{...m,
+      flickr:{url:m.flickrUrl,date:d.flickr?.date||null,latest_url:d.flickr?.latest_url||m.flickrUrl},
+      exposure:{url:m.exposureUrl,date:d.exposure?.date||null,latest_url:d.exposure?.latest_url||m.exposureUrl},
+      stories:{url:m.storiesUrl,date:d.stories?.date||null,latest_url:d.stories?.latest_url||m.storiesUrl},
+      blog:{url:m.blogUrl,date:d.blog?.date||null,latest_url:d.blog?.latest_url||m.blogUrl},
+    };
+  });
+}
 function render(){
-  const q   = document.getElementById('q').value.toLowerCase();
-  const fS  = document.getElementById('fStatus').value;
-  const fP  = document.getElementById('fPlatform').value;
-
-  let rows = DATA.filter(r=>{
-    if(q && !r.country.toLowerCase().includes(q)) return false;
-    if(fS){
-      const months = r.flickr.date
-        ? (Date.now()-new Date(r.flickr.date))/(1000*60*60*24*30.5) : 999;
-      const active = months < 18;
-      if(fS==='active'   && !active) return false;
-      if(fS==='inactive' &&  active) return false;
-    }
-    if(fP==='flickr'   && !r.flickr.date)   return false;
-    if(fP==='exposure' && !r.exposure.url)  return false;
-    if(fP==='stories'  && !r.stories.url)   return false;
-    if(fP==='blog'     && !r.blog.url)      return false;
+  const q=document.getElementById('q').value.toLowerCase();
+  const fS=document.getElementById('fSection').value;
+  const fP=document.getElementById('fPlatform').value;
+  let rows=DATA.filter(r=>{
+    if(q&&!r.country.toLowerCase().includes(q))return false;
+    if(fS&&r.type!==fS)return false;
+    if(fP==='stories'&&!r.storiesUrl)return false;
+    if(fP==='blog'&&!r.blogUrl)return false;
+    if(fP==='exposure'&&!r.exposureUrl)return false;
+    if(fP==='flickr'&&!r.flickrUrl)return false;
     return true;
   });
-
-  const key = sortCol;
+  const k=sortCol;
   rows.sort((a,b)=>{
-    let va, vb;
-    if(key==='country'){va=a.country;vb=b.country;}
-    else {
-      const plat = key.replace('_date','');
-      va = a[plat]?.date || '';
-      vb = b[plat]?.date || '';
-    }
-    return (va<vb?-1:va>vb?1:0)*sortDir;
+    let va,vb;
+    if(k==='country'){va=a.country;vb=b.country;}
+    else{const p=k.replace('_date','');va=a[p]?.date||'';vb=b[p]?.date||'';}
+    return(va<vb?-1:va>vb?1:0)*sortDir;
   });
-
   document.getElementById('countLabel').textContent=`${rows.length} of ${DATA.length} offices`;
-
   const tbody=document.getElementById('tbody');
-  if(!rows.length){
-    tbody.innerHTML='<tr><td colspan="5" class="nodata">No results match your filters.</td></tr>';
-    return;
-  }
-  tbody.innerHTML=rows.map(r=>`
-    <tr>
-      <td class="country">${r.country}</td>
-      ${platformCell(r.flickr)}
-      ${platformCell(r.exposure)}
-      ${platformCell(r.stories)}
-      ${platformCell(r.blog)}
-    </tr>`).join('');
-}
-
-fetch('data.json')
-  .then(r=>r.json())
-  .then(json=>{
-    DATA=json.offices;
-    const upd=document.getElementById('updated');
-    if(json.updated){
-      const d=new Date(json.updated);
-      upd.textContent='Last updated: '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  const sec=!q&&!fS&&!fP;
+  if(!rows.length){tbody.innerHTML='<tr class="nodata-row"><td colspan="5">No results.</td></tr>';return;}
+  let html='',last=null;
+  rows.forEach(r=>{
+    if(sec&&r.type!==last){
+      if(last!==null)html+=`<tr class="sec-div"><td colspan="5"></td></tr>`;
+      const lbl=r.type==='regional'?'Regional Bureaux, Thematic &amp; Programme Accounts':'Country Offices';
+      html+=`<tr class="sec-hdr"><td colspan="5">${lbl}</td></tr>`;
+      last=r.type;
     }
-    render();
-  })
-  .catch(()=>{
-    document.getElementById('tbody').innerHTML=
-      '<tr><td colspan="5" class="nodata">Could not load data.json — make sure the scraper has run at least once.</td></tr>';
+    html+=`<tr><td class="cname">${r.country}</td>${cell(r.stories,r.storiesUrl)}${cell(r.blog,r.blogUrl)}${cell(r.exposure,r.exposureUrl)}${cell(r.flickr,r.flickrUrl)}</tr>`;
   });
+  tbody.innerHTML=html;
+}
+fetch('data.json').then(r=>r.json()).then(json=>{
+  DATA=merge(META,json.offices);
+  const el=document.getElementById('updated');
+  if(json.updated&&json.updated!=='seed-data-run-scraper-to-update'){
+    const d=new Date(json.updated);
+    el.textContent='Updated '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  }else{el.textContent='Seed data — run workflow to refresh';}
+  render();
+}).catch(()=>{DATA=merge(META,null);render();});
 </script>
 </body>
 </html>
