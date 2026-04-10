@@ -146,8 +146,8 @@ def ts_to_iso(ts):
 
 def flickr_latest(nsid):
     """
-    Use Flickr's no-auth public feed to get the most recent upload date.
-    Returns (iso_date, photo_page_url) or (None, None).
+    Use Flickr's no-auth public feed to get the most recent upload date + thumbnail.
+    Returns (iso_date, photo_page_url, image_url) or (None, None, None).
     """
     feed_url = (
         f"https://www.flickr.com/services/feeds/photos_public.gne"
@@ -155,56 +155,73 @@ def flickr_latest(nsid):
     )
     r = get(feed_url)
     if not r:
-        return None, None
+        return None, None, None
     soup = BeautifulSoup(r.text, "xml")
     entry = soup.find("entry")
     if not entry:
-        return None, None
-    # <published> or <updated>
+        return None, None, None
     pub = entry.find("published") or entry.find("updated")
     link_tag = entry.find("link", rel="alternate") or entry.find("link")
     url = link_tag["href"] if link_tag and link_tag.get("href") else None
+    # Flickr Atom feed has <media:thumbnail url="..."/> or <media:content url="..."/>
+    img_url = None
+    thumb = entry.find("thumbnail") or entry.find("content", attrs={"medium": "image"})
+    if thumb and thumb.get("url"):
+        img_url = thumb["url"]
+    if not img_url:
+        # fallback: look for _m.jpg or _z.jpg in any tag
+        m = re.search(r'https://[^"']+_[mzb]\.jpg', r.text)
+        if m:
+            img_url = m.group(0)
     if pub:
         try:
             dt = datetime.fromisoformat(pub.text.replace("Z", "+00:00"))
-            return dt.strftime("%Y-%m-%d"), url
+            return dt.strftime("%Y-%m-%d"), url, img_url
         except Exception:
             pass
-    return None, url
+    return None, url, img_url
 
 
 def exposure_latest(base_url):
     """
     Exposure doesn't expose RSS, so we scrape the homepage.
-    Stories are listed as articles; the date appears in <time> tags or
-    in image src paths like /public/YYYY-MM/.
-    Returns (iso_date, story_url) or (None, None).
+    Returns (iso_date, story_url, image_url) or (None, base_url, None).
     """
     r = get(base_url)
     if not r:
-        return None, None
+        return None, None, None
     soup = BeautifulSoup(r.text, "html.parser")
 
     # Try <time datetime="..."> tags
     time_tag = soup.find("time", attrs={"datetime": True})
     if time_tag:
         raw = time_tag["datetime"][:10]
-        # Find nearest parent <a> for the link
         parent_a = time_tag.find_parent("a")
         link = parent_a["href"] if parent_a and parent_a.get("href") else base_url
-        return raw, link
+        # Grab first meaningful image near the story card
+        img_url = None
+        card = time_tag.find_parent(["article", "li", "div", "section"])
+        if card:
+            img = card.find("img", src=True)
+            if img:
+                img_url = img["src"]
+        return raw, link, img_url
 
     # Fallback: extract YYYY-MM from image src paths
     dates = []
+    imgs_by_date = {}
     for img in soup.find_all("img", src=True):
         m = re.search(r"/public/(\d{4}-\d{2})/", img["src"])
         if m:
-            dates.append(m.group(1) + "-01")
+            key = m.group(1) + "-01"
+            dates.append(key)
+            imgs_by_date[key] = img["src"]
     if dates:
         dates.sort(reverse=True)
-        return dates[0], base_url
+        best = dates[0]
+        return best, base_url, imgs_by_date.get(best)
 
-    return None, base_url
+    return None, base_url, None
 
 
 # ─── Shared Playwright browser (lazy-initialised) ────────────────────────────
@@ -231,37 +248,32 @@ def close_browser():
 
 def undp_page_latest(page_url):
     """
-    Scrape an undp.org /stories or /blog listing page using a headless browser
-    so that the JS-rendered article cards are fully loaded before we parse.
-    Returns (iso_date, article_url) or (None, page_url).
+    Scrape an undp.org /stories or /blog listing page using a headless browser.
+    Returns (iso_date, article_url, image_url) or (None, page_url, None).
     """
     try:
         browser = _get_browser()
         page = browser.new_page()
         page.set_extra_http_headers({"User-Agent": "Mozilla/5.0 (compatible; UNDPSourcesBot/1.0)"})
         page.goto(page_url, timeout=PLAYWRIGHT_TIMEOUT, wait_until="domcontentloaded")
-
-        # Wait for article cards to appear (they carry <time> or date-stamped images)
         try:
             page.wait_for_selector("time[datetime], article, .card", timeout=10_000)
         except Exception:
-            pass  # proceed with whatever is loaded
-
+            pass
         html = page.content()
         page.close()
     except Exception as e:
         print(f"  WARN playwright {page_url}: {e}", file=sys.stderr)
-        return None, page_url
+        return None, page_url, None
 
     soup = BeautifulSoup(html, "html.parser")
 
-    # Strategy 1: <time datetime="YYYY-MM-DD"> — pick the most recent
+    # Strategy 1: <time datetime="YYYY-MM-DD"> — pick the most recent, grab nearby image
     time_dates = []
     for t in soup.find_all("time", attrs={"datetime": True}):
         raw = t["datetime"]
         m = re.match(r"(\d{4}-\d{2}-\d{2})", raw)
         if m:
-            # Try to find the closest article link
             parent_a = t.find_parent("a")
             if not parent_a:
                 parent = t.find_parent(["article", "li", "div"])
@@ -269,15 +281,27 @@ def undp_page_latest(page_url):
             link = ("https://www.undp.org" + parent_a["href"]
                     if parent_a and parent_a.get("href", "").startswith("/")
                     else page_url)
-            time_dates.append((m.group(1), link))
+            # Grab image from the same card
+            img_url = None
+            card = t.find_parent(["article", "li"]) or t.find_parent("div", class_=re.compile(r"card|item|story|post", re.I))
+            if card:
+                img = card.find("img", src=True)
+                if img:
+                    src = img.get("src") or img.get("data-src", "")
+                    if src.startswith("http"):
+                        img_url = src
+                    elif src.startswith("/"):
+                        img_url = "https://www.undp.org" + src
+            time_dates.append((m.group(1), link, img_url))
 
     if time_dates:
         time_dates.sort(key=lambda x: x[0], reverse=True)
         return time_dates[0]
 
-    # Strategy 2: date embedded in image src paths  /public/YYYY-MM/ or /files/YYYY-MM/
+    # Strategy 2: date embedded in image src paths
     dates = []
     article_links = []
+    img_by_date = {}
     for a in soup.find_all("a", href=True):
         href = a["href"]
         if href.startswith("/") and len(href) > 20:
@@ -285,12 +309,15 @@ def undp_page_latest(page_url):
     for img in soup.find_all("img", src=True):
         m = re.search(r"/(?:public|files)/(\d{4}-\d{2})/", img["src"])
         if m:
-            dates.append(m.group(1) + "-01")
+            key = m.group(1) + "-01"
+            dates.append(key)
+            img_by_date[key] = img["src"]
     if dates:
         dates.sort(reverse=True)
-        return dates[0], article_links[0] if article_links else page_url
+        best = dates[0]
+        return best, article_links[0] if article_links else page_url, img_by_date.get(best)
 
-    return None, page_url
+    return None, page_url, None
 
 
 # ─── Main ────────────────────────────────────────────────────────────────────
@@ -304,38 +331,42 @@ def scrape_all():
 
         rec = {
             "country": country,
-            "flickr":   {"url": flickr_url,    "date": None, "latest_url": None},
-            "exposure": {"url": exposure_url,   "date": None, "latest_url": None},
-            "stories":  {"url": stories_url,    "date": None, "latest_url": None},
-            "blog":     {"url": blog_url,       "date": None, "latest_url": None},
+            "flickr":   {"url": flickr_url,    "date": None, "latest_url": None, "image_url": None},
+            "exposure": {"url": exposure_url,   "date": None, "latest_url": None, "image_url": None},
+            "stories":  {"url": stories_url,    "date": None, "latest_url": None, "image_url": None},
+            "blog":     {"url": blog_url,       "date": None, "latest_url": None, "image_url": None},
         }
 
         # Flickr
         if nsid:
-            d, lu = flickr_latest(nsid)
+            d, lu, img = flickr_latest(nsid)
             rec["flickr"]["date"] = d
             rec["flickr"]["latest_url"] = lu or flickr_url
+            rec["flickr"]["image_url"] = img
             time.sleep(0.3)
 
         # Exposure
         if exposure_url:
-            d, lu = exposure_latest(exposure_url)
+            d, lu, img = exposure_latest(exposure_url)
             rec["exposure"]["date"] = d
             rec["exposure"]["latest_url"] = lu or exposure_url
+            rec["exposure"]["image_url"] = img
             time.sleep(0.5)
 
         # UNDP Stories
         if stories_url:
-            d, lu = undp_page_latest(stories_url)
+            d, lu, img = undp_page_latest(stories_url)
             rec["stories"]["date"] = d
             rec["stories"]["latest_url"] = lu or stories_url
+            rec["stories"]["image_url"] = img
             time.sleep(0.5)
 
         # UNDP Blog
         if blog_url:
-            d, lu = undp_page_latest(blog_url)
+            d, lu, img = undp_page_latest(blog_url)
             rec["blog"]["date"] = d
             rec["blog"]["latest_url"] = lu or blog_url
+            rec["blog"]["image_url"] = img
             time.sleep(0.5)
 
         results.append(rec)
