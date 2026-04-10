@@ -103,6 +103,18 @@ tr.sec-row td{
 .sec-chevron.open{transform:rotate(0deg)}
 .sec-chevron.closed{transform:rotate(-90deg)}
 
+/* ── Section sort chevron ── */
+.sec-sort-chevron{
+  width:14px;height:14px;flex-shrink:0;
+  stroke:currentColor;fill:none;stroke-width:2.5;
+  margin-left:6px;cursor:pointer;opacity:.6;
+  transition:transform .2s, opacity .2s;
+  flex-shrink:0;
+}
+.sec-sort-chevron:hover{opacity:1}
+.sec-sort-chevron.asc{transform:rotate(0deg)}
+.sec-sort-chevron.desc{transform:rotate(180deg)}
+
 /* ── Data rows ── */
 td{
   padding:11px 16px;border-bottom:1px solid #F0F0F0;
@@ -340,6 +352,7 @@ const META = [
 let DATA = [];
 let sortCol = 'country', sortDir = 1;
 const collapsed = {co: false, regional: false};
+const sectionSort = {co: 1, regional: 1}; // 1 = A→Z, -1 = Z→A
 
 function fmt(iso) {
   if (!iso) return null;
@@ -383,6 +396,12 @@ function toggleSection(type) {
   render();
 }
 
+function toggleSectionSort(type, e) {
+  e.stopPropagation();
+  sectionSort[type] *= -1;
+  render();
+}
+
 function merge(meta, json) {
   const map = {};
   if (json) json.forEach(o => { map[o.country] = o; });
@@ -413,14 +432,6 @@ function render() {
     return true;
   });
 
-  const k = sortCol;
-  rows.sort((a, b) => {
-    let va, vb;
-    if (k === 'country') { va = a.country; vb = b.country; }
-    else { const p = k.replace('_date',''); va = a[p]?.date||''; vb = b[p]?.date||''; }
-    return (va < vb ? -1 : va > vb ? 1 : 0) * sortDir;
-  });
-
   document.getElementById('countLabel').textContent = `${rows.length} of ${DATA.length} offices`;
 
   const tbody = document.getElementById('tbody');
@@ -429,35 +440,50 @@ function render() {
     return;
   }
 
-  let html = '';
-  let lastType = null;
+  // Split rows into sections and sort each independently by country name
+  const sections = [
+    { type: 'co',       items: rows.filter(r => r.type === 'co') },
+    { type: 'regional', items: rows.filter(r => r.type === 'regional') },
+  ].filter(s => s.items.length > 0);
 
-  rows.forEach(r => {
-    if (!isFiltering && r.type !== lastType) {
-      const isCollapsed = collapsed[r.type];
-      const label = r.type === 'co'
+  sections.forEach(s => {
+    const dir = isFiltering ? 1 : sectionSort[s.type];
+    s.items.sort((a, b) =>
+      (a.country < b.country ? -1 : a.country > b.country ? 1 : 0) * dir
+    );
+  });
+
+  let html = '';
+
+  sections.forEach(s => {
+    if (!isFiltering) {
+      const isCollapsed = collapsed[s.type];
+      const label = s.type === 'co'
         ? 'Country Offices'
         : 'Regional Bureaux, Thematic &amp; Programme Accounts';
-      const cls = r.type === 'co' ? 'co' : 'regional';
+      const cls = s.type === 'co' ? 'co' : 'regional';
       const chevHtml = isCollapsed ? CHEV_CLOSE : CHEV_OPEN;
+      const sd = sectionSort[s.type];
+      const sortChev = `<svg class="sec-sort-chevron ${sd === 1 ? 'asc' : 'desc'}" viewBox="0 0 24 24" onclick="toggleSectionSort('${s.type}', event)" title="${sd === 1 ? 'A→Z — click for Z→A' : 'Z→A — click for A→Z'}"><polyline points="6 9 12 15 18 9"/></svg>`;
       html += `<tr class="sec-row">
         <td colspan="5">
-          <div class="sec-inner ${cls}" onclick="toggleSection('${r.type}')">
-            ${chevHtml}${label}
+          <div class="sec-inner ${cls}" onclick="toggleSection('${s.type}')">
+            ${chevHtml}${label}${sortChev}
           </div>
         </td>
       </tr>`;
-      lastType = r.type;
     }
 
-    const hide = (!isFiltering && collapsed[r.type]) ? ' class="hidden"' : '';
-    html += `<tr${hide}>
-      <td class="cname">${r.country}</td>
-      ${platformCell(r.stories,  r.storiesUrl)}
-      ${platformCell(r.blog,     r.blogUrl)}
-      ${platformCell(r.exposure, r.exposureUrl)}
-      ${platformCell(r.flickr,   r.flickrUrl)}
-    </tr>`;
+    s.items.forEach(r => {
+      const hide = (!isFiltering && collapsed[s.type]) ? ' class="hidden"' : '';
+      html += `<tr${hide}>
+        <td class="cname">${r.country}</td>
+        ${platformCell(r.stories,  r.storiesUrl)}
+        ${platformCell(r.blog,     r.blogUrl)}
+        ${platformCell(r.exposure, r.exposureUrl)}
+        ${platformCell(r.flickr,   r.flickrUrl)}
+      </tr>`;
+    });
   });
 
   tbody.innerHTML = html;
