@@ -776,14 +776,14 @@ function renderGallery() {
           ${dateStr ? `<span class="gcard-date">${dateStr}</span>` : ''}
         </div>
         <div class="gcard-title-row">
-          <span class="gcard-title">${c.title || PLATFORM_LABELS[c.platform]}</span>
+          <span class="gcard-title">${c.platform === "flickr" && c.title ? "Photo: " + c.title : c.title || PLATFORM_LABELS[c.platform]}</span>
           <span class="gcard-ext">${EXT}</span>
         </div>
-        ${c.album ? `<span class="gcard-album">${c.album}</span>` : ''}
+        ${c.album ? `<span class="gcard-album">Album: ${c.album}</span>` : ''}
         <span class="gcard-platform">${PLATFORM_LABELS[c.platform]}</span>
         ${(c.album || c.date_uploaded || c.date_taken) && c.platform === 'flickr' ? `
           <div class="gcard-flickr-meta">
-            ${c.album ? `<span class="gcard-album">📁 ${c.album}</span>` : ''}
+            ${c.album ? `<span class="gcard-album">Album: ${c.album}</span>` : ''}
             ${c.date_taken ? `<span class="gcard-date-detail">📷 Taken: ${c.date_taken}</span>` : ''}
             ${c.date_uploaded ? `<span class="gcard-date-detail">⬆️ Uploaded: ${c.date_uploaded}</span>` : ''}
           </div>` : ''}
