@@ -201,32 +201,54 @@ def flickr_latest(nsid):
     if title_tag and title_tag.text:
         title = title_tag.text.strip()
 
-    # Extract album name from <category scheme="flickr:set" label="Album Title"/>
-    # These are embedded in the Atom feed entry — no extra request needed
-    album = None
-    for cat in entry.find_all("category"):
-        scheme = cat.get("scheme", "")
-        label = cat.get("label", "").strip()
-        if "set" in scheme.lower() and label:
-            album = label
-            break
-    # Fallback: look in raw XML for flickr:set with a label
-    if not album:
-        m = re.search(r'scheme="flickr:set"[^/]*label="([^"]+)"', r.text)
-        if not m:
-            m = re.search(r'label="([^"]+)"[^/]*scheme="flickr:set"', r.text)
-        if m:
-            album = m.group(1)
-
     if pub:
         try:
             dt = datetime.fromisoformat(pub.text.replace("Z", "+00:00"))
-            return dt.strftime("%Y-%m-%d"), url, img_url, title, album
+            return dt.strftime("%Y-%m-%d"), url, img_url, title
         except Exception:
             pass
-    return None, url, img_url, title, album
+    return None, url, img_url, title
 
 
+
+
+async def flickr_photo_page_details(browser, photo_url):
+    """
+    Use Playwright to scrape a Flickr photo page for album name and dates.
+    Returns (album, date_uploaded, date_taken) — all may be None.
+    """
+    html = await _fetch_html(browser, photo_url)  # No selector wait — just DOM
+    if not html:
+        return None, None, None
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Album: "This photo is in 1 album" section → find the album title link
+    album = None
+    # Look for the album link — it's an <a> tag near "album" text
+    for a in soup.find_all("a", href=True):
+        if "/albums/" in a["href"] or "/sets/" in a["href"]:
+            txt = a.get_text(strip=True)
+            if txt and len(txt) > 2:
+                album = txt
+                break
+    # Fallback: regex on raw HTML
+    if not album:
+        m = re.search(r'/(?:albums|sets)/\d+[^"]*"[^>]*>\s*([^<]{3,100})\s*<', html)
+        if m:
+            album = m.group(1).strip()
+
+    # Dates: "Uploaded on ..." and "Taken on ..."
+    date_uploaded = None
+    date_taken = None
+    text = soup.get_text(" ")
+    m = re.search(r"Uploaded\s+on\s+([\w]+ \d+,\s*\d{4})", text)
+    if m:
+        date_uploaded = m.group(1).strip()
+    m = re.search(r"Taken\s+on\s+([\w]+ \d+,\s*\d{4})", text)
+    if m:
+        date_taken = m.group(1).strip()
+
+    return album, date_uploaded, date_taken
 
 
 # Month name → number map for parsing Exposure's "January 1st, 2025" format
@@ -507,7 +529,7 @@ async def scrape_office(browser, sem, i, total, row):
         print(f"[{i+1}/{total}] {country}", flush=True)
         rec = {
             "country":  country,
-            "flickr":   {"url": flickr_url,   "date": None, "latest_url": None, "image_url": None, "title": None, "album": None},
+            "flickr":   {"url": flickr_url,   "date": None, "latest_url": None, "image_url": None, "title": None, "album": None, "date_uploaded": None, "date_taken": None},
             "exposure": {"url": exposure_url,  "date": None, "latest_url": None, "image_url": None, "title": None},
             "stories":  {"url": stories_url,   "date": None, "latest_url": None, "image_url": None, "title": None},
             "blog":     {"url": blog_url,      "date": None, "latest_url": None, "image_url": None, "title": None},
@@ -525,17 +547,27 @@ async def scrape_office(browser, sem, i, total, row):
         for plat, fb_url, coro in tasks:
             try:
                 result = await asyncio.wait_for(coro, timeout=25)
-                if len(result) == 5:
-                    d, lu, img, ttl, alb = result
-                    rec[plat]["album"] = alb
-                else:
-                    d, lu, img, ttl = result
+                d, lu, img, ttl = result
                 rec[plat]["date"]       = d
                 rec[plat]["latest_url"] = lu or fb_url
                 rec[plat]["image_url"]  = img
                 rec[plat]["title"]      = ttl
             except Exception as e:
                 print(f"  SKIP {country}/{plat}: {e}", file=sys.stderr)
+
+        # Scrape Flickr photo page for album + dates (using Playwright)
+        photo_url = rec["flickr"].get("latest_url")
+        if photo_url and "flickr.com/photos/" in photo_url and "/photos/" in photo_url:
+            try:
+                alb, uploaded, taken = await asyncio.wait_for(
+                    flickr_photo_page_details(browser, photo_url),
+                    timeout=15
+                )
+                rec["flickr"]["album"]         = alb
+                rec["flickr"]["date_uploaded"] = uploaded
+                rec["flickr"]["date_taken"]    = taken
+            except Exception as e:
+                print(f"  SKIP {country}/flickr-page: {e}", file=sys.stderr)
 
         return rec
 
