@@ -535,13 +535,13 @@ async def scrape_office(browser, sem, i, total, row):
             except Exception as e:
                 print(f"  SKIP {country}/{plat}: {e}", file=sys.stderr)
 
-        # Fetch Flickr album name separately (extra request, non-blocking)
+        # Fetch Flickr album name via Playwright (bypasses bot detection)
         photo_url = rec["flickr"].get("latest_url")
         if photo_url and photo_url != rec["flickr"].get("url") and "flickr.com/photos/" in photo_url:
             try:
                 alb = await asyncio.wait_for(
-                    asyncio.to_thread(_flickr_album_from_photo_page, photo_url),
-                    timeout=12
+                    _flickr_album_from_photo_page(browser, photo_url),
+                    timeout=20
                 )
                 rec["flickr"]["album"] = alb
             except Exception:
