@@ -201,18 +201,13 @@ def flickr_latest(nsid):
     if title_tag and title_tag.text:
         title = title_tag.text.strip()
 
-    # Fetch album name from the photo page (Flickr embeds modelExport JSON)
-    album = None
-    if url:
-        album = _flickr_album_from_photo_page(url)
-
     if pub:
         try:
             dt = datetime.fromisoformat(pub.text.replace("Z", "+00:00"))
-            return dt.strftime("%Y-%m-%d"), url, img_url, title, album
+            return dt.strftime("%Y-%m-%d"), url, img_url, title
         except Exception:
             pass
-    return None, url, img_url, title, album
+    return None, url, img_url, title
 
 
 def _flickr_album_from_photo_page(photo_url):
@@ -532,17 +527,26 @@ async def scrape_office(browser, sem, i, total, row):
         for plat, fb_url, coro in tasks:
             try:
                 result = await asyncio.wait_for(coro, timeout=25)
-                if len(result) == 5:
-                    d, lu, img, ttl, alb = result
-                    rec[plat]["album"] = alb
-                else:
-                    d, lu, img, ttl = result
+                d, lu, img, ttl = result
                 rec[plat]["date"]       = d
                 rec[plat]["latest_url"] = lu or fb_url
                 rec[plat]["image_url"]  = img
                 rec[plat]["title"]      = ttl
             except Exception as e:
                 print(f"  SKIP {country}/{plat}: {e}", file=sys.stderr)
+
+        # Fetch Flickr album name separately (extra request, non-blocking)
+        photo_url = rec["flickr"].get("latest_url")
+        if photo_url and photo_url != rec["flickr"].get("url") and "flickr.com/photos/" in photo_url:
+            try:
+                alb = await asyncio.wait_for(
+                    asyncio.to_thread(_flickr_album_from_photo_page, photo_url),
+                    timeout=12
+                )
+                rec["flickr"]["album"] = alb
+            except Exception:
+                pass  # Album is optional, silently skip
+
         return rec
 
 
