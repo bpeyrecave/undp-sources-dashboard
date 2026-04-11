@@ -201,34 +201,32 @@ def flickr_latest(nsid):
     if title_tag and title_tag.text:
         title = title_tag.text.strip()
 
+    # Extract album name from <category scheme="flickr:set" label="Album Title"/>
+    # These are embedded in the Atom feed entry — no extra request needed
+    album = None
+    for cat in entry.find_all("category"):
+        scheme = cat.get("scheme", "")
+        label = cat.get("label", "").strip()
+        if "set" in scheme.lower() and label:
+            album = label
+            break
+    # Fallback: look in raw XML for flickr:set with a label
+    if not album:
+        m = re.search(r'scheme="flickr:set"[^/]*label="([^"]+)"', r.text)
+        if not m:
+            m = re.search(r'label="([^"]+)"[^/]*scheme="flickr:set"', r.text)
+        if m:
+            album = m.group(1)
+
     if pub:
         try:
             dt = datetime.fromisoformat(pub.text.replace("Z", "+00:00"))
-            return dt.strftime("%Y-%m-%d"), url, img_url, title
+            return dt.strftime("%Y-%m-%d"), url, img_url, title, album
         except Exception:
             pass
-    return None, url, img_url, title
+    return None, url, img_url, title, album
 
 
-def _flickr_album_from_photo_page(photo_url):
-    """Fetch the Flickr photo page and extract the album name from embedded JSON."""
-    r = get(photo_url)
-    if not r:
-        return None
-    # Flickr embeds a modelExport or YUI config with photoset info
-    # Try: "photoset":{"id":"...","title":"Album Name"}
-    m = re.search(r'"photoset"\s*:\s*\{[^}]*"title"\s*:\s*"([^"]+)"', r.text)
-    if m:
-        return m.group(1)
-    # Try: "set_title":"Album Name" or "album_title":"..."
-    m = re.search(r'"(?:set_title|album_title|photosetTitle)"\s*:\s*"([^"]+)"', r.text)
-    if m:
-        return m.group(1)
-    # Try modelExport JSON blob: look for sets context
-    m = re.search(r'"title"\s*:\s*\{"_content"\s*:\s*"([^"]+)"\}.*?"photos"', r.text)
-    if m:
-        return m.group(1)
-    return None
 
 
 # Month name → number map for parsing Exposure's "January 1st, 2025" format
@@ -527,25 +525,17 @@ async def scrape_office(browser, sem, i, total, row):
         for plat, fb_url, coro in tasks:
             try:
                 result = await asyncio.wait_for(coro, timeout=25)
-                d, lu, img, ttl = result
+                if len(result) == 5:
+                    d, lu, img, ttl, alb = result
+                    rec[plat]["album"] = alb
+                else:
+                    d, lu, img, ttl = result
                 rec[plat]["date"]       = d
                 rec[plat]["latest_url"] = lu or fb_url
                 rec[plat]["image_url"]  = img
                 rec[plat]["title"]      = ttl
             except Exception as e:
                 print(f"  SKIP {country}/{plat}: {e}", file=sys.stderr)
-
-        # Fetch Flickr album name via Playwright (bypasses bot detection)
-        photo_url = rec["flickr"].get("latest_url")
-        if photo_url and photo_url != rec["flickr"].get("url") and "flickr.com/photos/" in photo_url:
-            try:
-                alb = await asyncio.wait_for(
-                    _flickr_album_from_photo_page(browser, photo_url),
-                    timeout=20
-                )
-                rec["flickr"]["album"] = alb
-            except Exception:
-                pass  # Album is optional, silently skip
 
         return rec
 
