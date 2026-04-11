@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-11T19:12:48Z",
+  "updated": "2026-04-11T19:37:18Z",
   "offices": [
     {
       "country": "Afghanistan",
@@ -44,8 +44,8 @@
         "image_url": "https://live.staticflickr.com/65535/54039244552_346bb6831f_b.jpg",
         "title": "DSC05354",
         "album": null,
-        "date_uploaded": "October 3, 2024",
-        "date_taken": "September 25, 2024"
+        "date_uploaded": null,
+        "date_taken": null
       },
       "exposure": {
         "url": "",
@@ -214,8 +214,8 @@
         "image_url": "https://live.staticflickr.com/65535/54067063838_7da2db9c21_b.jpg",
         "title": "IMG_0326",
         "album": null,
-        "date_uploaded": "October 14, 2024",
-        "date_taken": "October 12, 2024"
+        "date_uploaded": null,
+        "date_taken": null
       },
       "exposure": {
         "url": "https://undpukraine.exposure.co/",
@@ -247,7 +247,7 @@
         "latest_url": "https://www.flickr.com/photos/195696709@N04/54975219067/",
         "image_url": "https://live.staticflickr.com/65535/54975219067_c2a25a2471_b.jpg",
         "title": "9/12/2025 • Visita e Gravação do podcast \"Fala Enfam\" com  Claudio Providas (Representante Residente do PNUD no Brasil) • Brasília/DF",
-        "album": null,
+        "album": "Gravação do Podcast FALA ENFAM",
         "date_uploaded": "December 10, 2025",
         "date_taken": "December 9, 2025"
       },
@@ -281,7 +281,7 @@
         "latest_url": "https://www.flickr.com/photos/196676637@N05/55183466918/",
         "image_url": "https://live.staticflickr.com/65535/55183466918_5d1991c960_b.jpg",
         "title": "IMG_7221",
-        "album": null,
+        "album": "Revue annuelle 2025",
         "date_uploaded": "April 2, 2026",
         "date_taken": "March 31, 2026"
       },
@@ -349,7 +349,7 @@
         "latest_url": "https://www.flickr.com/photos/143329027@N03/55180117985/",
         "image_url": "https://live.staticflickr.com/65535/55180117985_3bcc0d4ab5_b.jpg",
         "title": "LuceroGreoCentro-4",
-        "album": null,
+        "album": "Comparecencia efectiva 2026",
         "date_uploaded": "March 31, 2026",
         "date_taken": "March 24, 2026"
       },
@@ -383,7 +383,7 @@
         "latest_url": "https://www.flickr.com/photos/188532807@N05/55166752637/",
         "image_url": "https://live.staticflickr.com/65535/55166752637_d06aac60f8_b.jpg",
         "title": "GIIA Final Event",
-        "album": null,
+        "album": "Sarajevo School of Science and Technology, GIIA Final Conference, 24 March 2026",
         "date_uploaded": "March 25, 2026",
         "date_taken": null
       },
@@ -826,8 +826,8 @@
         "image_url": "https://live.staticflickr.com/65535/55037484005_cdbd8e5770_b.jpg",
         "title": "undp-mru-mauritius-vision-2050-foresight-training-56",
         "album": null,
-        "date_uploaded": "January 12, 2026",
-        "date_taken": "January 9, 2026"
+        "date_uploaded": null,
+        "date_taken": null
       },
       "exposure": {
         "url": "",
@@ -894,8 +894,8 @@
         "image_url": "https://live.staticflickr.com/65535/54199401386_b76b9bf91a_b.jpg",
         "title": "Herders embrace sustainable herding practices",
         "album": null,
-        "date_uploaded": "December 12, 2024",
-        "date_taken": "October 21, 2024"
+        "date_uploaded": null,
+        "date_taken": null
       },
       "exposure": {
         "url": "",
@@ -927,7 +927,7 @@
         "latest_url": "https://www.flickr.com/photos/106991185@N05/55166516949/",
         "image_url": "https://live.staticflickr.com/65535/55166516949_b51726e961_b.jpg",
         "title": "Discussing youth empowerment and fostering regional dialogue within the Berlin Process - March 2026",
-        "album": null,
+        "album": "Discussing youth empowerment and fostering regional dialogue within the Berlin Process - March 2026",
         "date_uploaded": "March 24, 2026",
         "date_taken": null
       },
@@ -1063,7 +1063,7 @@
         "latest_url": "https://www.flickr.com/photos/155976344@N02/55151505935/",
         "image_url": "https://live.staticflickr.com/65535/55151505935_d86c7c8197_b.jpg",
         "title": "IMG_3650",
-        "album": null,
+        "album": "Visita de Revai Makenje a Centros Penitenciarios Marzo 2026",
         "date_uploaded": "March 16, 2026",
         "date_taken": "March 3, 2026"
       },
@@ -1097,7 +1097,7 @@
         "latest_url": "https://www.flickr.com/photos/148279672@N05/54207314966/",
         "image_url": "https://live.staticflickr.com/65535/54207314966_9c6e6f27e5_b.jpg",
         "title": "Crisis & Conflict",
-        "album": null,
+        "album": "UNDP Digital Communications Awards",
         "date_uploaded": "December 16, 2024",
         "date_taken": null
       },
@@ -1165,7 +1165,7 @@
         "latest_url": "https://www.flickr.com/photos/194545654@N04/54703447100/",
         "image_url": "https://live.staticflickr.com/65535/54703447100_10d0eab5e0_b.jpg",
         "title": "_E6A9999",
-        "album": null,
+        "album": "Sahel Governance Forum",
         "date_uploaded": "August 6, 2025",
         "date_taken": "July 31, 2025"
       },
@@ -1199,7 +1199,7 @@
         "latest_url": "https://www.flickr.com/photos/160133712@N07/55196221413/",
         "image_url": "https://live.staticflickr.com/65535/55196221413_303b805068_b.jpg",
         "title": "vlcsnap-823188",
-        "album": null,
+        "album": "SGP Malaysia - Using technology to protect sea turtles in Malaysia",
         "date_uploaded": "April 9, 2026",
         "date_taken": null
       },
@@ -1301,7 +1301,7 @@
         "latest_url": "https://www.flickr.com/photos/122929707@N08/54803829078/",
         "image_url": "https://live.staticflickr.com/65535/54803829078_b8a5a3d5de_b.jpg",
         "title": "20250919_070340400_iOS",
-        "album": null,
+        "album": "The Mainstreaming of Tsunami and Disaster Preparedness into National Policies",
         "date_uploaded": "September 22, 2025",
         "date_taken": "January 15, 2026"
       },
@@ -1335,7 +1335,7 @@
         "latest_url": "https://www.flickr.com/photos/63970428@N08/54222252574/",
         "image_url": "https://live.staticflickr.com/65535/54222252574_904c3dd214_b.jpg",
         "title": "A meeting at Keidanren",
-        "album": null,
+        "album": "2024 Administrator's visit to Tokyo",
         "date_uploaded": "December 23, 2024",
         "date_taken": "December 16, 2024"
       },
@@ -1369,7 +1369,7 @@
         "latest_url": "https://www.flickr.com/photos/193591905@N07/54991612953/",
         "image_url": "https://live.staticflickr.com/65535/54991612953_af8cd403fc_b.jpg",
         "title": "IMG_9419",
-        "album": null,
+        "album": "The International Startup Forum 2025",
         "date_uploaded": "December 18, 2025",
         "date_taken": "November 13, 2025"
       },
@@ -1437,7 +1437,7 @@
         "latest_url": "https://www.flickr.com/photos/90476166@N07/55197706302/",
         "image_url": "https://live.staticflickr.com/65535/55197706302_530dcaf0ee_b.jpg",
         "title": "0E5A8576",
-        "album": null,
+        "album": "Aral Sea Wetlands Board Meeting - 10/04/2026",
         "date_uploaded": "April 10, 2026",
         "date_taken": "April 10, 2026"
       },
@@ -1471,7 +1471,7 @@
         "latest_url": "https://www.flickr.com/photos/124761789@N08/45002226272/",
         "image_url": "https://live.staticflickr.com/1916/45002226272_57720cfe71_b.jpg",
         "title": "visiting posidonia meadows -capo gallo",
-        "album": null,
+        "album": "Marine Protected Areas in Albania",
         "date_uploaded": "October 2, 2018",
         "date_taken": "September 20, 2018"
       },
@@ -1505,7 +1505,7 @@
         "latest_url": "https://www.flickr.com/photos/131208323@N07/31033383347/",
         "image_url": "https://live.staticflickr.com/4910/31033383347_a51b521303_b.jpg",
         "title": "Desarrollo de Capacidades Estatales para prevenir y responder a la Violencia contra las Mujeres y Niñas",
-        "album": null,
+        "album": "Programa Regional PNUD+CAF",
         "date_uploaded": "November 20, 2018",
         "date_taken": "November 20, 2018"
       },
@@ -1573,7 +1573,7 @@
         "latest_url": "https://www.flickr.com/photos/98606405@N05/27109103279/",
         "image_url": "https://live.staticflickr.com/4566/27109103279_764ccac8e4_b.jpg",
         "title": "Web",
-        "album": null,
+        "album": "Inclusive Business Maturity, Impact Measurement and Management Workshop",
         "date_uploaded": "December 7, 2017",
         "date_taken": null
       },
@@ -1608,8 +1608,8 @@
         "image_url": "https://live.staticflickr.com/5468/9408004446_6587f6de8c_b.jpg",
         "title": "undp_belarus_in action (40)",
         "album": null,
-        "date_uploaded": "July 31, 2013",
-        "date_taken": "October 20, 2010"
+        "date_uploaded": null,
+        "date_taken": null
       },
       "exposure": {
         "url": "",
@@ -1675,7 +1675,7 @@
         "latest_url": "https://www.flickr.com/photos/152771673@N06/28492687847/",
         "image_url": "https://live.staticflickr.com/1782/28492687847_0db09a0a14_b.jpg",
         "title": "Intercambio Sur-Sur en gestión turística de emprendimientos comunitarios en Perú",
-        "album": null,
+        "album": "Intercambio Sur-Sur",
         "date_uploaded": "July 12, 2018",
         "date_taken": "June 28, 2018"
       },
@@ -1744,8 +1744,8 @@
         "image_url": "https://live.staticflickr.com/928/39790465510_efb4299e8c_b.jpg",
         "title": "Volunteers of the Kirundo's Red Cross Committee",
         "album": null,
-        "date_uploaded": "April 21, 2018",
-        "date_taken": "April 18, 2018"
+        "date_uploaded": null,
+        "date_taken": null
       },
       "exposure": {
         "url": "",
@@ -1778,7 +1778,7 @@
         "image_url": "https://live.staticflickr.com/65535/54901402930_592cdcf63d_b.jpg",
         "title": "UNRBHR2025-1256",
         "album": null,
-        "date_uploaded": "November 4, 2025",
+        "date_uploaded": null,
         "date_taken": null
       },
       "exposure": {
@@ -1913,7 +1913,7 @@
         "latest_url": "https://www.flickr.com/photos/183280342@N05/48913823128/",
         "image_url": "https://live.staticflickr.com/65535/48913823128_2aea815a36_b.jpg",
         "title": "EmpoderamientoMujeres",
-        "album": null,
+        "album": "Igualdad de género y empoderamiento de las mujeres",
         "date_uploaded": "October 17, 2019",
         "date_taken": null
       },
@@ -2015,7 +2015,7 @@
         "latest_url": "https://www.flickr.com/photos/138144707@N08/43598810125/",
         "image_url": "https://live.staticflickr.com/1875/43598810125_ed4deb2aae_b.jpg",
         "title": "UNDP_ER_Areza_Maidma_powerplants (28)",
-        "album": null,
+        "album": "Solar minigrids in Areza and Maidma",
         "date_uploaded": "September 6, 2018",
         "date_taken": "August 20, 2018"
       },
@@ -2118,8 +2118,8 @@
         "image_url": "https://live.staticflickr.com/4301/35237967173_f222e31ece_b.jpg",
         "title": "UNDP_GH_COMM_SDGsPP1",
         "album": null,
-        "date_uploaded": "July 20, 2017",
-        "date_taken": "July 20, 2017"
+        "date_uploaded": null,
+        "date_taken": null
       },
       "exposure": {
         "url": "",
@@ -2219,7 +2219,7 @@
         "latest_url": "https://www.flickr.com/photos/93491749@N08/8493418375/",
         "image_url": "https://live.staticflickr.com/8086/8493418375_0416e4843f_b.jpg",
         "title": "IMG_1366",
-        "album": null,
+        "album": "Kupang Tomi Oct 2012",
         "date_uploaded": "February 21, 2013",
         "date_taken": "October 28, 2012"
       },
@@ -2355,7 +2355,7 @@
         "latest_url": "https://www.flickr.com/photos/132967828@N08/31439695537/",
         "image_url": "https://live.staticflickr.com/4911/31439695537_20539ffe6f_b.jpg",
         "title": "DSC_2351",
-        "album": null,
+        "album": "Gender & Security National Taskforce Conclude Women Confab",
         "date_uploaded": "December 19, 2018",
         "date_taken": "December 15, 2018"
       },
@@ -2457,7 +2457,7 @@
         "latest_url": "https://www.flickr.com/photos/132226887@N03/24623501520/",
         "image_url": "https://live.staticflickr.com/1608/24623501520_380f679569_b.jpg",
         "title": "_MG_0132",
-        "album": null,
+        "album": "le beau staff du PNUD en action",
         "date_uploaded": "February 9, 2016",
         "date_taken": "February 8, 2016"
       },
@@ -2491,7 +2491,7 @@
         "latest_url": "https://www.flickr.com/photos/120267337@N06/22477755337/",
         "image_url": "https://live.staticflickr.com/5625/22477755337_d6aa13e3dd_b.jpg",
         "title": "Morocco_Caravane8",
-        "album": null,
+        "album": "8ème étape de la Caravane \"Ana Maa'k Ya Chabab\"",
         "date_uploaded": "November 9, 2015",
         "date_taken": "October 30, 2015"
       },
@@ -2797,7 +2797,7 @@
         "latest_url": "https://www.flickr.com/photos/98900690@N05/18379318632/",
         "image_url": "https://live.staticflickr.com/293/18379318632_bd7ac6567d_b.jpg",
         "title": "MAP2_Final1505",
-        "album": null,
+        "album": "Climate Box presentation December 2014",
         "date_uploaded": "June 2, 2015",
         "date_taken": null
       },
@@ -2831,7 +2831,7 @@
         "latest_url": "https://www.flickr.com/photos/61881570@N05/45050123134/",
         "image_url": "https://live.staticflickr.com/1950/45050123134_7bf3e3f3c8_b.jpg",
         "title": "UNDESA USG visit 8",
-        "album": null,
+        "album": "Mr Liu's USG UNDESA inspection VCP site",
         "date_uploaded": "November 8, 2018",
         "date_taken": "October 29, 2018"
       },
@@ -2934,8 +2934,8 @@
         "image_url": "https://live.staticflickr.com/65535/52767568728_c368164ae2_b.jpg",
         "title": "IMG_3701",
         "album": null,
-        "date_uploaded": "March 24, 2023",
-        "date_taken": "March 24, 2023"
+        "date_uploaded": null,
+        "date_taken": null
       },
       "exposure": {
         "url": "",
@@ -3069,7 +3069,7 @@
         "latest_url": "https://www.flickr.com/photos/199227871@N04/53319477692/",
         "image_url": "https://live.staticflickr.com/65535/53319477692_fa06dd1b11_b.jpg",
         "title": "pnud-tchad-station-meteo-deli-22",
-        "album": null,
+        "album": "Stations météorologiques automatisées à Déli, province de Logone Occidentale",
         "date_uploaded": "November 9, 2023",
         "date_taken": "October 25, 2022"
       },
@@ -3104,8 +3104,8 @@
         "image_url": "https://live.staticflickr.com/65535/53512317419_9e7b004951_b.jpg",
         "title": "ATSEA 2 Action Plan workshop00004",
         "album": null,
-        "date_uploaded": "February 6, 2024",
-        "date_taken": "February 1, 2024"
+        "date_uploaded": null,
+        "date_taken": null
       },
       "exposure": {
         "url": "",
@@ -3171,7 +3171,7 @@
         "latest_url": "https://www.flickr.com/photos/128649079@N08/16443824004/",
         "image_url": "https://live.staticflickr.com/7604/16443824004_486c70b8fe_b.jpg",
         "title": "DSC01457",
-        "album": null,
+        "album": "Retraite PNUD 2015",
         "date_uploaded": "April 7, 2015",
         "date_taken": "April 4, 2015"
       },
@@ -3273,7 +3273,7 @@
         "latest_url": "https://www.flickr.com/photos/132265388@N07/52534978367/",
         "image_url": "https://live.staticflickr.com/65535/52534978367_94c616b576_b.jpg",
         "title": "Activate - jornada de intervención",
-        "album": null,
+        "album": "Activate - jornada de intervención Urbana",
         "date_uploaded": "December 1, 2022",
         "date_taken": null
       },
@@ -3307,7 +3307,7 @@
         "latest_url": "https://www.flickr.com/photos/73471477@N07/52847419490/",
         "image_url": "https://live.staticflickr.com/65535/52847419490_811e26e221_b.jpg",
         "title": "SFS conference_Side event backdrop",
-        "album": null,
+        "album": "[2023.04.25] SIDE EVENT: Deforestation-free agricultural commodity production & trade",
         "date_uploaded": "April 26, 2023",
         "date_taken": null
       },
@@ -3341,7 +3341,7 @@
         "latest_url": "https://www.flickr.com/photos/143320674@N04/27471335635/",
         "image_url": "https://live.staticflickr.com/7281/27471335635_003b26d0d5_b.jpg",
         "title": "IMG_3160",
-        "album": null,
+        "album": "World Environment Day 2016",
         "date_uploaded": "June 5, 2016",
         "date_taken": "September 13, 2015"
       },
