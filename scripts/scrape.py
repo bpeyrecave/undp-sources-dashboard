@@ -215,40 +215,50 @@ def flickr_latest(nsid):
 async def flickr_photo_page_details(browser, photo_url):
     """
     Use Playwright to scrape a Flickr photo page for album name and dates.
+    Waits for React to render, then extracts via JS evaluate.
     Returns (album, date_uploaded, date_taken) — all may be None.
     """
-    html = await _fetch_html(browser, photo_url)  # No selector wait — just DOM
-    if not html:
-        return None, None, None
-    soup = BeautifulSoup(html, "html.parser")
-
-    # Album: "This photo is in 1 album" section → find the album title link
-    album = None
-    # Look for the album link — it's an <a> tag near "album" text
-    for a in soup.find_all("a", href=True):
-        if "/albums/" in a["href"] or "/sets/" in a["href"]:
-            txt = a.get_text(strip=True)
-            if txt and len(txt) > 2:
-                album = txt
+    page = await _new_page(browser)
+    try:
+        await page.goto(photo_url, timeout=PLAYWRIGHT_NAV_TIMEOUT, wait_until="domcontentloaded")
+        # Wait for the right sidebar to render — album links and date info appear here
+        for sel in ['a[href*="/albums/"]', 'a[href*="/sets/"]', '.photo-engagement-toolbar', 'dd']:
+            try:
+                await page.wait_for_selector(sel, timeout=8_000)
                 break
-    # Fallback: regex on raw HTML
-    if not album:
-        m = re.search(r'/(?:albums|sets)/\d+[^"]*"[^>]*>\s*([^<]{3,100})\s*<', html)
-        if m:
-            album = m.group(1).strip()
+            except Exception:
+                continue
 
-    # Dates: "Uploaded on ..." and "Taken on ..."
-    date_uploaded = None
-    date_taken = None
-    text = soup.get_text(" ")
-    m = re.search(r"Uploaded\s+on\s+([\w]+ \d+,\s*\d{4})", text)
-    if m:
-        date_uploaded = m.group(1).strip()
-    m = re.search(r"Taken\s+on\s+([\w]+ \d+,\s*\d{4})", text)
-    if m:
-        date_taken = m.group(1).strip()
+        # Extract directly from live DOM via JS — much more reliable than parsing HTML
+        result = await page.evaluate("""() => {
+            // Album: find <a> links pointing to /albums/ or /sets/
+            let album = null;
+            const links = document.querySelectorAll('a[href*="/albums/"], a[href*="/sets/"]');
+            for (const a of links) {
+                const txt = a.textContent.trim();
+                if (txt && txt.length > 2 && txt.length < 100) {
+                    album = txt;
+                    break;
+                }
+            }
 
-    return album, date_uploaded, date_taken
+            // Dates: scan all text nodes for "Uploaded on" and "Taken on"
+            let dateUploaded = null, dateTaken = null;
+            const bodyText = document.body.innerText;
+            const upMatch = bodyText.match(/Uploaded\s+on\s+([A-Z][a-z]+ \d+,\s*\d{4})/);
+            if (upMatch) dateUploaded = upMatch[1];
+            const takenMatch = bodyText.match(/Taken\s+on\s+([A-Z][a-z]+ \d+,\s*\d{4})/);
+            if (takenMatch) dateTaken = takenMatch[1];
+
+            return { album, dateUploaded, dateTaken };
+        }""")
+
+        return result.get("album"), result.get("dateUploaded"), result.get("dateTaken")
+    except Exception as e:
+        print(f"  WARN flickr page {photo_url}: {e}", file=sys.stderr)
+        return None, None, None
+    finally:
+        await page.close()
 
 
 # Month name → number map for parsing Exposure's "January 1st, 2025" format
