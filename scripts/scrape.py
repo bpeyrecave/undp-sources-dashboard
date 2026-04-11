@@ -4,20 +4,22 @@ Writes data.json consumed by index.html
 Run locally: python scripts/scrape.py
 """
 
-import json, re, time, sys
+import asyncio, json, re, time, sys, signal
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 
 SESSION = requests.Session()
 SESSION.headers.update({
     "User-Agent": "Mozilla/5.0 (compatible; UNDPSourcesBot/1.0)"
 })
 
-TIMEOUT = 15
-PLAYWRIGHT_TIMEOUT = 20_000  # ms
+TIMEOUT = 10
+PLAYWRIGHT_TIMEOUT = 15_000  # ms
+PLAYWRIGHT_NAV_TIMEOUT = 12_000  # ms for goto
+CONCURRENCY = 8  # parallel browser pages
 
 # ─── Source definitions ──────────────────────────────────────────────────────
 # Each entry: [country, flickr_url, flickr_nsid, exposure_url, stories_url, blog_url]
@@ -25,7 +27,9 @@ PLAYWRIGHT_TIMEOUT = 20_000  # ms
 
 OFFICES = [
     ["Afghanistan",                          "https://www.flickr.com/people/undpafghanistan/",        "undpafghanistan",      "https://undpafghanistan.exposure.co/",  "https://www.undp.org/afghanistan/stories",              "https://www.undp.org/afghanistan/blog"],
-    ["Africa",                               "https://www.flickr.com/people/201539903@N07/",          "201539903@N07",        "",                                      "",                                                      ""],
+    ["Regional Bureau for Africa",                  "https://www.flickr.com/people/201539903@N07/",  "201539903@N07",    "", "https://www.undp.org/africa/stories",        "https://www.undp.org/africa/blogs"],
+    ["Regional Bureau for Arab States",              "https://www.flickr.com/people/undparabstats/",  "undparabstats",   "", "https://www.undp.org/arab-states/stories",    "https://www.undp.org/arab-states/blogs"],
+    ["Regional Bureau for Asia and the Pacific",     "https://www.flickr.com/photos/undp-aprc/",      "undp-aprc",        "", "https://www.undp.org/asia-pacific/stories",   "https://www.undp.org/asia-pacific/blogs"],
     ["Barbados and Eastern Caribbean",       "https://www.flickr.com/people/undpbarbadosec/",         "undpbarbadosec",       "",                                      "https://www.undp.org/barbados/stories",                 "https://www.undp.org/barbados/blog"],
     ["Belize",                               "https://www.flickr.com/people/undpbelize/",             "undpbelize",           "",                                      "https://www.undp.org/belize/stories",                   "https://www.undp.org/belize/blog"],
     ["BMO Phase II UNDP Ukraine",            "https://www.flickr.com/people/194152175@N08/",          "194152175@N08",        "https://undpukraine.exposure.co/",      "",                                                      ""],
@@ -43,14 +47,14 @@ OFFICES = [
     ["Irak",                                 "https://www.flickr.com/people/undpiraq/",              "undpiraq",             "",                                      "https://www.undp.org/iraq/stories",                     "https://www.undp.org/iraq/blog"],
     ["Kosovo",                               "https://www.flickr.com/people/undpkosovo/",             "undpkosovo",           "https://undpkosovo.exposure.co/",       "https://www.undp.org/kosovo/stories",                   "https://www.undp.org/kosovo/blog"],
     ["Kyrgyz Republic",                      "https://www.flickr.com/people/undpkg/",                "undpkg",               "",                                      "https://www.undp.org/kyrgyzstan/stories",               "https://www.undp.org/kyrgyzstan/blog"],
-    ["Latin America and the Caribbean",      "https://www.flickr.com/people/undplac/",               "undplac",              "",                                      "https://www.undp.org/latin-america-caribbean/stories",  "https://www.undp.org/latin-america-caribbean/blog"],
+    ["Latin America & Caribbean",            "https://www.flickr.com/people/undplac/",               "undplac",              "https://undplac.exposure.co/categories/latin-america-and-the-caribbean", "https://www.undp.org/latin-america-caribbean/stories", "https://www.undp.org/latin-america-caribbean/blog"],
     ["Lebanon",                              "https://www.flickr.com/people/undplebanon/",            "undplebanon",          "",                                      "https://www.undp.org/lebanon/stories",                  "https://www.undp.org/lebanon/blog"],
     ["LHSP Lebanon Host Communities",        "https://www.flickr.com/people/undp_lhsp/",             "undp_lhsp",            "",                                      "",                                                      ""],
     ["Mauritius",                            "https://www.flickr.com/people/183529514@N02/",          "183529514@N02",        "",                                      "https://www.undp.org/mauritius/stories",                "https://www.undp.org/mauritius/blog"],
     ["Moldova",                              "https://www.flickr.com/people/undpmoldova/",            "undpmoldova",          "https://undpmoldova.exposure.co/",      "https://www.undp.org/moldova/stories",                  "https://www.undp.org/moldova/blog"],
     ["Mongolia",                             "https://www.flickr.com/people/142250687@N05/",          "142250687@N05",        "",                                      "https://www.undp.org/mongolia/stories",                 "https://www.undp.org/mongolia/blog"],
     ["Montenegro",                           "https://www.flickr.com/people/106991185@N05/",          "106991185@N05",        "https://undpmontenegro.exposure.co/",   "https://www.undp.org/montenegro/stories",               "https://www.undp.org/montenegro/blog"],
-    ["Nature",                               "https://www.flickr.com/people/undp-ebd/",              "undp-ebd",             "https://undp-nature.exposure.co/",      "",                                                      ""],
+    ["Nature Hub",                           "https://www.flickr.com/people/undp-ebd/",              "undp-ebd",             "https://undp-nature.exposure.co/",      "https://www.undp.org/nature/stories",                   "https://www.undp.org/nature/blogs"],
     ["Pacific Office in Fiji",               "https://www.flickr.com/people/undppc/",                "undppc",               "https://pacificundp.exposure.co/",      "https://www.undp.org/pacific/stories",                  "https://www.undp.org/pacific/blog"],
     ["Pakistan",                             "https://www.flickr.com/people/undppakistan/",           "undppakistan",         "https://undp-pakistan.exposure.co/",    "https://www.undp.org/pakistan/stories",                 "https://www.undp.org/pakistan/blog"],
     ["Panamá",                               "https://www.flickr.com/people/155976344@N02/",          "155976344@N02",        "",                                      "https://www.undp.org/panama/stories",                   "https://www.undp.org/panama/blog"],
@@ -83,7 +87,7 @@ OFFICES = [
     ["El Salvador",                          "https://www.flickr.com/people/pnud_el_salvador/",      "pnud_el_salvador",     "",                                      "https://www.undp.org/el-salvador/stories",              "https://www.undp.org/el-salvador/blog"],
     ["Eritrea",                              "https://www.flickr.com/photos/138144707@N08/",          "138144707@N08",        "",                                      "https://www.undp.org/eritrea/stories",                  "https://www.undp.org/eritrea/blog"],
     ["Ethiopia",                             "https://www.flickr.com/people/undpethiopia/",           "undpethiopia",         "",                                      "https://www.undp.org/ethiopia/stories",                 "https://www.undp.org/ethiopia/blog"],
-    ["Europe and Cis",                       "https://www.flickr.com/photos/undpeuropeandcis/",       "undpeuropeandcis",     "",                                      "",                                                      ""],
+    ["Regional Bureau for Europe and Central Asia", "https://www.flickr.com/photos/undpeuropeandcis/", "undpeuropeandcis", "", "https://www.undp.org/europe-central-asia/stories", "https://www.undp.org/europe-central-asia/blogs"],
     ["Ghana",                                "https://www.flickr.com/people/42913191@N02/",           "42913191@N02",         "",                                      "https://www.undp.org/ghana/stories",                    "https://www.undp.org/ghana/blog"],
     ["Honduras",                             "https://www.flickr.com/photos/pnudhn/",                "pnudhn",               "",                                      "https://www.undp.org/honduras/stories",                 "https://www.undp.org/honduras/blog"],
     ["India",                                "https://www.flickr.com/photos/undp-india/albums/",      "undp-india",           "https://undp-india.exposure.co/",       "https://www.undp.org/india/stories",                    "https://www.undp.org/india/blog"],
@@ -173,13 +177,17 @@ def flickr_latest(nsid):
         m = re.search(r"https://[^\"']+_[mzb]\.jpg", r.text)
         if m:
             img_url = m.group(0)
+    title = None
+    title_tag = entry.find("title")
+    if title_tag and title_tag.text:
+        title = title_tag.text.strip()
     if pub:
         try:
             dt = datetime.fromisoformat(pub.text.replace("Z", "+00:00"))
-            return dt.strftime("%Y-%m-%d"), url, img_url
+            return dt.strftime("%Y-%m-%d"), url, img_url, title
         except Exception:
             pass
-    return None, url, img_url
+    return None, url, img_url, title
 
 
 # Month name → number map for parsing Exposure's "January 1st, 2025" format
@@ -204,7 +212,7 @@ def _parse_exposure_date(text):
     return None
 
 
-def exposure_latest(base_url):
+async def exposure_latest(browser, base_url):
     """
     Scrape an Exposure.co profile page using a headless browser (it's a JS SPA).
     Finds the most recent story: returns (iso_date, story_url, image_url).
@@ -252,7 +260,11 @@ def exposure_latest(base_url):
             if img:
                 src = img.get("src") or img.get("data-src") or ""
                 img_url = src if src.startswith("http") else (site_origin + src if src.startswith("/") else None)
-        candidates.append((iso, story_url, img_url))
+        story_title = None
+        heading = card.find(["h1","h2","h3","h4"]) if card else None
+        if heading:
+            story_title = heading.get_text(strip=True) or None
+        candidates.append((iso, story_url, img_url, story_title))
 
     # Strategy 2: Parse inline date text "Month Nth, YYYY" that appears next to story links
     # Exposure renders each story as a block with a cover image, title, and date string.
@@ -280,14 +292,19 @@ def exposure_latest(base_url):
                 img_url = src
             elif src.startswith("/"):
                 img_url = site_origin + src
-        candidates.append((iso, story_url, img_url))
+        # Try to extract story title from container
+        story_title = None
+        heading = container.find(["h1","h2","h3","h4"])
+        if heading:
+            story_title = heading.get_text(strip=True) or None
+        candidates.append((iso, story_url, img_url, story_title))
 
     if candidates:
         # Deduplicate by URL, keep latest date per URL
         seen = {}
-        for iso, url, img in candidates:
+        for iso, url, img, ttl in candidates:
             if url not in seen or iso > seen[url][0]:
-                seen[url] = (iso, url, img)
+                seen[url] = (iso, url, img, ttl)
         best = sorted(seen.values(), key=lambda x: x[0], reverse=True)[0]
         return best
 
@@ -303,61 +320,43 @@ def exposure_latest(base_url):
     if dates:
         dates.sort(reverse=True)
         best = dates[0]
-        return best, base_url, imgs_by_date.get(best)
+        return best, base_url, imgs_by_date.get(best), None
 
-    return None, base_url, None
-
-
-# ─── Shared Playwright browser (lazy-initialised) ────────────────────────────
-_pw_instance = None
-_pw_browser = None
-
-def _get_browser():
-    global _pw_instance, _pw_browser
-    if _pw_browser is None:
-        _pw_instance = sync_playwright().start()
-        _pw_browser = _pw_instance.chromium.launch(headless=True)
-    return _pw_browser
+    return None, base_url, None, None
 
 
-def close_browser():
-    global _pw_instance, _pw_browser
-    if _pw_browser:
-        _pw_browser.close()
-        _pw_browser = None
-    if _pw_instance:
-        _pw_instance.stop()
-        _pw_instance = None
+# ─── Async browser helpers ────────────────────────────────────────────────────
+async def _new_page(browser):
+    page = await browser.new_page()
+    await page.set_extra_http_headers({"User-Agent": "Mozilla/5.0 (compatible; UNDPSourcesBot/1.0)"})
+    return page
 
 
-def undp_page_latest(page_url):
+async def _fetch_html(browser, url, wait_sel=None):
+    """Navigate to url, optionally wait for a selector, return HTML string or None."""
+    page = await _new_page(browser)
+    try:
+        await page.goto(url, timeout=PLAYWRIGHT_NAV_TIMEOUT, wait_until="domcontentloaded")
+        if wait_sel:
+            try:
+                await page.wait_for_selector(wait_sel, timeout=5_000)
+            except Exception:
+                pass
+        return await page.content()
+    except Exception as e:
+        print(f"  WARN {url}: {e}", file=sys.stderr)
+        return None
+    finally:
+        await page.close()
+
+
+async def undp_page_latest(browser, page_url):
     """
     Scrape an undp.org /stories or /blog listing page using a headless browser.
     Returns (iso_date, article_url, image_url) or (None, page_url, None).
     """
-    try:
-        browser = _get_browser()
-        page = browser.new_page()
-        page.set_extra_http_headers({"User-Agent": "Mozilla/5.0 (compatible; UNDPSourcesBot/1.0)"})
-        page.goto(page_url, timeout=PLAYWRIGHT_TIMEOUT, wait_until="networkidle")
-        # Wait for cards to appear — UNDP uses various card/article selectors
-        for sel in [
-            "[class*='card'] time[datetime]",
-            "[class*='story'] time[datetime]",
-            "[class*='post'] time[datetime]",
-            "article time[datetime]",
-            "time[datetime]",
-            "[class*='card']",
-        ]:
-            try:
-                page.wait_for_selector(sel, timeout=8_000)
-                break
-            except Exception:
-                continue
-        html = page.content()
-        page.close()
-    except Exception as e:
-        print(f"  WARN playwright {page_url}: {e}", file=sys.stderr)
+    html = await _fetch_html(browser, page_url, wait_sel="time[datetime], [class*='card']")
+    if not html:
         return None, page_url, None
 
     soup = BeautifulSoup(html, "html.parser")
@@ -379,7 +378,7 @@ def undp_page_latest(page_url):
                         img_url = img.get("url") if isinstance(img, dict) else (img if isinstance(img, str) else None)
                         m = re.match(r"(\d{4}-\d{2}-\d{2})", date)
                         if m:
-                            candidates.append((m.group(1), url, img_url))
+                            candidates.append((m.group(1), url, img_url, it.get("headline") or it.get("name") or None))
                 else:
                     date = item.get("datePublished") or item.get("dateModified", "")
                     url = item.get("url", page_url)
@@ -387,7 +386,7 @@ def undp_page_latest(page_url):
                     img_url = img.get("url") if isinstance(img, dict) else (img if isinstance(img, str) else None)
                     m = re.match(r"(\d{4}-\d{2}-\d{2})", date)
                     if m:
-                        candidates.append((m.group(1), url, img_url))
+                        candidates.append((m.group(1), url, img_url, item.get("headline") or item.get("name") or None))
             if candidates:
                 candidates.sort(key=lambda x: x[0], reverse=True)
                 return candidates[0]
@@ -418,7 +417,14 @@ def undp_page_latest(page_url):
                         img_url = src
                     elif src.startswith("/"):
                         img_url = "https://www.undp.org" + src
-            time_dates.append((m.group(1), link, img_url))
+            # Extract title from nearby heading
+            title = None
+            card2 = t.find_parent(["article", "li"]) or t.find_parent("div", class_=re.compile(r"card|item|story|post", re.I))
+            if card2:
+                h = card2.find(["h1","h2","h3","h4"])
+                if h:
+                    title = h.get_text(strip=True) or None
+            time_dates.append((m.group(1), link, img_url, title))
 
     if time_dates:
         time_dates.sort(key=lambda x: x[0], reverse=True)
@@ -441,80 +447,87 @@ def undp_page_latest(page_url):
     if dates:
         dates.sort(reverse=True)
         best = dates[0]
-        return best, article_links[0] if article_links else page_url, img_by_date.get(best)
+        return best, article_links[0] if article_links else page_url, img_by_date.get(best), None
 
     # Strategy 3: date in meta tags
     for meta in soup.find_all("meta", attrs={"property": re.compile(r"article:published_time|og:updated_time")}):
-        content = meta.get("content", "")
-        m = re.match(r"(\d{4}-\d{2}-\d{2})", content)
+        mc = meta.get("content", "")
+        m = re.match(r"(\d{4}-\d{2}-\d{2})", mc)
         if m:
-            return m.group(1), page_url, None
+            return m.group(1), page_url, None, None
 
-    return None, page_url, None
+    return None, page_url, None, None
 
 
 # ─── Main ────────────────────────────────────────────────────────────────────
 
-def scrape_all():
-    results = []
-    total = len(OFFICES)
-    for i, row in enumerate(OFFICES):
-        country, flickr_url, nsid, exposure_url, stories_url, blog_url = row
-        print(f"[{i+1}/{total}] {country}")
-
+async def scrape_office(browser, sem, i, total, row):
+    """Scrape one office with concurrency limiting. Returns a result dict."""
+    country, flickr_url, nsid, exposure_url, stories_url, blog_url = row
+    async with sem:
+        print(f"[{i+1}/{total}] {country}", flush=True)
         rec = {
-            "country": country,
-            "flickr":   {"url": flickr_url,    "date": None, "latest_url": None, "image_url": None},
-            "exposure": {"url": exposure_url,   "date": None, "latest_url": None, "image_url": None},
-            "stories":  {"url": stories_url,    "date": None, "latest_url": None, "image_url": None},
-            "blog":     {"url": blog_url,       "date": None, "latest_url": None, "image_url": None},
+            "country":  country,
+            "flickr":   {"url": flickr_url,   "date": None, "latest_url": None, "image_url": None, "title": None},
+            "exposure": {"url": exposure_url,  "date": None, "latest_url": None, "image_url": None, "title": None},
+            "stories":  {"url": stories_url,   "date": None, "latest_url": None, "image_url": None, "title": None},
+            "blog":     {"url": blog_url,      "date": None, "latest_url": None, "image_url": None, "title": None},
         }
-
-        # Flickr
+        tasks = []
         if nsid:
-            d, lu, img = flickr_latest(nsid)
-            rec["flickr"]["date"] = d
-            rec["flickr"]["latest_url"] = lu or flickr_url
-            rec["flickr"]["image_url"] = img
-            time.sleep(0.3)
-
-        # Exposure
+            tasks.append(("flickr",   flickr_url,   asyncio.to_thread(flickr_latest, nsid)))
         if exposure_url:
-            d, lu, img = exposure_latest(exposure_url)
-            rec["exposure"]["date"] = d
-            rec["exposure"]["latest_url"] = lu or exposure_url
-            rec["exposure"]["image_url"] = img
-            time.sleep(0.5)
-
-        # UNDP Stories
+            tasks.append(("exposure", exposure_url, exposure_latest(browser, exposure_url)))
         if stories_url:
-            d, lu, img = undp_page_latest(stories_url)
-            rec["stories"]["date"] = d
-            rec["stories"]["latest_url"] = lu or stories_url
-            rec["stories"]["image_url"] = img
-            time.sleep(0.5)
-
-        # UNDP Blog
+            tasks.append(("stories",  stories_url,  undp_page_latest(browser, stories_url)))
         if blog_url:
-            d, lu, img = undp_page_latest(blog_url)
-            rec["blog"]["date"] = d
-            rec["blog"]["latest_url"] = lu or blog_url
-            rec["blog"]["image_url"] = img
-            time.sleep(0.5)
+            tasks.append(("blog",     blog_url,     undp_page_latest(browser, blog_url)))
 
-        results.append(rec)
+        for plat, fb_url, coro in tasks:
+            try:
+                result = await asyncio.wait_for(coro, timeout=25)
+                d, lu, img, ttl = result
+                rec[plat]["date"]       = d
+                rec[plat]["latest_url"] = lu or fb_url
+                rec[plat]["image_url"]  = img
+                rec[plat]["title"]      = ttl
+            except Exception as e:
+                print(f"  SKIP {country}/{plat}: {e}", file=sys.stderr)
+        return rec
 
+
+async def scrape_all_async():
+    results_map = {}
+    total = len(OFFICES)
+    sem = asyncio.Semaphore(CONCURRENCY)
+
+    async with async_playwright() as pw:
+        browser = await pw.chromium.launch(headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"])
+        tasks = [
+            scrape_office(browser, sem, i, total, row)
+            for i, row in enumerate(OFFICES)
+        ]
+        done = await asyncio.gather(*tasks, return_exceptions=True)
+        await browser.close()
+
+    results = []
+    for i, res in enumerate(done):
+        if isinstance(res, Exception):
+            print(f"  ERROR office {i}: {res}", file=sys.stderr)
+            country = OFFICES[i][0]
+            results.append({"country": country, "flickr": {}, "exposure": {}, "stories": {}, "blog": {}})
+        else:
+            results.append(res)
+
+    # Sort to match OFFICES order
     output = {
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "offices": results,
     }
-
     with open("data.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
-
-    close_browser()
     print(f"\nDone — wrote data.json with {len(results)} offices.")
 
 
 if __name__ == "__main__":
-    scrape_all()
+    asyncio.run(scrape_all_async())
