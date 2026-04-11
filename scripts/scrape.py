@@ -200,13 +200,40 @@ def flickr_latest(nsid):
     title_tag = entry.find("title")
     if title_tag and title_tag.text:
         title = title_tag.text.strip()
+
+    # Fetch album name from the photo page (Flickr embeds modelExport JSON)
+    album = None
+    if url:
+        album = _flickr_album_from_photo_page(url)
+
     if pub:
         try:
             dt = datetime.fromisoformat(pub.text.replace("Z", "+00:00"))
-            return dt.strftime("%Y-%m-%d"), url, img_url, title
+            return dt.strftime("%Y-%m-%d"), url, img_url, title, album
         except Exception:
             pass
-    return None, url, img_url, title
+    return None, url, img_url, title, album
+
+
+def _flickr_album_from_photo_page(photo_url):
+    """Fetch the Flickr photo page and extract the album name from embedded JSON."""
+    r = get(photo_url)
+    if not r:
+        return None
+    # Flickr embeds a modelExport or YUI config with photoset info
+    # Try: "photoset":{"id":"...","title":"Album Name"}
+    m = re.search(r'"photoset"\s*:\s*\{[^}]*"title"\s*:\s*"([^"]+)"', r.text)
+    if m:
+        return m.group(1)
+    # Try: "set_title":"Album Name" or "album_title":"..."
+    m = re.search(r'"(?:set_title|album_title|photosetTitle)"\s*:\s*"([^"]+)"', r.text)
+    if m:
+        return m.group(1)
+    # Try modelExport JSON blob: look for sets context
+    m = re.search(r'"title"\s*:\s*\{"_content"\s*:\s*"([^"]+)"\}.*?"photos"', r.text)
+    if m:
+        return m.group(1)
+    return None
 
 
 # Month name → number map for parsing Exposure's "January 1st, 2025" format
@@ -487,7 +514,7 @@ async def scrape_office(browser, sem, i, total, row):
         print(f"[{i+1}/{total}] {country}", flush=True)
         rec = {
             "country":  country,
-            "flickr":   {"url": flickr_url,   "date": None, "latest_url": None, "image_url": None, "title": None},
+            "flickr":   {"url": flickr_url,   "date": None, "latest_url": None, "image_url": None, "title": None, "album": None},
             "exposure": {"url": exposure_url,  "date": None, "latest_url": None, "image_url": None, "title": None},
             "stories":  {"url": stories_url,   "date": None, "latest_url": None, "image_url": None, "title": None},
             "blog":     {"url": blog_url,      "date": None, "latest_url": None, "image_url": None, "title": None},
@@ -505,7 +532,11 @@ async def scrape_office(browser, sem, i, total, row):
         for plat, fb_url, coro in tasks:
             try:
                 result = await asyncio.wait_for(coro, timeout=25)
-                d, lu, img, ttl = result
+                if len(result) == 5:
+                    d, lu, img, ttl, alb = result
+                    rec[plat]["album"] = alb
+                else:
+                    d, lu, img, ttl = result
                 rec[plat]["date"]       = d
                 rec[plat]["latest_url"] = lu or fb_url
                 rec[plat]["image_url"]  = img
