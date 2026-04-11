@@ -167,16 +167,35 @@ def flickr_latest(nsid):
     pub = entry.find("published") or entry.find("updated")
     link_tag = entry.find("link", rel="alternate") or entry.find("link")
     url = link_tag["href"] if link_tag and link_tag.get("href") else None
-    # Flickr Atom feed has <media:thumbnail url="..."/> or <media:content url="..."/>
+    # Flickr Atom feed image: try multiple strategies
     img_url = None
-    thumb = entry.find("thumbnail") or entry.find("content", attrs={"medium": "image"})
-    if thumb and thumb.get("url"):
-        img_url = thumb["url"]
+
+    # 1. <link rel="enclosure" href="https://live.staticflickr.com/...jpg"/>
+    enclosure = entry.find("link", rel="enclosure")
+    if enclosure and enclosure.get("href", "").lower().endswith((".jpg", ".jpeg", ".png")):
+        img_url = enclosure["href"]
+
+    # 2. <media:thumbnail> or <media:content> — BS4 xml parser uses local tag name
     if not img_url:
-        # fallback: look for _m.jpg or _z.jpg in any tag
-        m = re.search(r"https://[^\"']+_[mzb]\.jpg", r.text)
+        for tag_name in ("thumbnail", "media:thumbnail", "content", "media:content"):
+            t = entry.find(tag_name)
+            if t and t.get("url"):
+                img_url = t["url"]
+                break
+
+    # 3. Regex on raw XML — staticflickr.com image URLs
+    if not img_url:
+        m = re.search(r"https://live\.staticflickr\.com/[^\s\"'<>]+\.jpg", r.text)
+        if not m:
+            m = re.search(r"https://farm\d+\.staticflickr\.com/[^\s\"'<>]+\.jpg", r.text)
+        if not m:
+            m = re.search(r"https://[^\s\"'<>]+_[bmzc]\.jpg", r.text)
         if m:
             img_url = m.group(0)
+
+    # Prefer larger size: swap _m.jpg → _b.jpg
+    if img_url and "_m.jpg" in img_url:
+        img_url = img_url.replace("_m.jpg", "_b.jpg")
     title = None
     title_tag = entry.find("title")
     if title_tag and title_tag.text:
