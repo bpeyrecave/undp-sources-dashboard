@@ -784,8 +784,8 @@ function renderGallery() {
         ${(c.album || c.date_uploaded || c.date_taken) && c.platform === 'flickr' ? `
           <div class="gcard-flickr-meta">
             ${c.album ? `<span class="gcard-album">📁 ${c.album}</span>` : ''}
-            ${c.date_taken ? `<span class="gcard-date-detail">📷 ${c.date_taken}</span>` : ''}
-            ${c.date_uploaded ? `<span class="gcard-date-detail">⬆️ ${c.date_uploaded}</span>` : ''}
+            ${c.date_taken ? `<span class="gcard-date-detail">📷 Taken: ${c.date_taken}</span>` : ''}
+            ${c.date_uploaded ? `<span class="gcard-date-detail">⬆️ Uploaded: ${c.date_uploaded}</span>` : ''}
           </div>` : ''}
       </div>`;
     wrap.appendChild(card);
