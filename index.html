@@ -524,10 +524,10 @@ function merge(meta, json) {
   return meta.map(m => {
     const d = map[m.country] || {};
     return { ...m,
-      flickr:   {url:m.flickrUrl,   date:d.flickr?.date||null,   latest_url:d.flickr?.latest_url||m.flickrUrl,   title:d.flickr?.title||null},
-      exposure: {url:m.exposureUrl, date:d.exposure?.date||null, latest_url:d.exposure?.latest_url||m.exposureUrl, title:d.exposure?.title||null},
-      stories:  {url:m.storiesUrl,  date:d.stories?.date||null,  latest_url:d.stories?.latest_url||m.storiesUrl,  title:d.stories?.title||null},
-      blog:     {url:m.blogUrl,     date:d.blog?.date||null,     latest_url:d.blog?.latest_url||m.blogUrl,        title:d.blog?.title||null},
+      flickr:   {url:m.flickrUrl,   date:d.flickr?.date||null,   latest_url:d.flickr?.latest_url||m.flickrUrl,   title:d.flickr?.title||null,   image_url:d.flickr?.image_url||null},
+      exposure: {url:m.exposureUrl, date:d.exposure?.date||null, latest_url:d.exposure?.latest_url||m.exposureUrl, title:d.exposure?.title||null, image_url:d.exposure?.image_url||null},
+      stories:  {url:m.storiesUrl,  date:d.stories?.date||null,  latest_url:d.stories?.latest_url||m.storiesUrl,  title:d.stories?.title||null,  image_url:d.stories?.image_url||null},
+      blog:     {url:m.blogUrl,     date:d.blog?.date||null,     latest_url:d.blog?.latest_url||m.blogUrl,        title:d.blog?.title||null,     image_url:d.blog?.image_url||null},
     };
   });
 }
