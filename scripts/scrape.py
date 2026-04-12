@@ -148,11 +148,41 @@ def ts_to_iso(ts):
         return None
 
 
+def flickr_resolve_nsid(nsid):
+    """
+    If nsid looks like a vanity name (no @N), resolve it to numeric NSID
+    by fetching the user's Flickr page and extracting the numeric ID.
+    Returns the numeric NSID string, or the original if already numeric/fails.
+    """
+    if re.match(r'^\d+@N\d+$', nsid):
+        return nsid  # Already numeric
+    # Try Flickr's profile page — numeric NSID is embedded in the HTML
+    url = f"https://www.flickr.com/people/{nsid}/"
+    r = get(url)
+    if not r:
+        return nsid
+    # Look for the NSID in various places in the page source
+    for pattern in [
+        r'"nsid"\s*:\s*"(\d+@N\d+)"',
+        r'data-track-nsid="(\d+@N\d+)"',
+        r'"person_id"\s*:\s*"(\d+@N\d+)"',
+        r'flickr\.com/people/(\d+@N\d+)',
+        r'"owner"\s*:\s*"(\d+@N\d+)"',
+    ]:
+        m = re.search(pattern, r.text)
+        if m:
+            return m.group(1)
+    return nsid  # Fallback to original
+
+
 def flickr_latest(nsid):
     """
     Use Flickr's no-auth public feed to get the most recent upload date + thumbnail.
     Returns (iso_date, photo_page_url, image_url) or (None, None, None).
     """
+    # Resolve vanity NSID to numeric (feed API requires numeric)
+    nsid = flickr_resolve_nsid(nsid)
+
     feed_url = (
         f"https://www.flickr.com/services/feeds/photos_public.gne"
         f"?id={nsid}&format=atom&nojsoncallback=1"
