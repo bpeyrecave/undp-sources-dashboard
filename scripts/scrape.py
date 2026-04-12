@@ -222,12 +222,18 @@ async def flickr_photo_page_details(browser, photo_url):
     try:
         await page.goto(photo_url, timeout=PLAYWRIGHT_NAV_TIMEOUT, wait_until="domcontentloaded")
         # Wait for the right sidebar to render — album links and date info appear here
-        for sel in ['a[href*="/albums/"]', 'a[href*="/sets/"]', '.photo-engagement-toolbar', 'dd']:
+        # Wait for any of: album link, date info, or photo metadata section
+        for sel in ['a[href*="/albums/"]', 'a[href*="/sets/"]', '.photo-notes-scrappy-view', 'dd', '.date-taken-label', '[data-track="photo-engagement"]']:
             try:
                 await page.wait_for_selector(sel, timeout=8_000)
                 break
             except Exception:
                 continue
+        # Extra wait for JS rendering — dates load slightly after DOM
+        try:
+            await page.wait_for_function("document.body.innerText.includes('Uploaded') || document.body.innerText.includes('Taken')", timeout=6_000)
+        except Exception:
+            pass  # Fine — proceed with whatever rendered
 
         # Extract directly from live DOM via JS — much more reliable than parsing HTML
         result = await page.evaluate("""() => {
