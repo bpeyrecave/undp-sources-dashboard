@@ -148,6 +148,42 @@ def ts_to_iso(ts):
         return None
 
 
+def flickr_fetch_realname(nsid):
+    """
+    Fetch the display name (realname / username) of a Flickr account.
+    Uses the no-auth public Atom feed which includes <name> in <author>.
+    Falls back to scraping the profile page title.
+    Returns a string like "UNDP Rwanda", or None on failure.
+    """
+    # Try the public feed first — it has <author><name>...</name></author>
+    numeric_nsid = flickr_resolve_nsid(nsid)
+    feed_url = (
+        f"https://www.flickr.com/services/feeds/photos_public.gne"
+        f"?id={numeric_nsid}&format=atom&nojsoncallback=1"
+    )
+    r = get(feed_url)
+    if r:
+        soup = BeautifulSoup(r.text, "xml")
+        # <author><name>UNDP Rwanda</name></author> at feed level
+        author = soup.find("author")
+        if author:
+            name_tag = author.find("name")
+            if name_tag and name_tag.text.strip():
+                return name_tag.text.strip()
+
+    # Fallback: scrape the profile page <title>
+    profile_url = f"https://www.flickr.com/people/{nsid}/"
+    r2 = get(profile_url)
+    if r2:
+        # Title is usually "Flickr: UNDP Rwanda" or "UNDP Rwanda | Flickr"
+        m = re.search(r'<title[^>]*>(?:Flickr:\s*)?([^|<]+?)(?:\s*\|\s*Flickr)?</title>', r2.text)
+        if m:
+            name = m.group(1).strip()
+            if name and name.lower() != "flickr":
+                return name
+    return None
+
+
 def flickr_resolve_nsid(nsid):
     """
     If nsid looks like a vanity name (no @N), resolve it to numeric NSID
@@ -575,7 +611,7 @@ async def scrape_office(browser, sem, i, total, row):
         print(f"[{i+1}/{total}] {country}", flush=True)
         rec = {
             "country":  country,
-            "flickr":   {"url": flickr_url,   "date": None, "latest_url": None, "image_url": None, "title": None, "album": None, "date_uploaded": None, "date_taken": None},
+            "flickr":   {"url": flickr_url,   "date": None, "latest_url": None, "image_url": None, "title": None, "album": None, "date_uploaded": None, "date_taken": None, "realname": None},
             "exposure": {"url": exposure_url,  "date": None, "latest_url": None, "image_url": None, "title": None},
             "stories":  {"url": stories_url,   "date": None, "latest_url": None, "image_url": None, "title": None},
             "blog":     {"url": blog_url,      "date": None, "latest_url": None, "image_url": None, "title": None},
@@ -614,6 +650,14 @@ async def scrape_office(browser, sem, i, total, row):
                 rec["flickr"]["date_taken"]    = taken
             except Exception as e:
                 print(f"  SKIP {country}/flickr-page: {e}", file=sys.stderr)
+
+        # Fetch Flickr account display name (realname)
+        if nsid:
+            try:
+                realname = await asyncio.to_thread(flickr_fetch_realname, nsid)
+                rec["flickr"]["realname"] = realname
+            except Exception as e:
+                print(f"  SKIP {country}/flickr-realname: {e}", file=sys.stderr)
 
         return rec
 
