@@ -549,7 +549,7 @@ function merge(meta, json) {
   return meta.map(m => {
     const d = map[m.country] || {};
     return { ...m,
-      flickr:   {url:m.flickrUrl,   date:d.flickr?.date||null,   latest_url:d.flickr?.latest_url||m.flickrUrl,   title:d.flickr?.title||null,   image_url:d.flickr?.image_url||null,   album:d.flickr?.album||null,   date_uploaded:d.flickr?.date_uploaded||null,   date_taken:d.flickr?.date_taken||null},
+      flickr:   {url:m.flickrUrl,   date:d.flickr?.date||null,   latest_url:d.flickr?.latest_url||m.flickrUrl,   title:d.flickr?.title||null,   image_url:d.flickr?.image_url||null,   album:d.flickr?.album||null,   date_uploaded:d.flickr?.date_uploaded||null,   date_taken:d.flickr?.date_taken||null,   realname:d.flickr?.realname||null},
       exposure: {url:m.exposureUrl, date:d.exposure?.date||null, latest_url:d.exposure?.latest_url||m.exposureUrl, title:d.exposure?.title||null, image_url:d.exposure?.image_url||null},
       stories:  {url:m.storiesUrl,  date:d.stories?.date||null,  latest_url:d.stories?.latest_url||m.storiesUrl,  title:d.stories?.title||null,  image_url:d.stories?.image_url||null},
       blog:     {url:m.blogUrl,     date:d.blog?.date||null,     latest_url:d.blog?.latest_url||m.blogUrl,        title:d.blog?.title||null,     image_url:d.blog?.image_url||null},
@@ -626,7 +626,7 @@ function render() {
     s.items.forEach(r => {
       const hide = (!isFiltering && collapsed[s.type]) ? ' class="hidden"' : '';
       html += `<tr${hide}>
-        <td class="cname">${r.country}</td>
+        <td class="cname">${r.flickr?.realname || r.country}</td>
         ${platformCell(r.stories,  r.storiesUrl)}
         ${platformCell(r.blog,     r.blogUrl)}
         ${platformCell(r.exposure, r.exposureUrl)}
@@ -706,6 +706,7 @@ function buildGalleryCards(rows) {
           album: p.album || null,
           date_uploaded: p.date_uploaded || null,
           date_taken: p.date_taken || null,
+          flickr_realname: plat === 'flickr' ? (r.flickr?.realname || null) : null,
         });
       }
     });
@@ -788,7 +789,7 @@ function renderGallery() {
         <div class="gcard-meta">
           <div class="gcard-meta-top">
             <span class="gcard-flag">${flag}</span>
-            <span class="gcard-country">${c.country}</span>
+            <span class="gcard-country">${c.flickr_realname || c.country}</span>
           </div>
           ${dateStr ? `<span class="gcard-date">${dateStr}</span>` : ''}
         </div>
