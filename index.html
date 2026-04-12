@@ -826,15 +826,67 @@ function renderGallery() {
   });
 }
 
+// Extract the vanity name / numeric NSID from a Flickr URL
+function nsidFromFlickrUrl(url) {
+  const m = url && url.match(/flickr\.com\/(?:people|photos)\/([^/?#]+)/);
+  return m ? m[1].replace(/\/$/, '') : null;
+}
+
+// Fetch the Flickr account's display name from its public Atom feed.
+// The feed is CORS-accessible and includes <author><name>…</name></author>.
+async function fetchFlickrRealname(nsid) {
+  const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(nsid)}&format=atom`;
+  try {
+    const r = await fetch(feedUrl, { signal: AbortSignal.timeout(8000) });
+    if (!r.ok) return null;
+    const text = await r.text();
+    // Parse the Atom XML — grab the feed-level <author><name>
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, 'application/xml');
+    // Feed-level author is the first <author> that is a direct child of the root
+    const feedAuthor = doc.documentElement.querySelector(':scope > author > name')
+                    || doc.querySelector('feed > author > name')
+                    || doc.querySelector('author > name');
+    const name = feedAuthor?.textContent?.trim();
+    return name || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// After initial render, fetch Flickr realnames in the background and patch DATA
+async function fetchAllFlickrRealnames() {
+  const CONCURRENCY = 6;
+  const offices = DATA; // array of merged office objects
+  const queue = offices.filter(o => o.flickr?.url && !o.flickr?.realname);
+
+  async function processOne(office) {
+    const nsid = nsidFromFlickrUrl(office.flickr.url);
+    if (!nsid) return;
+    const name = await fetchFlickrRealname(nsid);
+    if (name) {
+      office.flickr.realname = name;
+    }
+  }
+
+  // Run in batches for concurrency control
+  for (let i = 0; i < queue.length; i += CONCURRENCY) {
+    await Promise.all(queue.slice(i, i + CONCURRENCY).map(processOne));
+    render(); // re-render after each batch so names appear progressively
+  }
+}
+
 fetch('data.json')
   .then(r => r.json())
   .then(json => {
     DATA = merge(META, json.offices);
     render();
+    fetchAllFlickrRealnames();
   })
   .catch(() => {
     DATA = merge(META, null);
     render();
+    fetchAllFlickrRealnames();
   });
 </script>
 </body>
