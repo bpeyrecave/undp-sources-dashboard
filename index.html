@@ -647,6 +647,11 @@ function render() {
 // ── View state ───────────────────────────────────────────────────────────────
 let currentView = 'list';
 
+function renderAll() {
+  if (currentView === 'gallery') renderGallery();
+  else render();
+}
+
 function setView(v) {
   currentView = v;
   document.getElementById('btnList').classList.toggle('active', v === 'list');
@@ -834,11 +839,11 @@ function renderGallery() {
 }
 
 // ── Client-side Exposure.co story fetcher ─────────────────────────────────
-// Exposure is a JS SPA with no CORS headers, so we fetch via allorigins proxy.
-// API endpoint: https://{subdomain}.exposure.co/api/profile/stories?page=1&per_page=1
+// Strategy 1: sitemap.xml (static file, CORS-accessible, has story URLs + dates)
+// Strategy 2: Direct fetch of the profile page (works if Exposure sends CORS headers)
+// Strategy 3: allorigins CORS proxy as last resort
 
 function exposureOriginFromUrl(url) {
-  // e.g. "https://undpafghanistan.exposure.co/" → "https://undpafghanistan.exposure.co"
   try { return new URL(url).origin; } catch(e) { return null; }
 }
 
@@ -846,53 +851,94 @@ async function fetchExposureStory(profileUrl) {
   const origin = exposureOriginFromUrl(profileUrl);
   if (!origin) return null;
 
-  // Try direct API first (works if Exposure sends CORS headers)
-  const apiUrl = `${origin}/api/profile/stories?page=1&per_page=1`;
+  // Strategy 1: sitemap.xml — Exposure generates one, it's a static XML with story URLs & lastmod dates
   try {
-    const r = await fetch(apiUrl, { signal: AbortSignal.timeout(8000) });
+    const r = await fetch(`${origin}/sitemap.xml`, { signal: AbortSignal.timeout(8000) });
     if (r.ok) {
-      const data = await r.json();
-      const stories = data.stories || data.data || (Array.isArray(data) ? data : []);
-      if (stories.length) return parseExposureStory(stories[0], origin);
+      const xml = await r.text();
+      const result = await parseExposureSitemap(xml, origin, profileUrl);
+      if (result) return result;
     }
-  } catch(e) { /* fall through to proxy */ }
+  } catch(e) {}
 
-  // Fallback: allorigins CORS proxy to fetch the HTML and parse Open Graph tags
-  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(origin + '/')}`;
+  // Strategy 2: Direct fetch of the profile page HTML (Exposure does SSR with OG tags)
   try {
-    const r = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
-    if (!r.ok) return null;
-    const json = await r.json();
-    const html = json.contents || '';
-    return parseExposureHtml(html, origin);
-  } catch(e) { return null; }
+    const r = await fetch(profileUrl, { signal: AbortSignal.timeout(10000) });
+    if (r.ok) {
+      const html = await r.text();
+      const result = parseExposureHtml(html, origin);
+      if (result) return result;
+    }
+  } catch(e) {}
+
+  // Strategy 3: Fetch the most recent story page directly by constructing URL from sitemap slug
+  // (already covered by sitemap strategy above)
+
+  return null;
 }
 
-function parseExposureStory(s, origin) {
-  const title    = s.title || s.name || null;
-  const subtitle = s.subtitle || s.description || null;
-  const slug     = s.slug || s.id || '';
-  const url      = slug ? `${origin}/${slug}` : origin;
-  let img = null;
-  const cover = s.cover || s.cover_photo || s.thumbnail || {};
-  if (typeof cover === 'string') img = cover;
-  else if (cover) img = cover.url || cover.src || cover.original || null;
-  const pub = s.published_at || s.created_at || s.date || '';
-  const m = pub.match(/^(\d{4}-\d{2}-\d{2})/);
-  return { date: m ? m[1] : null, url, image_url: img, title, subtitle };
+async function parseExposureSitemap(xml, origin, profileUrl) {
+  // Sitemap entries look like:
+  // <url><loc>https://undpafghanistan.exposure.co/a-growing-business</loc><lastmod>2026-04-01</lastmod></url>
+  // The profile root and /categories/* are non-story pages — skip those
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, 'application/xml');
+  const urls = Array.from(doc.querySelectorAll('url'));
+  
+  const stories = [];
+  for (const u of urls) {
+    const loc = u.querySelector('loc')?.textContent?.trim() || '';
+    const lastmod = u.querySelector('lastmod')?.textContent?.trim() || '';
+    // Skip root, /categories/*, and any URL with no path segment beyond /
+    try {
+      const parsed = new URL(loc);
+      const path = parsed.pathname;
+      if (path === '/' || path === '' || path.startsWith('/categories') || path.startsWith('/api')) continue;
+      // Must be same origin
+      if (parsed.origin !== origin) continue;
+      const m = lastmod.match(/^(\d{4}-\d{2}-\d{2})/);
+      stories.push({ loc, date: m ? m[1] : null, slug: path.replace(/^\//, '') });
+    } catch(e) { continue; }
+  }
+
+  if (!stories.length) return null;
+
+  // Sort by date descending, pick most recent
+  stories.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const latest = stories[0];
+
+  // Now fetch that story page for its OG title/image/description
+  return await fetchExposureStoryPage(latest.loc, latest.date, origin);
+}
+
+async function fetchExposureStoryPage(storyUrl, date, origin) {
+  try {
+    const r = await fetch(storyUrl, { signal: AbortSignal.timeout(10000) });
+    if (!r.ok) return { date, url: storyUrl, image_url: null, title: null, subtitle: null };
+    const html = await r.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const title    = doc.querySelector('meta[property="og:title"]')?.content?.trim()
+                  || doc.querySelector('title')?.textContent?.trim() || null;
+    const image_url = doc.querySelector('meta[property="og:image"]')?.content?.trim() || null;
+    const subtitle  = doc.querySelector('meta[property="og:description"]')?.content?.trim()
+                  || doc.querySelector('meta[name="description"]')?.content?.trim() || null;
+    return { date, url: storyUrl, image_url, title, subtitle };
+  } catch(e) {
+    return { date, url: storyUrl, image_url: null, title: null, subtitle: null };
+  }
 }
 
 function parseExposureHtml(html, origin) {
-  // Parse story cards from the HTML using a temporary DOM
   const doc = new DOMParser().parseFromString(html, 'text/html');
 
-  // Try Open Graph tags for the first/featured story
-  const ogTitle = doc.querySelector('meta[property="og:title"]')?.content?.trim() || null;
-  const ogImg   = doc.querySelector('meta[property="og:image"]')?.content?.trim() || null;
-  const ogDesc  = doc.querySelector('meta[property="og:description"]')?.content?.trim() || null;
-  const ogUrl   = doc.querySelector('meta[property="og:url"]')?.content?.trim() || origin;
+  // Look for story links in the page — Exposure profile pages list stories as <a href="/slug">
+  // with OG or JSON-LD data for the first/featured one
+  const ogTitle  = doc.querySelector('meta[property="og:title"]')?.content?.trim() || null;
+  const ogImg    = doc.querySelector('meta[property="og:image"]')?.content?.trim() || null;
+  const ogDesc   = doc.querySelector('meta[property="og:description"]')?.content?.trim() || null;
+  const ogUrl    = doc.querySelector('meta[property="og:url"]')?.content?.trim() || null;
 
-  // Try to find a date — look for <time> or text patterns
+  // Try to find a date in the page
   let date = null;
   const timeEl = doc.querySelector('time[datetime]');
   if (timeEl) {
@@ -900,26 +946,25 @@ function parseExposureHtml(html, origin) {
     if (m) date = m[1];
   }
   if (!date) {
-    // Look for "Month Nth, YYYY" pattern in visible text
     const months = 'january|february|march|april|may|june|july|august|september|october|november|december';
-    const bodyText = doc.body?.innerText || doc.body?.textContent || '';
-    const dm = bodyText.match(new RegExp(`(${months})\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+(\\d{4})`, 'i'));
-    if (dm) {
-      const monthNum = {'january':'01','february':'02','march':'03','april':'04','may':'05','june':'06',
-        'july':'07','august':'08','september':'09','october':'10','november':'11','december':'12'};
-      date = `${dm[3]}-${monthNum[dm[1].toLowerCase()]}-${dm[2].padStart(2,'0')}`;
+    const bodyText = doc.body?.textContent || '';
+    const monthMap = {january:'01',february:'02',march:'03',april:'04',may:'05',june:'06',
+      july:'07',august:'08',september:'09',october:'10',november:'11',december:'12'};
+    const dm = bodyText.match(new RegExp(`(${months})\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})`, 'i'));
+    if (dm) date = `${dm[3]}-${monthMap[dm[1].toLowerCase()]}-${dm[2].padStart(2,'0')}`;
+  }
+
+  // Find the most recent story link
+  let storyUrl = ogUrl || origin;
+  for (const a of doc.querySelectorAll('a[href]')) {
+    const href = a.getAttribute('href') || '';
+    if (href.startsWith('/') && href.length > 2 && !href.startsWith('/categories') && !href.includes('.')) {
+      storyUrl = origin + href;
+      break;
     }
   }
 
-  // Find the first story link slug
-  let storyUrl = ogUrl || origin;
-  const storyLink = doc.querySelector('a[href^="/"][href!="/"]');
-  if (storyLink) {
-    const href = storyLink.getAttribute('href');
-    if (href && !href.includes('.') && href.length > 2) storyUrl = origin + href;
-  }
-
-  if (ogTitle) return { date, url: storyUrl, image_url: ogImg, title: ogTitle, subtitle: ogDesc };
+  if (ogTitle || ogImg) return { date, url: storyUrl, image_url: ogImg, title: ogTitle, subtitle: ogDesc };
   return null;
 }
 
@@ -952,7 +997,7 @@ async function fetchAllExposureStories() {
 
   for (let i = 0; i < unique.length; i += CONCURRENCY) {
     await Promise.all(unique.slice(i, i + CONCURRENCY).map(processOne));
-    render();
+    renderAll();
   }
 }
 
@@ -1002,7 +1047,7 @@ async function fetchAllFlickrRealnames() {
   // Run in batches for concurrency control
   for (let i = 0; i < queue.length; i += CONCURRENCY) {
     await Promise.all(queue.slice(i, i + CONCURRENCY).map(processOne));
-    render(); // re-render after each batch so names appear progressively
+    renderAll();
   }
 }
 
