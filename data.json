@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-12T02:48:30Z",
+  "updated": "2026-04-13T00:22:21Z",
   "offices": [
     {
       "country": "Afghanistan",
@@ -17,9 +17,10 @@
       "exposure": {
         "url": "https://undpafghanistan.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpafghanistan.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/afghanistan/stories",
@@ -54,7 +55,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/africa/stories",
@@ -89,7 +91,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/arab-states/stories",
@@ -124,7 +127,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/asia-pacific/stories",
@@ -159,7 +163,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/barbados/stories",
@@ -194,7 +199,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/belize/stories",
@@ -227,9 +233,10 @@
       "exposure": {
         "url": "https://undpukraine.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpukraine.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -264,7 +271,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/brazil/stories",
@@ -299,7 +307,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/burkina-faso/stories",
@@ -332,9 +341,10 @@
       "exposure": {
         "url": "https://undp-climate.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undp-climate.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -367,9 +377,10 @@
       "exposure": {
         "url": "https://pnudcolombia.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://pnudcolombia.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/colombia/stories",
@@ -404,7 +415,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -439,7 +451,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/ecuador/stories",
@@ -474,7 +487,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/egypt/stories",
@@ -507,9 +521,10 @@
       "exposure": {
         "url": "https://undpeurasia.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpeurasia.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -544,7 +559,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/guatemala/stories",
@@ -579,7 +595,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -614,7 +631,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -649,7 +667,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/iraq/stories",
@@ -682,9 +701,10 @@
       "exposure": {
         "url": "https://undpkosovo.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpkosovo.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/kosovo/stories",
@@ -719,7 +739,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/kyrgyzstan/stories",
@@ -752,9 +773,10 @@
       "exposure": {
         "url": "https://undplac.exposure.co/categories/latin-america-and-the-caribbean",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undplac.exposure.co/categories/latin-america-and-the-caribbean",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/latin-america-caribbean/stories",
@@ -789,7 +811,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/lebanon/stories",
@@ -824,7 +847,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -859,7 +883,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/mauritius/stories",
@@ -892,9 +917,10 @@
       "exposure": {
         "url": "https://undpmoldova.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpmoldova.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/moldova/stories",
@@ -929,7 +955,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/mongolia/stories",
@@ -962,9 +989,10 @@
       "exposure": {
         "url": "https://undpmontenegro.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpmontenegro.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/montenegro/stories",
@@ -997,9 +1025,10 @@
       "exposure": {
         "url": "https://undp-nature.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undp-nature.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/nature/stories",
@@ -1032,9 +1061,10 @@
       "exposure": {
         "url": "https://pacificundp.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://pacificundp.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/pacific/stories",
@@ -1067,9 +1097,10 @@
       "exposure": {
         "url": "https://undp-pakistan.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undp-pakistan.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/pakistan/stories",
@@ -1104,7 +1135,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/panama/stories",
@@ -1139,7 +1171,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/papua-new-guinea/stories",
@@ -1172,9 +1205,10 @@
       "exposure": {
         "url": "https://undp-rwanda.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undp-rwanda.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/rwanda/stories",
@@ -1209,7 +1243,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/senegal/stories",
@@ -1244,7 +1279,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -1277,9 +1313,10 @@
       "exposure": {
         "url": "https://undpsrilanka.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpsrilanka.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/sri-lanka/stories",
@@ -1314,7 +1351,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/syria/stories",
@@ -1347,9 +1385,10 @@
       "exposure": {
         "url": "https://undpthailand.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpthailand.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/thailand/stories",
@@ -1384,7 +1423,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -1419,7 +1459,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/turkmenistan/stories",
@@ -1452,9 +1493,10 @@
       "exposure": {
         "url": "https://undpukraine.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpukraine.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/ukraine/stories",
@@ -1489,7 +1531,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/uzbekistan/stories",
@@ -1524,7 +1567,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/albania/stories",
@@ -1559,7 +1603,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/argentina/stories",
@@ -1594,7 +1639,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/azerbaijan/stories",
@@ -1629,7 +1675,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/bangladesh/stories",
@@ -1664,7 +1711,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/belarus/stories",
@@ -1699,7 +1747,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/guinea-bissau/stories",
@@ -1734,7 +1783,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/bolivia/stories",
@@ -1769,7 +1819,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/bosnia-herzegovina/stories",
@@ -1804,7 +1855,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/burundi/stories",
@@ -1839,7 +1891,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -1874,7 +1927,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/cambodia/stories",
@@ -1909,7 +1963,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/chile/stories",
@@ -1944,7 +1999,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/china/stories",
@@ -1979,7 +2035,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/costa-rica/stories",
@@ -2014,7 +2071,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -2049,7 +2107,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/el-salvador/stories",
@@ -2084,7 +2143,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/eritrea/stories",
@@ -2119,7 +2179,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/ethiopia/stories",
@@ -2154,7 +2215,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/europe-central-asia/stories",
@@ -2189,7 +2251,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/ghana/stories",
@@ -2224,7 +2287,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/honduras/stories",
@@ -2257,9 +2321,10 @@
       "exposure": {
         "url": "https://undp-india.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undp-india.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/india/stories",
@@ -2292,9 +2357,10 @@
       "exposure": {
         "url": "https://undpid.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpid.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/indonesia/stories",
@@ -2327,9 +2393,10 @@
       "exposure": {
         "url": "https://undpjamaica.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpjamaica.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/jamaica/stories",
@@ -2362,9 +2429,10 @@
       "exposure": {
         "url": "https://undpkenya.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpkenya.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/kenya/stories",
@@ -2399,7 +2467,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/kuwait/stories",
@@ -2434,7 +2503,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/liberia/stories",
@@ -2469,7 +2539,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/malaysia/stories",
@@ -2504,7 +2575,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/maldives/stories",
@@ -2539,7 +2611,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/mali/stories",
@@ -2574,7 +2647,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/morocco/stories",
@@ -2609,7 +2683,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/mexico/stories",
@@ -2642,9 +2717,10 @@
       "exposure": {
         "url": "https://undpnepal.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpnepal.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/nepal/stories",
@@ -2679,7 +2755,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/niger/stories",
@@ -2714,7 +2791,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/peru/stories",
@@ -2749,7 +2827,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/philippines/stories",
@@ -2784,7 +2863,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/papp/stories",
@@ -2819,7 +2899,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/democratic-republic-congo/stories",
@@ -2854,7 +2935,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/dominican-republic/stories",
@@ -2889,7 +2971,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -2924,7 +3007,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/samoa/stories",
@@ -2959,7 +3043,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -2994,7 +3079,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/serbia/stories",
@@ -3029,7 +3115,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/solomon-islands/stories",
@@ -3062,9 +3149,10 @@
       "exposure": {
         "url": "https://undpsomalia.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpsomalia.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/somalia/stories",
@@ -3099,7 +3187,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/south-sudan/stories",
@@ -3134,7 +3223,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/sudan/stories",
@@ -3169,7 +3259,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/chad/stories",
@@ -3204,7 +3295,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/timor-leste/stories",
@@ -3239,7 +3331,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/togo/stories",
@@ -3274,7 +3367,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/tunisia/stories",
@@ -3309,7 +3403,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/uganda/stories",
@@ -3342,9 +3437,10 @@
       "exposure": {
         "url": "https://undp.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undp.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "",
@@ -3379,7 +3475,8 @@
         "date": null,
         "latest_url": null,
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/uruguay/stories",
@@ -3412,9 +3509,10 @@
       "exposure": {
         "url": "https://undpvietnam.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpvietnam.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/viet-nam/stories",
@@ -3447,9 +3545,10 @@
       "exposure": {
         "url": "https://undpinzambia.exposure.co/",
         "date": null,
-        "latest_url": null,
+        "latest_url": "https://undpinzambia.exposure.co/",
         "image_url": null,
-        "title": null
+        "title": null,
+        "subtitle": null
       },
       "stories": {
         "url": "https://www.undp.org/zambia/stories",
