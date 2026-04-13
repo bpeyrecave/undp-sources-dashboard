@@ -358,25 +358,44 @@ def _parse_exposure_date(text):
 async def exposure_latest(browser, base_url):
     """
     Scrape an Exposure.co profile page using a headless browser (it's a JS SPA).
-    Finds the most recent story: returns (iso_date, story_url, image_url).
+    Finds the most recent story: returns (iso_date, story_url, image_url, title, subtitle).
     """
-    try:
-        browser = _get_browser()
-        page = browser.new_page()
-        page.set_extra_http_headers({"User-Agent": "Mozilla/5.0 (compatible; UNDPSourcesBot/1.0)"})
-        page.goto(base_url, timeout=PLAYWRIGHT_TIMEOUT, wait_until="networkidle")
-        # Wait for story cards — Exposure renders <article> or <section> elements
-        for sel in ["article a[href]", "section a[href]", ".story a[href]", "a[href*='/']"]:
-            try:
-                page.wait_for_selector(sel, timeout=8_000)
-                break
-            except Exception:
-                continue
-        html = page.content()
-        page.close()
-    except Exception as e:
-        print(f"  WARN playwright exposure {base_url}: {e}", file=sys.stderr)
-        return None, base_url, None
+    # Strategy 0: Try Exposure's undocumented JSON API first (fast, no JS needed)
+    from urllib.parse import urlparse as _up
+    _parsed = _up(base_url)
+    _origin = f"{_parsed.scheme}://{_parsed.netloc}"
+    api_url = f"{_origin}/api/profile/stories?page=1&per_page=1"
+    r = get(api_url)
+    if r and r.headers.get("content-type", "").startswith("application/json"):
+        try:
+            data = r.json()
+            stories = data.get("stories") or data.get("data") or (data if isinstance(data, list) else [])
+            if stories:
+                s = stories[0]
+                title    = s.get("title") or s.get("name") or None
+                subtitle = s.get("subtitle") or s.get("description") or None
+                slug     = s.get("slug") or s.get("id") or ""
+                story_url = f"{_origin}/{slug}" if slug else base_url
+                img_url = None
+                cover = s.get("cover") or s.get("cover_photo") or s.get("thumbnail") or {}
+                if isinstance(cover, dict):
+                    img_url = cover.get("url") or cover.get("src") or cover.get("original")
+                elif isinstance(cover, str):
+                    img_url = cover
+                pub = s.get("published_at") or s.get("created_at") or s.get("date") or ""
+                iso = None
+                m = re.match(r"(\d{4}-\d{2}-\d{2})", pub)
+                if m:
+                    iso = m.group(1)
+                if title or iso:
+                    return iso, story_url, img_url, title, subtitle
+        except Exception:
+            pass
+
+    # Strategy 1: Playwright headless browser
+    html = await _fetch_html(browser, base_url, wait_sel="article a[href], section a[href]")
+    if not html:
+        return None, base_url, None, None, None
 
     soup = BeautifulSoup(html, "html.parser")
     parsed_url = urlparse(base_url)
@@ -449,7 +468,8 @@ async def exposure_latest(browser, base_url):
             if url not in seen or iso > seen[url][0]:
                 seen[url] = (iso, url, img, ttl)
         best = sorted(seen.values(), key=lambda x: x[0], reverse=True)[0]
-        return best
+        # Pad to 5-tuple if needed
+        return best if len(best) == 5 else (*best, None)
 
     # Strategy 3: image src paths containing a date segment
     dates = []
@@ -463,9 +483,9 @@ async def exposure_latest(browser, base_url):
     if dates:
         dates.sort(reverse=True)
         best = dates[0]
-        return best, base_url, imgs_by_date.get(best), None
+        return best, base_url, imgs_by_date.get(best), None, None
 
-    return None, base_url, None, None
+    return None, base_url, None, None, None
 
 
 # ─── Async browser helpers ────────────────────────────────────────────────────
@@ -612,7 +632,7 @@ async def scrape_office(browser, sem, i, total, row):
         rec = {
             "country":  country,
             "flickr":   {"url": flickr_url,   "date": None, "latest_url": None, "image_url": None, "title": None, "album": None, "date_uploaded": None, "date_taken": None, "realname": None},
-            "exposure": {"url": exposure_url,  "date": None, "latest_url": None, "image_url": None, "title": None},
+            "exposure": {"url": exposure_url,  "date": None, "latest_url": None, "image_url": None, "title": None, "subtitle": None},
             "stories":  {"url": stories_url,   "date": None, "latest_url": None, "image_url": None, "title": None},
             "blog":     {"url": blog_url,      "date": None, "latest_url": None, "image_url": None, "title": None},
         }
@@ -629,11 +649,17 @@ async def scrape_office(browser, sem, i, total, row):
         for plat, fb_url, coro in tasks:
             try:
                 result = await asyncio.wait_for(coro, timeout=25)
-                d, lu, img, ttl = result
+                if len(result) == 5:
+                    d, lu, img, ttl, sub = result
+                else:
+                    d, lu, img, ttl = result
+                    sub = None
                 rec[plat]["date"]       = d
                 rec[plat]["latest_url"] = lu or fb_url
                 rec[plat]["image_url"]  = img
                 rec[plat]["title"]      = ttl
+                if sub is not None:
+                    rec[plat]["subtitle"] = sub
             except Exception as e:
                 print(f"  SKIP {country}/{plat}: {e}", file=sys.stderr)
 
