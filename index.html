@@ -264,6 +264,22 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
   line-height:1.4;margin-top:2px;margin-bottom:4px;
   font-style:italic;
 }
+.gallery-pager{
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  padding:24px 0 32px;width:100%;
+}
+.pager-btn{
+  font-family:var(--font);font-size:13px;font-weight:500;
+  color:var(--navy);background:#fff;border:1.5px solid #D0D5DD;
+  border-radius:8px;padding:8px 18px;cursor:pointer;transition:all .15s;
+}
+.pager-btn:hover:not([disabled]){background:var(--navy);color:#fff;border-color:var(--navy);}
+.pager-btn[disabled]{opacity:.35;cursor:default;}
+.pager-info{font-size:12px;color:#677383;font-family:var(--font);}
+.gcard-count{
+  font-size:10px;font-weight:600;background:rgba(255,255,255,.25);
+  border-radius:4px;padding:1px 5px;margin-left:4px;
+}
 .gallery-nodata{
   display:none;padding:48px;text-align:center;
   color:var(--gray-dark);font-style:italic;font-size:13px;
@@ -282,11 +298,11 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 <div class="controls">
   <div class="search-wrap">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
-    <input type="text" id="q" placeholder="Search Office" oninput="currentView==='gallery'?renderGallery():render()">
+    <input type="text" id="q" placeholder="Search Office" oninput="galleryPage=0;currentView==='gallery'?renderGallery():render()">
   </div>
 
   <div class="filter-select">
-    <select id="fSection" onchange="currentView==='gallery'?renderGallery():render()">
+    <select id="fSection" onchange="galleryPage=0;currentView==='gallery'?renderGallery():render()">
       <option value="">All Offices</option>
       <option value="co">Country Offices</option>
       <option value="bureau">Regional Bureaux</option>
@@ -296,7 +312,7 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
   </div>
 
   <div class="filter-select">
-    <select id="fPlatform" onchange="currentView==='gallery'?renderGallery():render()">
+    <select id="fPlatform" onchange="galleryPage=0;currentView==='gallery'?renderGallery():render()">
       <option value="">All Platforms</option>
       <option value="stories">Has Stories</option>
       <option value="blog">Has Blog</option>
@@ -307,7 +323,7 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
   </div>
 
   <div class="gallery-sort" id="gallerySortWrap">
-    <select id="gallerySort" onchange="renderGallery()">
+    <select id="gallerySort" onchange="galleryPage=0;renderGallery()">
       <option value="date_desc">Most Recent</option>
       <option value="date_asc">Oldest First</option>
       <option value="country_asc">Country A→Z</option>
@@ -646,6 +662,9 @@ function render() {
 
 // ── View state ───────────────────────────────────────────────────────────────
 let currentView = 'list';
+const FLICKR_ARCHIVE = {};   // nsid → [{date, url, image_url, title, count}]
+const CARDS_PER_PAGE = 24;
+let galleryPage = 0;          // current page (0-indexed)
 
 function renderAll() {
   if (currentView === 'gallery') renderGallery();
@@ -698,29 +717,56 @@ function fmtDateFull(iso) {
 }
 
 function buildGalleryCards(rows) {
-  // Flatten each office into one card per platform that has a URL
   const cards = [];
   rows.forEach(r => {
-    ['stories','blog','exposure','flickr'].forEach(plat => {
+    // Non-Flickr platforms: one card each
+    ['stories','blog','exposure'].forEach(plat => {
       const p = r[plat];
       const url = p?.latest_url || p?.url || '';
       if (p && url) {
         cards.push({
-          country: r.country,
-          type: r.type,
-          platform: plat,
-          date: p.date || null,
-          url: url,
-          image_url: p.image_url || null,
-          title: p.title || null,
-          subtitle: p.subtitle || null,
-          album: p.album || null,
-          date_uploaded: p.date_uploaded || null,
-          date_taken: p.date_taken || null,
-          flickr_realname: plat === 'flickr' ? (r.flickr?.realname || null) : null,
+          country: r.country, type: r.type, platform: plat,
+          date: p.date || null, url, image_url: p.image_url || null,
+          title: p.title || null, subtitle: p.subtitle || null,
+          album: null, date_uploaded: null, date_taken: null,
+          flickr_realname: null, count: null,
         });
       }
     });
+
+    // Flickr: one card per date-group from archive, fallback to single card
+    if (r.flickrUrl) {
+      const nsid = nsidFromFlickrUrl(r.flickrUrl);
+      const archive = nsid && FLICKR_ARCHIVE[nsid];
+      if (archive && archive.length) {
+        archive.forEach(entry => {
+          cards.push({
+            country: r.country, type: r.type, platform: 'flickr',
+            date: entry.date, url: entry.url,
+            image_url: entry.image_url || null,
+            title: entry.title || null, subtitle: null,
+            album: entry.album || null,
+            date_uploaded: entry.date_uploaded || null,
+            date_taken: entry.date_taken || null,
+            flickr_realname: r.flickr?.realname || null,
+            count: entry.count,
+          });
+        });
+      } else if (r.flickr?.latest_url || r.flickr?.url) {
+        // Fallback: single card from data.json while archive loads
+        const p = r.flickr;
+        cards.push({
+          country: r.country, type: r.type, platform: 'flickr',
+          date: p.date || null, url: p.latest_url || p.url,
+          image_url: p.image_url || null, title: p.title || null,
+          subtitle: null, album: p.album || null,
+          date_uploaded: p.date_uploaded || null,
+          date_taken: p.date_taken || null,
+          flickr_realname: r.flickr?.realname || null,
+          count: null,
+        });
+      }
+    }
   });
   return cards;
 }
@@ -755,15 +801,22 @@ function renderGallery() {
     return 0;
   });
 
-  
+  const totalCards = cards.length;
+  const totalPages = Math.ceil(totalCards / CARDS_PER_PAGE);
+  // Clamp page to valid range (filters may reduce total)
+  galleryPage = Math.max(0, Math.min(galleryPage, totalPages - 1));
+  const pageStart = galleryPage * CARDS_PER_PAGE;
+  cards = cards.slice(pageStart, pageStart + CARDS_PER_PAGE);
 
   const wrap = document.getElementById('galleryWrap');
   const nodata = document.getElementById('galleryNodata');
 
-  // Remove old cards (keep nodata div)
+  // Remove old cards and pagination (keep nodata div)
   Array.from(wrap.children).forEach(el => { if (!el.id) el.remove(); });
+  const existingPager = document.getElementById('galleryPager');
+  if (existingPager) existingPager.remove();
 
-  if (!cards.length) {
+  if (!totalCards) {
     nodata.classList.add('visible');
     return;
   }
@@ -794,7 +847,7 @@ function renderGallery() {
     card.innerHTML = `
       <div class="gcard-img">
         ${imgHtml}
-        ${c.platform === 'flickr' ? `<div class="gcard-img-chip"><span class="flickr-dots"><span class="flickr-dot-blue"></span><span class="flickr-dot-pink"></span></span>Flickr</div>` : ''}
+        ${c.platform === 'flickr' ? `<div class="gcard-img-chip"><span class="flickr-dots"><span class="flickr-dot-blue"></span><span class="flickr-dot-pink"></span></span>Flickr${c.count > 1 ? ` <span class="gcard-count">${c.count} photos</span>` : ''}</div>` : ''}
       </div>
       <div class="gcard-body">
         <div class="gcard-meta">
@@ -836,6 +889,21 @@ function renderGallery() {
         .catch(() => { imgWrap.innerHTML = PLACEHOLDER; });
     }
   });
+
+  // ── Pagination controls ──────────────────────────────────────────────────
+  if (totalPages > 1) {
+    const pager = document.createElement('div');
+    pager.id = 'galleryPager';
+    pager.className = 'gallery-pager';
+    const prevDis = galleryPage === 0 ? ' disabled' : '';
+    const nextDis = galleryPage >= totalPages - 1 ? ' disabled' : '';
+    pager.innerHTML = `
+      <button class="pager-btn"${prevDis} onclick="galleryPage=Math.max(0,galleryPage-1);renderGallery();window.scrollTo({top:document.getElementById('galleryWrap').offsetTop-80,behavior:'smooth'})">← Prev</button>
+      <span class="pager-info">Page ${galleryPage + 1} of ${totalPages} &nbsp;·&nbsp; ${totalCards} cards</span>
+      <button class="pager-btn"${nextDis} onclick="galleryPage=Math.min(${totalPages-1},galleryPage+1);renderGallery();window.scrollTo({top:document.getElementById('galleryWrap').offsetTop-80,behavior:'smooth'})">Next →</button>
+    `;
+    wrap.after(pager);
+  }
 }
 
 // ── Client-side Exposure.co story fetcher ─────────────────────────────────
@@ -854,12 +922,15 @@ async function fetchExposureStory(profileUrl) {
   // Strategy 1: sitemap.xml — Exposure generates one, it's a static XML with story URLs & lastmod dates
   try {
     const r = await fetch(`${origin}/sitemap.xml`, { signal: AbortSignal.timeout(8000) });
+    console.log(`[Exposure] sitemap.xml status for ${origin}:`, r.status, r.ok);
     if (r.ok) {
       const xml = await r.text();
+      console.log(`[Exposure] sitemap.xml length:`, xml.length, xml.slice(0, 200));
       const result = await parseExposureSitemap(xml, origin, profileUrl);
+      console.log(`[Exposure] sitemap parse result:`, result);
       if (result) return result;
     }
-  } catch(e) {}
+  } catch(e) { console.log(`[Exposure] sitemap fetch error:`, e.message); }
 
   // Strategy 2: Direct fetch of the profile page HTML (Exposure does SSR with OG tags)
   try {
@@ -980,8 +1051,12 @@ async function fetchAllExposureStories() {
     seen.add(u); return true;
   });
 
+  console.log(`[Exposure] Fetching ${unique.length} offices:`, unique.map(o => o.exposure.url));
+
   async function processOne(office) {
+    console.log(`[Exposure] Fetching: ${office.exposure.url}`);
     const result = await fetchExposureStory(office.exposure.url);
+    console.log(`[Exposure] Result for ${office.country}:`, result);
     if (!result) return;
     // Patch all DATA entries sharing the same exposure URL
     DATA.forEach(o => {
@@ -997,6 +1072,89 @@ async function fetchAllExposureStories() {
 
   for (let i = 0; i < unique.length; i += CONCURRENCY) {
     await Promise.all(unique.slice(i, i + CONCURRENCY).map(processOne));
+    renderAll();
+  }
+}
+
+// ── Flickr full archive fetcher ───────────────────────────────────────────
+// Fetches up to 50 recent photos per office, groups by upload date → one card per date
+
+async function fetchFlickrDateArchive(nsid) {
+  // Flickr public feed supports count up to 50
+  const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(nsid)}&format=atom&count=50`;
+  try {
+    const r = await fetch(feedUrl, { signal: AbortSignal.timeout(10000) });
+    if (!r.ok) return [];
+    const text = await r.text();
+    const doc = new DOMParser().parseFromString(text, 'application/xml');
+    const entries = Array.from(doc.querySelectorAll('entry'));
+    if (!entries.length) return [];
+
+    // Group photos by upload date (published date, YYYY-MM-DD)
+    const byDate = {};
+    for (const entry of entries) {
+      const pubEl = entry.querySelector('published') || entry.querySelector('updated');
+      if (!pubEl) continue;
+      const isoDate = pubEl.textContent.trim().slice(0, 10); // YYYY-MM-DD
+
+      // Photo URL
+      const linkEl = entry.querySelector('link[rel="alternate"]') || entry.querySelector('link');
+      const url = linkEl?.getAttribute('href') || null;
+
+      // Image URL — try enclosure, then media:content, then regex
+      let img = null;
+      const enclosure = entry.querySelector('link[rel="enclosure"]');
+      if (enclosure) img = enclosure.getAttribute('href');
+      if (!img) {
+        const media = entry.querySelector('content[url], thumbnail[url]');
+        if (media) img = media.getAttribute('url');
+      }
+      if (!img) {
+        const m = text.match(/https:\/\/live\.staticflickr\.com\/[^\s"'<>]+\.jpg/);
+        if (m) img = m[0];
+      }
+      if (img && img.includes('_m.jpg')) img = img.replace('_m.jpg', '_b.jpg');
+
+      const titleEl = entry.querySelector('title');
+      const title = titleEl?.textContent?.trim() || null;
+
+      if (!byDate[isoDate]) {
+        byDate[isoDate] = { date: isoDate, url, image_url: img, title, count: 0 };
+      }
+      byDate[isoDate].count++;
+      // Keep the first photo's image as representative for the date
+    }
+
+    return Object.values(byDate).sort((a, b) => b.date.localeCompare(a.date));
+  } catch(e) {
+    return [];
+  }
+}
+
+async function fetchAllFlickrArchives() {
+  const CONCURRENCY = 6;
+  // Collect unique NSIDs across all offices that have a Flickr URL
+  const seen = new Set();
+  const toFetch = [];
+  DATA.forEach(o => {
+    if (!o.flickrUrl) return;
+    const nsid = nsidFromFlickrUrl(o.flickrUrl);
+    if (!nsid || seen.has(nsid)) return;
+    seen.add(nsid);
+    toFetch.push({ nsid, offices: DATA.filter(x => nsidFromFlickrUrl(x.flickrUrl) === nsid) });
+  });
+
+  async function processOne({ nsid }) {
+    // Skip if already fetched
+    if (FLICKR_ARCHIVE[nsid]) return;
+    // Resolve vanity → numeric first (feed API needs numeric NSID)
+    // We can try both — the feed accepts vanity names too for many accounts
+    const entries = await fetchFlickrDateArchive(nsid);
+    if (entries.length) FLICKR_ARCHIVE[nsid] = entries;
+  }
+
+  for (let i = 0; i < toFetch.length; i += CONCURRENCY) {
+    await Promise.all(toFetch.slice(i, i + CONCURRENCY).map(processOne));
     renderAll();
   }
 }
@@ -1057,12 +1215,14 @@ fetch('data.json')
     DATA = merge(META, json.offices);
     render();
     fetchAllExposureStories();
+    fetchAllFlickrArchives();
     fetchAllFlickrRealnames();
   })
   .catch(() => {
     DATA = merge(META, null);
     render();
     fetchAllExposureStories();
+    fetchAllFlickrArchives();
     fetchAllFlickrRealnames();
   });
 </script>
