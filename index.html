@@ -259,6 +259,11 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
   background:#EDEFF0;box-shadow:0 0.5px 1px rgba(0,0,0,.2);
   align-self:flex-start;white-space:nowrap;
 }
+.gcard-subtitle{
+  display:block;font-size:11px;color:#677383;
+  line-height:1.4;margin-top:2px;margin-bottom:4px;
+  font-style:italic;
+}
 .gallery-nodata{
   display:none;padding:48px;text-align:center;
   color:var(--gray-dark);font-style:italic;font-size:13px;
@@ -550,7 +555,7 @@ function merge(meta, json) {
     const d = map[m.country] || {};
     return { ...m,
       flickr:   {url:m.flickrUrl,   date:d.flickr?.date||null,   latest_url:d.flickr?.latest_url||m.flickrUrl,   title:d.flickr?.title||null,   image_url:d.flickr?.image_url||null,   album:d.flickr?.album||null,   date_uploaded:d.flickr?.date_uploaded||null,   date_taken:d.flickr?.date_taken||null,   realname:d.flickr?.realname||null},
-      exposure: {url:m.exposureUrl, date:d.exposure?.date||null, latest_url:d.exposure?.latest_url||m.exposureUrl, title:d.exposure?.title||null, image_url:d.exposure?.image_url||null},
+      exposure: {url:m.exposureUrl, date:d.exposure?.date||null, latest_url:d.exposure?.latest_url||m.exposureUrl, title:d.exposure?.title||null, subtitle:d.exposure?.subtitle||null, image_url:d.exposure?.image_url||null},
       stories:  {url:m.storiesUrl,  date:d.stories?.date||null,  latest_url:d.stories?.latest_url||m.storiesUrl,  title:d.stories?.title||null,  image_url:d.stories?.image_url||null},
       blog:     {url:m.blogUrl,     date:d.blog?.date||null,     latest_url:d.blog?.latest_url||m.blogUrl,        title:d.blog?.title||null,     image_url:d.blog?.image_url||null},
     };
@@ -703,6 +708,7 @@ function buildGalleryCards(rows) {
           url: url,
           image_url: p.image_url || null,
           title: p.title || null,
+          subtitle: p.subtitle || null,
           album: p.album || null,
           date_uploaded: p.date_uploaded || null,
           date_taken: p.date_taken || null,
@@ -797,6 +803,7 @@ function renderGallery() {
           <span class="gcard-title">${c.platform === "flickr" && c.title ? "Title: " + c.title : c.title || PLATFORM_LABELS[c.platform]}</span>
           <span class="gcard-ext">${EXT}</span>
         </div>
+        ${c.platform === 'exposure' && c.subtitle ? `<span class="gcard-subtitle">${c.subtitle}</span>` : ''}
         ${c.platform !== 'flickr' ? `<span class="gcard-platform">${PLATFORM_LABELS[c.platform]}</span>` : ''}
         ${(c.album || c.date_uploaded || c.date_taken) && c.platform === 'flickr' ? `
           <div class="gcard-flickr-meta">
@@ -824,6 +831,129 @@ function renderGallery() {
         .catch(() => { imgWrap.innerHTML = PLACEHOLDER; });
     }
   });
+}
+
+// ── Client-side Exposure.co story fetcher ─────────────────────────────────
+// Exposure is a JS SPA with no CORS headers, so we fetch via allorigins proxy.
+// API endpoint: https://{subdomain}.exposure.co/api/profile/stories?page=1&per_page=1
+
+function exposureOriginFromUrl(url) {
+  // e.g. "https://undpafghanistan.exposure.co/" → "https://undpafghanistan.exposure.co"
+  try { return new URL(url).origin; } catch(e) { return null; }
+}
+
+async function fetchExposureStory(profileUrl) {
+  const origin = exposureOriginFromUrl(profileUrl);
+  if (!origin) return null;
+
+  // Try direct API first (works if Exposure sends CORS headers)
+  const apiUrl = `${origin}/api/profile/stories?page=1&per_page=1`;
+  try {
+    const r = await fetch(apiUrl, { signal: AbortSignal.timeout(8000) });
+    if (r.ok) {
+      const data = await r.json();
+      const stories = data.stories || data.data || (Array.isArray(data) ? data : []);
+      if (stories.length) return parseExposureStory(stories[0], origin);
+    }
+  } catch(e) { /* fall through to proxy */ }
+
+  // Fallback: allorigins CORS proxy to fetch the HTML and parse Open Graph tags
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(origin + '/')}`;
+  try {
+    const r = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+    if (!r.ok) return null;
+    const json = await r.json();
+    const html = json.contents || '';
+    return parseExposureHtml(html, origin);
+  } catch(e) { return null; }
+}
+
+function parseExposureStory(s, origin) {
+  const title    = s.title || s.name || null;
+  const subtitle = s.subtitle || s.description || null;
+  const slug     = s.slug || s.id || '';
+  const url      = slug ? `${origin}/${slug}` : origin;
+  let img = null;
+  const cover = s.cover || s.cover_photo || s.thumbnail || {};
+  if (typeof cover === 'string') img = cover;
+  else if (cover) img = cover.url || cover.src || cover.original || null;
+  const pub = s.published_at || s.created_at || s.date || '';
+  const m = pub.match(/^(\d{4}-\d{2}-\d{2})/);
+  return { date: m ? m[1] : null, url, image_url: img, title, subtitle };
+}
+
+function parseExposureHtml(html, origin) {
+  // Parse story cards from the HTML using a temporary DOM
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+
+  // Try Open Graph tags for the first/featured story
+  const ogTitle = doc.querySelector('meta[property="og:title"]')?.content?.trim() || null;
+  const ogImg   = doc.querySelector('meta[property="og:image"]')?.content?.trim() || null;
+  const ogDesc  = doc.querySelector('meta[property="og:description"]')?.content?.trim() || null;
+  const ogUrl   = doc.querySelector('meta[property="og:url"]')?.content?.trim() || origin;
+
+  // Try to find a date — look for <time> or text patterns
+  let date = null;
+  const timeEl = doc.querySelector('time[datetime]');
+  if (timeEl) {
+    const m = timeEl.getAttribute('datetime').match(/^(\d{4}-\d{2}-\d{2})/);
+    if (m) date = m[1];
+  }
+  if (!date) {
+    // Look for "Month Nth, YYYY" pattern in visible text
+    const months = 'january|february|march|april|may|june|july|august|september|october|november|december';
+    const bodyText = doc.body?.innerText || doc.body?.textContent || '';
+    const dm = bodyText.match(new RegExp(`(${months})\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+(\\d{4})`, 'i'));
+    if (dm) {
+      const monthNum = {'january':'01','february':'02','march':'03','april':'04','may':'05','june':'06',
+        'july':'07','august':'08','september':'09','october':'10','november':'11','december':'12'};
+      date = `${dm[3]}-${monthNum[dm[1].toLowerCase()]}-${dm[2].padStart(2,'0')}`;
+    }
+  }
+
+  // Find the first story link slug
+  let storyUrl = ogUrl || origin;
+  const storyLink = doc.querySelector('a[href^="/"][href!="/"]');
+  if (storyLink) {
+    const href = storyLink.getAttribute('href');
+    if (href && !href.includes('.') && href.length > 2) storyUrl = origin + href;
+  }
+
+  if (ogTitle) return { date, url: storyUrl, image_url: ogImg, title: ogTitle, subtitle: ogDesc };
+  return null;
+}
+
+async function fetchAllExposureStories() {
+  const CONCURRENCY = 4;
+  // Get all unique offices that have an exposure URL and no data yet
+  const offices = DATA.filter(o => o.exposure?.url && !o.exposure?.title && !o.exposure?.date);
+  // Deduplicate by URL
+  const seen = new Set();
+  const unique = offices.filter(o => {
+    const u = o.exposure.url;
+    if (seen.has(u)) return false;
+    seen.add(u); return true;
+  });
+
+  async function processOne(office) {
+    const result = await fetchExposureStory(office.exposure.url);
+    if (!result) return;
+    // Patch all DATA entries sharing the same exposure URL
+    DATA.forEach(o => {
+      if (o.exposure?.url === office.exposure.url) {
+        o.exposure.date      = result.date      || o.exposure.date;
+        o.exposure.title     = result.title     || o.exposure.title;
+        o.exposure.subtitle  = result.subtitle  || o.exposure.subtitle;
+        o.exposure.image_url = result.image_url || o.exposure.image_url;
+        o.exposure.latest_url = result.url      || o.exposure.latest_url;
+      }
+    });
+  }
+
+  for (let i = 0; i < unique.length; i += CONCURRENCY) {
+    await Promise.all(unique.slice(i, i + CONCURRENCY).map(processOne));
+    render();
+  }
 }
 
 // Extract the vanity name / numeric NSID from a Flickr URL
@@ -881,11 +1011,13 @@ fetch('data.json')
   .then(json => {
     DATA = merge(META, json.offices);
     render();
+    fetchAllExposureStories();
     fetchAllFlickrRealnames();
   })
   .catch(() => {
     DATA = merge(META, null);
     render();
+    fetchAllExposureStories();
     fetchAllFlickrRealnames();
   });
 </script>
