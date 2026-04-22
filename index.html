@@ -697,10 +697,24 @@ const CARDS_PER_PAGE = 24;
 let galleryPage = 0;
 
 // ── Favourites ────────────────────────────────────────────────────────────────
-// Each card is identified by a stable key: "<platform>|<url>"
+// Each card is identified by a stable key that won't break when new photos are uploaded:
+//   Flickr album cards:      flickr|<country>|album:<album_title>
+//   Flickr date-group cards: flickr|<country>|date:<YYYY-MM-DD>
+//   Other platforms:         <platform>|<url>
 let FAVS = new Set(JSON.parse(localStorage.getItem('undp_favs') || '[]'));
 
-function favKey(c) { return `${c.platform}|${c.url}`; }
+function favKey(c) {
+  // Use a stable key that won't change when new photos are added:
+  // For album cards: platform|country|album_title
+  // For date-group cards: platform|country|date
+  // For non-flickr: platform|url (URLs are stable for stories/blogs/exposure)
+  if (c.platform === 'flickr') {
+    return c.album
+      ? `flickr|${c.country}|album:${c.album}`
+      : `flickr|${c.country}|date:${c.date}`;
+  }
+  return `${c.platform}|${c.url}`;
+}
 
 function saveFavs() {
   localStorage.setItem('undp_favs', JSON.stringify([...FAVS]));
@@ -883,7 +897,12 @@ function buildCard(c) {
       </div>
       ${c.platform === 'exposure' && c.subtitle ? `<span class="gcard-subtitle">${c.subtitle}</span>` : ''}
       ${c.platform !== 'flickr' ? `<span class="gcard-platform">${PLATFORM_LABELS[c.platform]}</span>` : ''}
-      ${c.platform === 'flickr' && c.album ? `<span class="gcard-album">📂 Album</span>` : ''}
+      ${c.platform === 'flickr' ? `
+        <div class="gcard-flickr-meta">
+          ${c.album ? `<span class="gcard-album">📂 ${c.album}</span>` : ''}
+          ${c.date_taken    ? `<span class="gcard-date-detail">📷 Taken: ${c.date_taken}</span>` : ''}
+          ${c.date_uploaded ? `<span class="gcard-date-detail">⬆️ Uploaded: ${fmtDateFull(c.date_uploaded)}</span>` : ''}
+        </div>` : ''}
     </div>`;
 
   // Wire up star button — stop propagation so the card link doesn't fire
@@ -1262,23 +1281,48 @@ async function fetchFlickrDateArchive(nsid) {
 
 function groupFlickrPhotos(photos) {
   // Two buckets:
-  //   byAlbum[albumTitle] = { date (most recent), url (first photo), image_url (first photo), count, album }
-  //   byDate[YYYY-MM-DD]  = { date, url, image_url, count, album:null }
+  //   byAlbum[albumTitle] = { date (most recent), url (first photo), image_url (first photo), count, album, title }
+  //   byDate[YYYY-MM-DD]  = { date, url, image_url, count, album:null, title }
   const byAlbum = {};
   const byDate  = {};
 
   for (const p of photos) {
     if (p.album) {
       if (!byAlbum[p.album]) {
-        byAlbum[p.album] = { date: p.date, url: p.url, image_url: p.image_url, title: p.album, album: p.album, count: 0 };
+        // First photo seen for this album — record image & url from it
+        byAlbum[p.album] = {
+          date: p.date,
+          url: p.url,
+          image_url: p.image_url,
+          title: p.album,       // album name is the title
+          album: p.album,
+          date_uploaded: p.date, // most recent upload date (updated below)
+          date_taken: p.date_taken || null,
+          count: 0,
+        };
       } else {
-        // Keep the most-recent date; keep the first photo's image (already set)
-        if (p.date > byAlbum[p.album].date) byAlbum[p.album].date = p.date;
+        // Keep the most-recent date
+        if (p.date > byAlbum[p.album].date) {
+          byAlbum[p.album].date = p.date;
+          byAlbum[p.album].date_uploaded = p.date;
+          // Swap cover image to the newest photo
+          if (p.image_url) byAlbum[p.album].image_url = p.image_url;
+          if (p.url) byAlbum[p.album].url = p.url;
+        }
       }
       byAlbum[p.album].count++;
     } else {
       if (!byDate[p.date]) {
-        byDate[p.date] = { date: p.date, url: p.url, image_url: p.image_url, title: p.title, album: null, count: 0 };
+        byDate[p.date] = {
+          date: p.date,
+          url: p.url,
+          image_url: p.image_url,
+          title: p.title,
+          album: null,
+          date_uploaded: p.date,
+          date_taken: p.date_taken || null,
+          count: 0,
+        };
       }
       byDate[p.date].count++;
     }
