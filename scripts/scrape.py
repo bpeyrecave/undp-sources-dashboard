@@ -184,6 +184,212 @@ def flickr_fetch_realname(nsid):
     return None
 
 
+
+def _parse_flickr_date(text):
+    """Parse 'April 22, 2026' -> '2026-04-22'."""
+    if not text:
+        return None
+    m = re.search(
+        r'(january|february|march|april|may|june|july|august|september|october|november|december)'
+        r'\s+(\d{1,2}),?\s+(\d{4})',
+        text.lower()
+    )
+    if m:
+        month = _MONTH_MAP[m.group(1)]
+        day = m.group(2).zfill(2)
+        year = m.group(3)
+        return f"{year}-{month}-{day}"
+    return None
+
+
+async def _flickr_photo_dates(browser, photo_url):
+    """Visit a single Flickr photo page, return (date_uploaded_str, date_taken_str)."""
+    try:
+        page = await _new_page(browser)
+        await page.goto(photo_url, timeout=PLAYWRIGHT_NAV_TIMEOUT, wait_until="domcontentloaded")
+        try:
+            await page.wait_for_function(
+                "document.body.innerText.includes('Uploaded') || document.body.innerText.includes('Taken')",
+                timeout=7_000
+            )
+        except Exception:
+            pass
+        dates = await page.evaluate("""() => {
+            const body = document.body.innerText;
+            const up = body.match(/Uploaded\\s+on\\s+([A-Z][a-z]+ \\d+,\\s*\\d{4})/);
+            const tk = body.match(/Taken\\s+on\\s+([A-Z][a-z]+ \\d+,\\s*\\d{4})/);
+            return { uploaded: up ? up[1] : null, taken: tk ? tk[1] : null };
+        }""")
+        await page.close()
+        return dates.get('uploaded'), dates.get('taken')
+    except Exception as e:
+        print(f"  WARN photo dates {photo_url}: {e}", file=sys.stderr)
+        return None, None
+
+
+async def flickr_full_archive(browser, nsid, flickr_url):
+    """
+    Scrape the complete Flickr archive for an office using Playwright.
+    Returns a list of card dicts (album cards + date-group cards).
+    Stored in data.json as rec["flickr_archive"].
+    """
+    results = []
+    nsid_path = nsid
+
+    # Step 1: Fetch all albums
+    albums_url = f"https://www.flickr.com/photos/{nsid_path}/albums/"
+    try:
+        page = await _new_page(browser)
+        await page.goto(albums_url, timeout=PLAYWRIGHT_NAV_TIMEOUT, wait_until="domcontentloaded")
+        for sel in ['a[href*="/albums/"]', '.album-list-item', '[class*="AlbumCard"]']:
+            try:
+                await page.wait_for_selector(sel, timeout=8_000)
+                break
+            except Exception:
+                continue
+        await page.wait_for_timeout(1500)
+
+        albums_data = await page.evaluate("""() => {
+            const results = [];
+            const seen = new Set();
+            const allLinks = document.querySelectorAll('a[href*="/albums/"]');
+            for (const a of allLinks) {
+                const href = a.href || '';
+                if (!href.match(/\\/albums\\/\\d+/) || seen.has(href)) continue;
+                seen.add(href);
+                const card = a.closest('li, article, div') || a;
+                const heading = card.querySelector('h2,h3,h4,strong,[class*="title"],[class*="Title"]');
+                const title = (heading?.textContent || a.textContent || '').trim();
+                if (!title || title.length < 2) continue;
+                const img = card.querySelector('img');
+                let imgSrc = img?.src || img?.getAttribute('data-src') || '';
+                if (imgSrc.match(/_[mn]\\.(jpg|jpeg|png)/)) imgSrc = imgSrc.replace(/_[mn]\\./, '_b.');
+                const allText = card.textContent || '';
+                const countM = allText.match(/(\\d+)\\s*(?:photos?|items?)/i);
+                const count = countM ? parseInt(countM[1]) : 0;
+                results.push({ title, url: href, image_url: imgSrc || null, count });
+            }
+            return results;
+        }""")
+        await page.close()
+        print(f"    -> Found {len(albums_data)} albums for {nsid}", flush=True)
+
+        for alb in albums_data[:50]:
+            alb_title = alb.get('title', '').strip()
+            album_href = alb.get('url', '')
+            if not alb_title or not album_href:
+                continue
+            try:
+                apage = await _new_page(browser)
+                await apage.goto(album_href, timeout=PLAYWRIGHT_NAV_TIMEOUT, wait_until="domcontentloaded")
+                for sel in ['a[href*="/in/album-"]', '.photo-list-photo-view', 'a[href*="/photos/"]']:
+                    try:
+                        await apage.wait_for_selector(sel, timeout=6_000)
+                        break
+                    except Exception:
+                        continue
+                await apage.wait_for_timeout(800)
+
+                first_photo_url = await apage.evaluate("""() => {
+                    const links = document.querySelectorAll('a[href*="/in/album-"]');
+                    for (const a of links) {
+                        if (a.href && a.href.match(/\\/photos\\/[^/]+\\/\\d+/)) return a.href;
+                    }
+                    const all = document.querySelectorAll('a[href*="/photos/"]');
+                    for (const a of all) {
+                        if (a.href.match(/\\/photos\\/[^/]+\\/\\d+/)) return a.href;
+                    }
+                    return null;
+                }""")
+
+                if not alb.get('image_url'):
+                    cover = await apage.evaluate("""() => {
+                        const img = document.querySelector('img[src*="staticflickr"]');
+                        let src = img?.src || '';
+                        if (src.match(/_[mn]\\.(jpg|jpeg|png)/)) src = src.replace(/_[mn]\\./, '_b.');
+                        return src || null;
+                    }""")
+                    if cover:
+                        alb['image_url'] = cover
+
+                await apage.close()
+
+                date_uploaded, date_taken = None, None
+                if first_photo_url:
+                    date_uploaded, date_taken = await _flickr_photo_dates(browser, first_photo_url)
+
+                iso_date = _parse_flickr_date(date_uploaded) or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+                results.append({
+                    'type': 'album',
+                    'album': alb_title,
+                    'title': alb_title,
+                    'date': iso_date,
+                    'url': first_photo_url or album_href,
+                    'image_url': alb.get('image_url'),
+                    'count': alb.get('count', 0),
+                    'date_uploaded': date_uploaded,
+                    'date_taken': date_taken,
+                })
+                print(f"      Album: {alb_title} ({iso_date})", flush=True)
+            except Exception as e:
+                print(f"  WARN album '{alb_title}': {e}", file=sys.stderr)
+                continue
+
+    except Exception as e:
+        print(f"  WARN flickr albums page {nsid}: {e}", file=sys.stderr)
+
+    # Step 2: Non-album photos from the public feed, grouped by date
+    try:
+        numeric_nsid = flickr_resolve_nsid(nsid)
+        feed_url = f"https://www.flickr.com/services/feeds/photos_public.gne?id={numeric_nsid}&format=atom"
+        r = get(feed_url)
+        if r:
+            soup = BeautifulSoup(r.text, "xml")
+            by_date = {}
+            for entry in soup.find_all("entry"):
+                pub = entry.find("published") or entry.find("updated")
+                if not pub:
+                    continue
+                iso_date = pub.text.strip()[:10]
+                in_album = any("set=" in c.get("scheme", "") or "photosets" in c.get("scheme", "")
+                               for c in entry.find_all("category"))
+                if in_album:
+                    continue
+                link_tag = entry.find("link", rel="alternate") or entry.find("link")
+                url = link_tag["href"] if link_tag and link_tag.get("href") else None
+                img_url = None
+                enc = entry.find("link", rel="enclosure")
+                if enc and enc.get("href", "").lower().endswith((".jpg", ".jpeg", ".png")):
+                    img_url = enc["href"]
+                if not img_url:
+                    for tag in ("thumbnail", "media:thumbnail", "content", "media:content"):
+                        t = entry.find(tag)
+                        if t and t.get("url"):
+                            img_url = t["url"]
+                            break
+                if img_url and "_m.jpg" in img_url:
+                    img_url = img_url.replace("_m.jpg", "_b.jpg")
+                title_tag = entry.find("title")
+                title = title_tag.text.strip() if title_tag else None
+                if iso_date not in by_date:
+                    by_date[iso_date] = {'date': iso_date, 'url': url, 'image_url': img_url, 'title': title, 'count': 0}
+                by_date[iso_date]['count'] += 1
+
+            for d in by_date.values():
+                results.append({
+                    'type': 'date', 'album': None, 'title': d['title'],
+                    'date': d['date'], 'url': d['url'], 'image_url': d['image_url'],
+                    'count': d['count'], 'date_uploaded': d['date'], 'date_taken': None,
+                })
+    except Exception as e:
+        print(f"  WARN flickr feed {nsid}: {e}", file=sys.stderr)
+
+    results.sort(key=lambda x: x.get('date') or '', reverse=True)
+    print(f"    -> Total flickr cards for {nsid}: {len(results)}", flush=True)
+    return results
+
+
 def flickr_resolve_nsid(nsid):
     """
     If nsid looks like a vanity name (no @N), resolve it to numeric NSID
@@ -636,9 +842,38 @@ async def scrape_office(browser, sem, i, total, row):
             "stories":  {"url": stories_url,   "date": None, "latest_url": None, "image_url": None, "title": None},
             "blog":     {"url": blog_url,      "date": None, "latest_url": None, "image_url": None, "title": None},
         }
-        tasks = []
+        # ── Flickr: full archive (albums + date-grouped non-album photos) ────────
         if nsid:
-            tasks.append(("flickr",   flickr_url,   asyncio.to_thread(flickr_latest, nsid)))
+            try:
+                archive = await asyncio.wait_for(
+                    flickr_full_archive(browser, nsid, flickr_url),
+                    timeout=300  # up to 5 min per office for full album scrape
+                )
+                rec["flickr_archive"] = archive
+                # Also populate rec["flickr"] with the most recent entry for backwards compat
+                if archive:
+                    top = archive[0]
+                    rec["flickr"]["date"]         = top.get("date")
+                    rec["flickr"]["latest_url"]   = top.get("url") or flickr_url
+                    rec["flickr"]["image_url"]    = top.get("image_url")
+                    rec["flickr"]["title"]        = top.get("title")
+                    rec["flickr"]["album"]        = top.get("album")
+                    rec["flickr"]["date_uploaded"]= top.get("date_uploaded")
+                    rec["flickr"]["date_taken"]   = top.get("date_taken")
+            except Exception as e:
+                print(f"  SKIP {country}/flickr-archive: {e}", file=sys.stderr)
+                rec["flickr_archive"] = []
+
+        # ── Fetch Flickr display name ─────────────────────────────────────────
+        if nsid:
+            try:
+                realname = await asyncio.to_thread(flickr_fetch_realname, nsid)
+                rec["flickr"]["realname"] = realname
+            except Exception as e:
+                print(f"  SKIP {country}/flickr-realname: {e}", file=sys.stderr)
+
+        # ── Exposure, Stories, Blog ───────────────────────────────────────────
+        tasks = []
         if exposure_url:
             tasks.append(("exposure", exposure_url, exposure_latest(browser, exposure_url)))
         if stories_url:
@@ -662,28 +897,6 @@ async def scrape_office(browser, sem, i, total, row):
                     rec[plat]["subtitle"] = sub
             except Exception as e:
                 print(f"  SKIP {country}/{plat}: {e}", file=sys.stderr)
-
-        # Scrape Flickr photo page for album + dates (using Playwright)
-        photo_url = rec["flickr"].get("latest_url")
-        if photo_url and "flickr.com/photos/" in photo_url and "/photos/" in photo_url:
-            try:
-                alb, uploaded, taken = await asyncio.wait_for(
-                    flickr_photo_page_details(browser, photo_url),
-                    timeout=15
-                )
-                rec["flickr"]["album"]         = alb
-                rec["flickr"]["date_uploaded"] = uploaded
-                rec["flickr"]["date_taken"]    = taken
-            except Exception as e:
-                print(f"  SKIP {country}/flickr-page: {e}", file=sys.stderr)
-
-        # Fetch Flickr account display name (realname)
-        if nsid:
-            try:
-                realname = await asyncio.to_thread(flickr_fetch_realname, nsid)
-                rec["flickr"]["realname"] = realname
-            except Exception as e:
-                print(f"  SKIP {country}/flickr-realname: {e}", file=sys.stderr)
 
         return rec
 
