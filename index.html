@@ -318,9 +318,7 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 
 <header>
   <div class="header-nav">
-    <span class="header-nav-item" id="nav-selected" onclick="setView('selected')" title="Filtered Photos">Filtered Photos</span>
-    <span class="header-nav-sep">|</span>
-    <span class="header-nav-item" id="nav-gallery" onclick="setView('gallery')" title="Photo Archive">Photo Archive</span>
+    <span class="header-nav-item active" id="nav-gallery" onclick="setView('gallery')" title="Photo Archive">Photo Archive</span>
     <span class="header-nav-sep">|</span>
     <span class="header-nav-item" id="nav-list" onclick="setView('list')" title="Editorial Archive">Editorial Archive</span>
   </div>
@@ -354,18 +352,16 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="#232E3D" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
 
-  <div class="gallery-sort" id="gallerySortWrap">
-    <select id="gallerySort" onchange="galleryPage=0;renderGallery()">
-      <option value="date_desc">Most Recent</option>
-      <option value="date_asc">Oldest First</option>
-      <option value="country_asc">Country A→Z</option>
-      <option value="country_desc">Country Z→A</option>
+  <div class="gallery-sort" id="favFilterWrap">
+    <select id="favFilter" onchange="galleryPage=0;renderGallery()">
+      <option value="favs">⭐ Favourites</option>
+      <option value="all">All Photos</option>
     </select>
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="#232E3D" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
 
-  <div class="gallery-sort" id="selectedSortWrap">
-    <select id="selectedSort" onchange="selectedPage=0;renderSelected()">
+  <div class="gallery-sort" id="gallerySortWrap">
+    <select id="gallerySort" onchange="galleryPage=0;renderGallery()">
       <option value="date_desc">Most Recent</option>
       <option value="date_asc">Oldest First</option>
       <option value="country_asc">Country A→Z</option>
@@ -423,15 +419,6 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 
 <div class="gallery-wrap" id="galleryWrap">
   <div class="gallery-nodata" id="galleryNodata">No results match your filters.</div>
-</div>
-
-<div class="gallery-wrap" id="selectedWrap">
-  <div class="gallery-nodata visible" id="selectedNodata">
-    <div class="selected-empty">
-      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      <p>No photos selected yet.<br>Browse the <strong>Photo Archive</strong> and click the ★ on any card to save it here.</p>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -708,7 +695,6 @@ let currentView = 'gallery';
 const FLICKR_ARCHIVE = {};   // nsid → [{date, url, image_url, title, count}]
 const CARDS_PER_PAGE = 24;
 let galleryPage = 0;
-let selectedPage = 0;
 
 // ── Favourites ────────────────────────────────────────────────────────────────
 // Each card is identified by a stable key: "<platform>|<url>"
@@ -733,33 +719,29 @@ function toggleFav(key, btn) {
   } else {
     FAVS.add(key);
     btn.classList.add('faved');
-    btn.title = 'Remove from Selected Photos';
+    btn.title = 'Remove from Favourites';
   }
   saveFavs();
-  // If we're in the selected view, re-render it live
-  if (currentView === 'selected') renderSelected();
+  // Re-render gallery live so favs filter updates instantly
+  if (currentView === 'gallery') renderGallery();
 }
 
 const STAR_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
 
 function renderAll() {
   if (currentView === 'gallery') renderGallery();
-  else if (currentView === 'selected') renderSelected();
   else render();
 }
 
 function setView(v) {
   currentView = v;
-  document.getElementById('nav-selected').classList.toggle('active', v === 'selected');
   document.getElementById('nav-gallery').classList.toggle('active', v === 'gallery');
   document.getElementById('nav-list').classList.toggle('active', v === 'list');
   document.querySelector('.table-wrap').style.display = v === 'list' ? '' : 'none';
   document.getElementById('galleryWrap').classList.toggle('visible', v === 'gallery');
-  document.getElementById('selectedWrap').classList.toggle('visible', v === 'selected');
   document.getElementById('gallerySortWrap').classList.toggle('visible', v === 'gallery');
-  document.getElementById('selectedSortWrap').classList.toggle('visible', v === 'selected');
+  document.getElementById('favFilterWrap').classList.toggle('visible', v === 'gallery');
   if (v === 'gallery') renderGallery();
-  else if (v === 'selected') renderSelected();
   else render();
 }
 
@@ -938,68 +920,12 @@ function buildCard(c) {
   return card;
 }
 
-// ── Selected Photos view ──────────────────────────────────────────────────────
-function renderSelected() {
-  const wrap = document.getElementById('selectedWrap');
-  const nodata = document.getElementById('selectedNodata');
-
-  // Remove old cards and pager
-  Array.from(wrap.children).forEach(el => { if (el.id !== 'selectedNodata') el.remove(); });
-  const existingPager = document.getElementById('selectedPager');
-  if (existingPager) existingPager.remove();
-
-  if (FAVS.size === 0) {
-    nodata.classList.add('visible');
-    return;
-  }
-  nodata.classList.remove('visible');
-
-  const sortVal = document.getElementById('selectedSort').value;
-
-  // Build all cards across all DATA and filter to favourited ones
-  const allCards = buildGalleryCards(DATA);
-  const favCards = allCards.filter(c => FAVS.has(favKey(c)));
-
-  // Sort
-  favCards.sort((a, b) => {
-    if (sortVal === 'date_desc')    return (b.date||'') < (a.date||'') ? -1 : 1;
-    if (sortVal === 'date_asc')     return (a.date||'') < (b.date||'') ? -1 : 1;
-    if (sortVal === 'country_asc')  return a.country < b.country ? -1 : 1;
-    if (sortVal === 'country_desc') return b.country < a.country ? -1 : 1;
-    return 0;
-  });
-
-  const totalCards = favCards.length;
-  const totalPages = Math.ceil(totalCards / CARDS_PER_PAGE);
-  selectedPage = Math.max(0, Math.min(selectedPage, Math.max(0, totalPages - 1)));
-  const pageStart = selectedPage * CARDS_PER_PAGE;
-  const pageCards = favCards.slice(pageStart, pageStart + CARDS_PER_PAGE);
-
-  pageCards.forEach(c => {
-    wrap.appendChild(buildCard(c));
-  });
-
-  // Pagination — only show if more than one page
-  if (totalPages > 1) {
-    const pager = document.createElement('div');
-    pager.id = 'selectedPager';
-    pager.className = 'gallery-pager';
-    const prevDis = selectedPage === 0 ? ' disabled' : '';
-    const nextDis = selectedPage >= totalPages - 1 ? ' disabled' : '';
-    pager.innerHTML = `
-      <button class="pager-btn"${prevDis} onclick="selectedPage=Math.max(0,selectedPage-1);renderSelected();window.scrollTo({top:document.getElementById('selectedWrap').offsetTop-80,behavior:'smooth'})">← Prev</button>
-      <span class="pager-info">Page ${selectedPage + 1} of ${totalPages} &nbsp;·&nbsp; ${totalCards} cards</span>
-      <button class="pager-btn"${nextDis} onclick="selectedPage=Math.min(${totalPages-1},selectedPage+1);renderSelected();window.scrollTo({top:document.getElementById('selectedWrap').offsetTop-80,behavior:'smooth'})">Next →</button>
-    `;
-    wrap.after(pager);
-  }
-}
-
 function renderGallery() {
-  const q   = document.getElementById('q').value.toLowerCase();
-  const fS  = document.getElementById('fSection').value;
-  const fP  = document.getElementById('fPlatform').value;
+  const q       = document.getElementById('q').value.toLowerCase();
+  const fS      = document.getElementById('fSection').value;
+  const fP      = document.getElementById('fPlatform').value;
   const sortVal = document.getElementById('gallerySort').value;
+  const favMode = document.getElementById('favFilter').value; // 'favs' | 'all'
 
   let rows = DATA.filter(r => {
     if (q  && !r.country.toLowerCase().includes(q)) return false;
@@ -1015,6 +941,9 @@ function renderGallery() {
 
   // Apply platform filter to cards too
   if (fP) cards = cards.filter(c => c.platform === fP);
+
+  // Apply favourites filter
+  if (favMode === 'favs') cards = cards.filter(c => FAVS.has(favKey(c)));
 
   // Sort
   cards.sort((a, b) => {
@@ -1041,6 +970,9 @@ function renderGallery() {
   if (existingPager) existingPager.remove();
 
   if (!totalCards) {
+    nodata.innerHTML = favMode === 'favs'
+      ? `<div class="selected-empty"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><p>No favourites yet.<br>Switch to <strong>All Photos</strong> and click the ★ on any card to save it here.</p></div>`
+      : 'No results match your filters.';
     nodata.classList.add('visible');
     return;
   }
@@ -1375,7 +1307,7 @@ fetch('data.json')
   .then(json => {
     DATA = merge(META, json.offices);
     updateFavBadge();
-    setView('selected');
+    setView('gallery');
     fetchAllExposureStories();
     fetchAllFlickrArchives();
     fetchAllFlickrRealnames();
@@ -1383,7 +1315,7 @@ fetch('data.json')
   .catch(() => {
     DATA = merge(META, null);
     updateFavBadge();
-    setView('selected');
+    setView('gallery');
     fetchAllExposureStories();
     fetchAllFlickrArchives();
     fetchAllFlickrRealnames();
