@@ -364,6 +364,16 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="#232E3D" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
 
+  <div class="gallery-sort" id="selectedSortWrap">
+    <select id="selectedSort" onchange="selectedPage=0;renderSelected()">
+      <option value="date_desc">Most Recent</option>
+      <option value="date_asc">Oldest First</option>
+      <option value="country_asc">Country A→Z</option>
+      <option value="country_desc">Country Z→A</option>
+    </select>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="#232E3D" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+
 </div>
 
 <div class="table-wrap">
@@ -747,6 +757,7 @@ function setView(v) {
   document.getElementById('galleryWrap').classList.toggle('visible', v === 'gallery');
   document.getElementById('selectedWrap').classList.toggle('visible', v === 'selected');
   document.getElementById('gallerySortWrap').classList.toggle('visible', v === 'gallery');
+  document.getElementById('selectedSortWrap').classList.toggle('visible', v === 'selected');
   if (v === 'gallery') renderGallery();
   else if (v === 'selected') renderSelected();
   else render();
@@ -943,12 +954,20 @@ function renderSelected() {
   }
   nodata.classList.remove('visible');
 
+  const sortVal = document.getElementById('selectedSort').value;
+
   // Build all cards across all DATA and filter to favourited ones
   const allCards = buildGalleryCards(DATA);
   const favCards = allCards.filter(c => FAVS.has(favKey(c)));
 
-  // Sort by country then date
-  favCards.sort((a, b) => a.country < b.country ? -1 : a.country > b.country ? 1 : (b.date||'').localeCompare(a.date||''));
+  // Sort
+  favCards.sort((a, b) => {
+    if (sortVal === 'date_desc')    return (b.date||'') < (a.date||'') ? -1 : 1;
+    if (sortVal === 'date_asc')     return (a.date||'') < (b.date||'') ? -1 : 1;
+    if (sortVal === 'country_asc')  return a.country < b.country ? -1 : 1;
+    if (sortVal === 'country_desc') return b.country < a.country ? -1 : 1;
+    return 0;
+  });
 
   const totalCards = favCards.length;
   const totalPages = Math.ceil(totalCards / CARDS_PER_PAGE);
