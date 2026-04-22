@@ -252,6 +252,31 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 .flickr-dot-blue{width:10px;height:10px;border-radius:50%;background:#0063DC}
 .flickr-dot-pink{width:10px;height:10px;border-radius:50%;background:#FF0084}
 
+/* ── Favourite star button (top-right of card image) ── */
+.gcard-fav{
+  position:absolute;top:10px;right:10px;z-index:3;
+  width:32px;height:32px;
+  background:rgba(255,255,255,0.92);backdrop-filter:blur(4px);
+  border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.18);
+  transition:transform .15s, background .15s;
+  flex-shrink:0;
+}
+.gcard-fav:hover{transform:scale(1.12);background:#fff;}
+.gcard-fav svg{width:16px;height:16px;transition:fill .15s,stroke .15s;}
+.gcard-fav.faved svg{fill:#F5A623;stroke:#E09010;}
+.gcard-fav:not(.faved) svg{fill:transparent;stroke:#555;stroke-width:2;}
+
+/* ── Selected Photos empty state ── */
+.selected-empty{
+  grid-column:1/-1;padding:72px 32px;text-align:center;
+  color:var(--gray-dark);
+}
+.selected-empty svg{width:48px;height:48px;stroke:#C4C9CE;fill:none;stroke-width:1.2;margin-bottom:16px;}
+.selected-empty p{font-size:14px;line-height:1.6;}
+.selected-empty strong{color:var(--navy);}
+
 /* Old bottom chip — keep for non-Flickr platforms */
 .gcard-platform{
   display:inline-flex;align-items:center;
@@ -293,7 +318,9 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 
 <header>
   <div class="header-nav">
-    <span class="header-nav-item active" id="nav-gallery" onclick="setView('gallery')" title="Photo Archive">Photo Archive</span>
+    <span class="header-nav-item" id="nav-selected" onclick="setView('selected')" title="Selected Photos">Selected Photos <span id="nav-selected-count" style="display:none;font-size:10px;font-weight:700;background:rgba(255,255,255,.22);border-radius:20px;padding:1px 7px;margin-left:4px;"></span></span>
+    <span class="header-nav-sep">|</span>
+    <span class="header-nav-item" id="nav-gallery" onclick="setView('gallery')" title="Photo Archive">Photo Archive</span>
     <span class="header-nav-sep">|</span>
     <span class="header-nav-item" id="nav-list" onclick="setView('list')" title="Editorial Archive">Editorial Archive</span>
   </div>
@@ -386,6 +413,15 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 
 <div class="gallery-wrap" id="galleryWrap">
   <div class="gallery-nodata" id="galleryNodata">No results match your filters.</div>
+</div>
+
+<div class="gallery-wrap" id="selectedWrap">
+  <div class="gallery-nodata visible" id="selectedNodata">
+    <div class="selected-empty">
+      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <p>No photos selected yet.<br>Browse the <strong>Photo Archive</strong> and click the ★ on any card to save it here.</p>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -663,19 +699,61 @@ const FLICKR_ARCHIVE = {};   // nsid → [{date, url, image_url, title, count}]
 const CARDS_PER_PAGE = 24;
 let galleryPage = 0;          // current page (0-indexed)
 
+// ── Favourites ────────────────────────────────────────────────────────────────
+// Each card is identified by a stable key: "<platform>|<url>"
+let FAVS = new Set(JSON.parse(localStorage.getItem('undp_favs') || '[]'));
+
+function favKey(c) { return `${c.platform}|${c.url}`; }
+
+function saveFavs() {
+  localStorage.setItem('undp_favs', JSON.stringify([...FAVS]));
+  updateFavBadge();
+}
+
+function updateFavBadge() {
+  const el = document.getElementById('nav-selected-count');
+  if (FAVS.size > 0) {
+    el.textContent = FAVS.size;
+    el.style.display = '';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function toggleFav(key, btn) {
+  if (FAVS.has(key)) {
+    FAVS.delete(key);
+    btn.classList.remove('faved');
+    btn.title = 'Add to Selected Photos';
+  } else {
+    FAVS.add(key);
+    btn.classList.add('faved');
+    btn.title = 'Remove from Selected Photos';
+  }
+  saveFavs();
+  // If we're in the selected view, re-render it live
+  if (currentView === 'selected') renderSelected();
+}
+
+const STAR_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+
 function renderAll() {
   if (currentView === 'gallery') renderGallery();
+  else if (currentView === 'selected') renderSelected();
   else render();
 }
 
 function setView(v) {
   currentView = v;
+  document.getElementById('nav-selected').classList.toggle('active', v === 'selected');
   document.getElementById('nav-gallery').classList.toggle('active', v === 'gallery');
   document.getElementById('nav-list').classList.toggle('active', v === 'list');
   document.querySelector('.table-wrap').style.display = v === 'list' ? '' : 'none';
   document.getElementById('galleryWrap').classList.toggle('visible', v === 'gallery');
+  document.getElementById('selectedWrap').classList.toggle('visible', v === 'selected');
   document.getElementById('gallerySortWrap').classList.toggle('visible', v === 'gallery');
   if (v === 'gallery') renderGallery();
+  else if (v === 'selected') renderSelected();
   else render();
 }
 
@@ -768,7 +846,119 @@ function buildGalleryCards(rows) {
   return cards;
 }
 
-function renderGallery() {
+// ── Shared card builder (used by both renderGallery and renderSelected) ────────
+function buildCard(c) {
+  const flag = FLAGS[c.country] || '🌐';
+  const PLACEHOLDER = `<div class="img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>`;
+
+  const flickrPhotoUrl = (c.platform === 'flickr' && !c.image_url && c.url && c.url.match(/flickr\.com\/photos\/[^/]+\/\d+/))
+    ? c.url : null;
+
+  const imgHtml = c.image_url
+    ? `<img src="${c.image_url}" alt="" loading="lazy" onerror="imgError(this)">`
+    : flickrPhotoUrl
+      ? `<div class="img-placeholder img-loading"></div>`
+      : PLACEHOLDER;
+
+  const EXT = `<svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+  const dateStr = fmtDateFull(c.date);
+
+  const key = favKey(c);
+  const isFaved = FAVS.has(key);
+
+  const card = document.createElement('a');
+  card.className = 'gcard';
+  card.href = c.url || '#';
+  card.target = '_blank';
+  card.rel = 'noopener';
+  card.innerHTML = `
+    <div class="gcard-img">
+      ${imgHtml}
+      ${c.platform === 'flickr' ? `<div class="gcard-img-chip"><span class="flickr-dots"><span class="flickr-dot-blue"></span><span class="flickr-dot-pink"></span></span>Flickr${c.count > 1 ? ` <span class="gcard-count">${c.count} photos</span>` : ''}</div>` : ''}
+      <button class="gcard-fav${isFaved ? ' faved' : ''}" title="${isFaved ? 'Remove from Selected Photos' : 'Add to Selected Photos'}">${STAR_SVG}</button>
+    </div>
+    <div class="gcard-body">
+      <div class="gcard-meta">
+        <div class="gcard-meta-top">
+          <span class="gcard-flag">${flag}</span>
+          <span class="gcard-country">${c.flickr_realname || c.country}</span>
+        </div>
+        ${dateStr ? `<span class="gcard-date">${dateStr}</span>` : ''}
+      </div>
+      <div class="gcard-title-row">
+        <span class="gcard-title">${c.platform === "flickr" && c.title ? "Title: " + c.title : c.title || PLATFORM_LABELS[c.platform]}</span>
+        <span class="gcard-ext">${EXT}</span>
+      </div>
+      ${c.platform === 'exposure' && c.subtitle ? `<span class="gcard-subtitle">${c.subtitle}</span>` : ''}
+      ${c.platform !== 'flickr' ? `<span class="gcard-platform">${PLATFORM_LABELS[c.platform]}</span>` : ''}
+      ${(c.album || c.date_uploaded || c.date_taken) && c.platform === 'flickr' ? `
+        <div class="gcard-flickr-meta">
+          ${c.album ? `<span class="gcard-album">📂 Folder: ${c.album}</span>` : ''}
+          ${c.date_taken ? `<span class="gcard-date-detail">📷 Taken: ${c.date_taken}</span>` : ''}
+          ${c.date_uploaded ? `<span class="gcard-date-detail">⬆️ Uploaded: ${c.date_uploaded}</span>` : ''}
+        </div>` : ''}
+    </div>`;
+
+  // Wire up star button — stop propagation so the card link doesn't fire
+  const favBtn = card.querySelector('.gcard-fav');
+  favBtn.addEventListener('click', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFav(key, favBtn);
+  });
+
+  // Lazy-load Flickr image via oEmbed
+  if (flickrPhotoUrl) {
+    const imgWrap = card.querySelector('.gcard-img');
+    const oembedUrl = `https://www.flickr.com/services/oembed/?url=${encodeURIComponent(flickrPhotoUrl)}&format=json&maxwidth=600`;
+    fetch(oembedUrl)
+      .then(r => r.json())
+      .then(data => {
+        const src = data.url || data.thumbnail_url;
+        if (src) {
+          const loadingDiv = imgWrap.querySelector('.img-loading');
+          if (loadingDiv) loadingDiv.outerHTML = `<img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block">`;
+        } else {
+          const loadingDiv = imgWrap.querySelector('.img-loading');
+          if (loadingDiv) loadingDiv.outerHTML = PLACEHOLDER;
+        }
+      })
+      .catch(() => {
+        const loadingDiv = card.querySelector('.img-loading');
+        if (loadingDiv) loadingDiv.outerHTML = PLACEHOLDER;
+      });
+  }
+
+  return card;
+}
+
+// ── Selected Photos view ──────────────────────────────────────────────────────
+function renderSelected() {
+  const wrap = document.getElementById('selectedWrap');
+  const nodata = document.getElementById('selectedNodata');
+
+  // Remove old cards
+  Array.from(wrap.children).forEach(el => { if (el.id !== 'selectedNodata') el.remove(); });
+
+  if (FAVS.size === 0) {
+    nodata.classList.add('visible');
+    return;
+  }
+  nodata.classList.remove('visible');
+
+  // Build all cards across all DATA and filter to favourited ones
+  const allCards = buildGalleryCards(DATA);
+  const favCards = allCards.filter(c => FAVS.has(favKey(c)));
+
+  // Sort by country then date
+  favCards.sort((a, b) => a.country < b.country ? -1 : a.country > b.country ? 1 : (b.date||'').localeCompare(a.date||''));
+
+  favCards.forEach(c => {
+    wrap.appendChild(buildCard(c));
+  });
+}
+
+
   const q   = document.getElementById('q').value.toLowerCase();
   const fS  = document.getElementById('fSection').value;
   const fP  = document.getElementById('fPlatform').value;
@@ -820,71 +1010,8 @@ function renderGallery() {
   nodata.classList.remove('visible');
 
   cards.forEach(c => {
-    const flag = FLAGS[c.country] || '🌐';
-    const PLACEHOLDER = `<div class="img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>`;
-
-    // For Flickr cards: derive image from latest_url via oEmbed if image_url missing
-    const flickrPhotoUrl = (c.platform === 'flickr' && !c.image_url && c.url && c.url.match(/flickr\.com\/photos\/[^/]+\/\d+/))
-      ? c.url : null;
-
-    const imgHtml = c.image_url
-      ? `<img src="${c.image_url}" alt="" loading="lazy" onerror="imgError(this)">`
-      : flickrPhotoUrl
-        ? `<div class="img-placeholder img-loading"></div>`
-        : PLACEHOLDER;
-
-    const EXT = `<svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
-    const dateStr = fmtDateFull(c.date);
-
-    const card = document.createElement('a');
-    card.className = 'gcard';
-    card.href = c.url || '#';
-    card.target = '_blank';
-    card.rel = 'noopener';
-    card.innerHTML = `
-      <div class="gcard-img">
-        ${imgHtml}
-        ${c.platform === 'flickr' ? `<div class="gcard-img-chip"><span class="flickr-dots"><span class="flickr-dot-blue"></span><span class="flickr-dot-pink"></span></span>Flickr${c.count > 1 ? ` <span class="gcard-count">${c.count} photos</span>` : ''}</div>` : ''}
-      </div>
-      <div class="gcard-body">
-        <div class="gcard-meta">
-          <div class="gcard-meta-top">
-            <span class="gcard-flag">${flag}</span>
-            <span class="gcard-country">${c.flickr_realname || c.country}</span>
-          </div>
-          ${dateStr ? `<span class="gcard-date">${dateStr}</span>` : ''}
-        </div>
-        <div class="gcard-title-row">
-          <span class="gcard-title">${c.platform === "flickr" && c.title ? "Title: " + c.title : c.title || PLATFORM_LABELS[c.platform]}</span>
-          <span class="gcard-ext">${EXT}</span>
-        </div>
-        ${c.platform === 'exposure' && c.subtitle ? `<span class="gcard-subtitle">${c.subtitle}</span>` : ''}
-        ${c.platform !== 'flickr' ? `<span class="gcard-platform">${PLATFORM_LABELS[c.platform]}</span>` : ''}
-        ${(c.album || c.date_uploaded || c.date_taken) && c.platform === 'flickr' ? `
-          <div class="gcard-flickr-meta">
-            ${c.album ? `<span class="gcard-album">📂 Folder: ${c.album}</span>` : ''}
-            ${c.date_taken ? `<span class="gcard-date-detail">📷 Taken: ${c.date_taken}</span>` : ''}
-            ${c.date_uploaded ? `<span class="gcard-date-detail">⬆️ Uploaded: ${c.date_uploaded}</span>` : ''}
-          </div>` : ''}
-      </div>`;
-    wrap.appendChild(card);
-
-    // Lazy-load Flickr image via oEmbed (when image_url not in data.json yet)
-    if (flickrPhotoUrl) {
-      const imgWrap = card.querySelector('.gcard-img');
-      const oembedUrl = `https://www.flickr.com/services/oembed/?url=${encodeURIComponent(flickrPhotoUrl)}&format=json&maxwidth=600`;
-      fetch(oembedUrl)
-        .then(r => r.json())
-        .then(data => {
-          const src = data.url || data.thumbnail_url;
-          if (src) {
-            imgWrap.innerHTML = `<img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block">`;
-          } else {
-            imgWrap.innerHTML = PLACEHOLDER;
-          }
-        })
-        .catch(() => { imgWrap.innerHTML = PLACEHOLDER; });
-    }
+    const cardEl = buildCard(c);
+    wrap.appendChild(cardEl);
   });
 
   // ── Pagination controls ──────────────────────────────────────────────────
@@ -1210,14 +1337,16 @@ fetch('data.json')
   .then(r => r.json())
   .then(json => {
     DATA = merge(META, json.offices);
-    setView('gallery');
+    updateFavBadge();
+    setView('selected');
     fetchAllExposureStories();
     fetchAllFlickrArchives();
     fetchAllFlickrRealnames();
   })
   .catch(() => {
     DATA = merge(META, null);
-    setView('gallery');
+    updateFavBadge();
+    setView('selected');
     fetchAllExposureStories();
     fetchAllFlickrArchives();
     fetchAllFlickrRealnames();
