@@ -318,7 +318,7 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 
 <header>
   <div class="header-nav">
-    <span class="header-nav-item" id="nav-selected" onclick="setView('selected')" title="Selected Photos">Selected Photos <span id="nav-selected-count" style="display:none;font-size:10px;font-weight:700;background:rgba(255,255,255,.22);border-radius:20px;padding:1px 7px;margin-left:4px;"></span></span>
+    <span class="header-nav-item" id="nav-selected" onclick="setView('selected')" title="Filtered Photos">Filtered Photos</span>
     <span class="header-nav-sep">|</span>
     <span class="header-nav-item" id="nav-gallery" onclick="setView('gallery')" title="Photo Archive">Photo Archive</span>
     <span class="header-nav-sep">|</span>
@@ -697,7 +697,8 @@ function render() {
 let currentView = 'gallery';
 const FLICKR_ARCHIVE = {};   // nsid → [{date, url, image_url, title, count}]
 const CARDS_PER_PAGE = 24;
-let galleryPage = 0;          // current page (0-indexed)
+let galleryPage = 0;
+let selectedPage = 0;
 
 // ── Favourites ────────────────────────────────────────────────────────────────
 // Each card is identified by a stable key: "<platform>|<url>"
@@ -711,13 +712,7 @@ function saveFavs() {
 }
 
 function updateFavBadge() {
-  const el = document.getElementById('nav-selected-count');
-  if (FAVS.size > 0) {
-    el.textContent = FAVS.size;
-    el.style.display = '';
-  } else {
-    el.style.display = 'none';
-  }
+  // badge removed — nothing to update
 }
 
 function toggleFav(key, btn) {
@@ -937,8 +932,10 @@ function renderSelected() {
   const wrap = document.getElementById('selectedWrap');
   const nodata = document.getElementById('selectedNodata');
 
-  // Remove old cards
+  // Remove old cards and pager
   Array.from(wrap.children).forEach(el => { if (el.id !== 'selectedNodata') el.remove(); });
+  const existingPager = document.getElementById('selectedPager');
+  if (existingPager) existingPager.remove();
 
   if (FAVS.size === 0) {
     nodata.classList.add('visible');
@@ -953,9 +950,30 @@ function renderSelected() {
   // Sort by country then date
   favCards.sort((a, b) => a.country < b.country ? -1 : a.country > b.country ? 1 : (b.date||'').localeCompare(a.date||''));
 
-  favCards.forEach(c => {
+  const totalCards = favCards.length;
+  const totalPages = Math.ceil(totalCards / CARDS_PER_PAGE);
+  selectedPage = Math.max(0, Math.min(selectedPage, Math.max(0, totalPages - 1)));
+  const pageStart = selectedPage * CARDS_PER_PAGE;
+  const pageCards = favCards.slice(pageStart, pageStart + CARDS_PER_PAGE);
+
+  pageCards.forEach(c => {
     wrap.appendChild(buildCard(c));
   });
+
+  // Pagination — only show if more than one page
+  if (totalPages > 1) {
+    const pager = document.createElement('div');
+    pager.id = 'selectedPager';
+    pager.className = 'gallery-pager';
+    const prevDis = selectedPage === 0 ? ' disabled' : '';
+    const nextDis = selectedPage >= totalPages - 1 ? ' disabled' : '';
+    pager.innerHTML = `
+      <button class="pager-btn"${prevDis} onclick="selectedPage=Math.max(0,selectedPage-1);renderSelected();window.scrollTo({top:document.getElementById('selectedWrap').offsetTop-80,behavior:'smooth'})">← Prev</button>
+      <span class="pager-info">Page ${selectedPage + 1} of ${totalPages} &nbsp;·&nbsp; ${totalCards} cards</span>
+      <button class="pager-btn"${nextDis} onclick="selectedPage=Math.min(${totalPages-1},selectedPage+1);renderSelected();window.scrollTo({top:document.getElementById('selectedWrap').offsetTop-80,behavior:'smooth'})">Next →</button>
+    `;
+    wrap.after(pager);
+  }
 }
 
 function renderGallery() {
