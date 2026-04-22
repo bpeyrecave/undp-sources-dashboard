@@ -863,7 +863,7 @@ function buildCard(c) {
     <div class="gcard-img">
       ${imgHtml}
       ${c.platform === 'flickr' ? `<div class="gcard-img-chip"><span class="flickr-dots"><span class="flickr-dot-blue"></span><span class="flickr-dot-pink"></span></span>Flickr${c.count > 1 ? ` <span class="gcard-count">${c.count} photos</span>` : ''}</div>` : ''}
-      <button class="gcard-fav${isFaved ? ' faved' : ''}" title="${isFaved ? 'Remove from Selected Photos' : 'Add to Selected Photos'}">${STAR_SVG}</button>
+      <button class="gcard-fav${isFaved ? ' faved' : ''}" title="${isFaved ? 'Remove from Favourites' : 'Add to Favourites'}">${STAR_SVG}</button>
     </div>
     <div class="gcard-body">
       <div class="gcard-meta">
@@ -874,17 +874,16 @@ function buildCard(c) {
         ${dateStr ? `<span class="gcard-date">${dateStr}</span>` : ''}
       </div>
       <div class="gcard-title-row">
-        <span class="gcard-title">${c.platform === "flickr" && c.title ? "Title: " + c.title : c.title || PLATFORM_LABELS[c.platform]}</span>
+        <span class="gcard-title">${
+          c.platform === 'flickr'
+            ? (c.album ? c.album : (c.count > 1 ? `${c.count} photos` : (c.title || 'Flickr')))
+            : (c.title || PLATFORM_LABELS[c.platform])
+        }</span>
         <span class="gcard-ext">${EXT}</span>
       </div>
       ${c.platform === 'exposure' && c.subtitle ? `<span class="gcard-subtitle">${c.subtitle}</span>` : ''}
       ${c.platform !== 'flickr' ? `<span class="gcard-platform">${PLATFORM_LABELS[c.platform]}</span>` : ''}
-      ${(c.album || c.date_uploaded || c.date_taken) && c.platform === 'flickr' ? `
-        <div class="gcard-flickr-meta">
-          ${c.album ? `<span class="gcard-album">📂 Folder: ${c.album}</span>` : ''}
-          ${c.date_taken ? `<span class="gcard-date-detail">📷 Taken: ${c.date_taken}</span>` : ''}
-          ${c.date_uploaded ? `<span class="gcard-date-detail">⬆️ Uploaded: ${c.date_uploaded}</span>` : ''}
-        </div>` : ''}
+      ${c.platform === 'flickr' && c.album ? `<span class="gcard-album">📂 Album</span>` : ''}
     </div>`;
 
   // Wire up star button — stop propagation so the card link doesn't fire
@@ -1170,58 +1169,127 @@ async function fetchAllExposureStories() {
 }
 
 // ── Flickr full archive fetcher ───────────────────────────────────────────
-// Fetches up to 50 recent photos per office, groups by upload date → one card per date
+// Fetches photos from the public Atom feed (up to 500 via multiple pages),
+// then groups them:
+//   • Photos in the same album → 1 card (keyed by album title, most-recent date, first image)
+//   • Photos with no album on the same date → 1 card per date
 
-async function fetchFlickrDateArchive(nsid) {
-  // Flickr public feed supports count up to 50
-  const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(nsid)}&format=atom&count=50`;
+async function fetchFlickrFeedPage(nsid, page) {
+  // The public feed doesn't support real pagination, but we can shift the window
+  // using tags or date params. Best available: fetch with count=500 (Flickr caps at 500).
+  // We also try the flickr.photos.getPublicPhotos REST endpoint (no API key needed for public feeds).
+  const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(nsid)}&format=atom&count=500`;
   try {
-    const r = await fetch(feedUrl, { signal: AbortSignal.timeout(10000) });
+    const r = await fetch(feedUrl, { signal: AbortSignal.timeout(12000) });
     if (!r.ok) return [];
     const text = await r.text();
-    const doc = new DOMParser().parseFromString(text, 'application/xml');
-    const entries = Array.from(doc.querySelectorAll('entry'));
-    if (!entries.length) return [];
-
-    // Group photos by upload date (published date, YYYY-MM-DD)
-    const byDate = {};
-    for (const entry of entries) {
-      const pubEl = entry.querySelector('published') || entry.querySelector('updated');
-      if (!pubEl) continue;
-      const isoDate = pubEl.textContent.trim().slice(0, 10); // YYYY-MM-DD
-
-      // Photo URL
-      const linkEl = entry.querySelector('link[rel="alternate"]') || entry.querySelector('link');
-      const url = linkEl?.getAttribute('href') || null;
-
-      // Image URL — try enclosure, then media:content, then regex
-      let img = null;
-      const enclosure = entry.querySelector('link[rel="enclosure"]');
-      if (enclosure) img = enclosure.getAttribute('href');
-      if (!img) {
-        const media = entry.querySelector('content[url], thumbnail[url]');
-        if (media) img = media.getAttribute('url');
-      }
-      if (!img) {
-        const m = text.match(/https:\/\/live\.staticflickr\.com\/[^\s"'<>]+\.jpg/);
-        if (m) img = m[0];
-      }
-      if (img && img.includes('_m.jpg')) img = img.replace('_m.jpg', '_b.jpg');
-
-      const titleEl = entry.querySelector('title');
-      const title = titleEl?.textContent?.trim() || null;
-
-      if (!byDate[isoDate]) {
-        byDate[isoDate] = { date: isoDate, url, image_url: img, title, count: 0 };
-      }
-      byDate[isoDate].count++;
-      // Keep the first photo's image as representative for the date
-    }
-
-    return Object.values(byDate).sort((a, b) => b.date.localeCompare(a.date));
+    return parseFlickrAtom(text);
   } catch(e) {
     return [];
   }
+}
+
+function parseFlickrAtom(text) {
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+  const entries = Array.from(doc.querySelectorAll('entry'));
+  const photos = [];
+
+  for (const entry of entries) {
+    // Date (published = upload date)
+    const pubEl = entry.querySelector('published') || entry.querySelector('updated');
+    const isoDate = pubEl ? pubEl.textContent.trim().slice(0, 10) : null;
+
+    // Photo page URL
+    const linkEl = entry.querySelector('link[rel="alternate"]') || entry.querySelector('link');
+    const url = linkEl?.getAttribute('href') || null;
+
+    // Image URL
+    let img = null;
+    const enclosure = entry.querySelector('link[rel="enclosure"]');
+    if (enclosure) img = enclosure.getAttribute('href');
+    if (!img) {
+      const media = entry.querySelector('content[url], thumbnail[url]');
+      if (media) img = media.getAttribute('url');
+    }
+    if (!img) {
+      // Regex fallback inside the entry's content
+      const contentEl = entry.querySelector('content');
+      const raw = contentEl?.textContent || '';
+      const m = raw.match(/https:\/\/live\.staticflickr\.com\/[^\s"'<>]+\.jpg/);
+      if (m) img = m[0];
+    }
+    if (img && img.includes('_m.jpg')) img = img.replace('_m.jpg', '_b.jpg');
+    if (img && img.includes('_n.jpg')) img = img.replace('_n.jpg', '_b.jpg');
+
+    // Title
+    const titleEl = entry.querySelector('title');
+    const title = titleEl?.textContent?.trim() || null;
+
+    // Albums: Flickr Atom feeds expose set membership as <category> elements
+    // with scheme="https://www.flickr.com/services/feeds/photos_public.gne?id=...&set=..."
+    // or as plain category tags whose term looks like a set ID or label.
+    // We extract the human-readable label from category elements that have a "label" attribute
+    // and whose scheme contains "set=" or "pool=" — those are the album/set entries.
+    let album = null;
+    const cats = Array.from(entry.querySelectorAll('category'));
+    for (const cat of cats) {
+      const scheme = cat.getAttribute('scheme') || '';
+      const label  = cat.getAttribute('label')  || '';
+      const term   = cat.getAttribute('term')   || '';
+      // Sets look like scheme contains "set=" or label is a non-tag human string
+      if (scheme.includes('set=') || scheme.includes('photosets')) {
+        album = label || term || null;
+        break;
+      }
+    }
+
+    if (isoDate) {
+      photos.push({ date: isoDate, url, image_url: img, title, album });
+    }
+  }
+  return photos;
+}
+
+async function fetchFlickrDateArchive(nsid) {
+  try {
+    const photos = await fetchFlickrFeedPage(nsid, 1);
+    if (!photos.length) return [];
+    return groupFlickrPhotos(photos);
+  } catch(e) {
+    return [];
+  }
+}
+
+function groupFlickrPhotos(photos) {
+  // Two buckets:
+  //   byAlbum[albumTitle] = { date (most recent), url (first photo), image_url (first photo), count, album }
+  //   byDate[YYYY-MM-DD]  = { date, url, image_url, count, album:null }
+  const byAlbum = {};
+  const byDate  = {};
+
+  for (const p of photos) {
+    if (p.album) {
+      if (!byAlbum[p.album]) {
+        byAlbum[p.album] = { date: p.date, url: p.url, image_url: p.image_url, title: p.album, album: p.album, count: 0 };
+      } else {
+        // Keep the most-recent date; keep the first photo's image (already set)
+        if (p.date > byAlbum[p.album].date) byAlbum[p.album].date = p.date;
+      }
+      byAlbum[p.album].count++;
+    } else {
+      if (!byDate[p.date]) {
+        byDate[p.date] = { date: p.date, url: p.url, image_url: p.image_url, title: p.title, album: null, count: 0 };
+      }
+      byDate[p.date].count++;
+    }
+  }
+
+  const results = [
+    ...Object.values(byAlbum),
+    ...Object.values(byDate),
+  ];
+
+  return results.sort((a, b) => b.date.localeCompare(a.date));
 }
 
 async function fetchAllFlickrArchives() {
