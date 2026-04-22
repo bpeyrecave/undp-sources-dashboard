@@ -158,16 +158,17 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 
 .nodata-row td{text-align:center;padding:48px;color:var(--gray-dark);font-style:italic}
 
-/* ── View toggle ── */
-.view-toggle{display:flex;gap:4px;margin-left:8px}
-.view-btn{
-  background:none;border:1.5px solid var(--navy);padding:6px 8px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  color:var(--navy);transition:background .15s,color .15s;
+/* ── Header nav ── */
+.header-nav{display:flex;align-items:center;gap:12px}
+.header-nav-item{
+  font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(255,255,255,.5);cursor:pointer;
+  padding-bottom:2px;border-bottom:2px solid transparent;
+  transition:color .15s, border-color .15s;
 }
-.view-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
-.view-btn.active{background:var(--navy);color:var(--white)}
-.view-btn:hover:not(.active){background:var(--gray-bg)}
+.header-nav-item:hover{color:rgba(255,255,255,.85)}
+.header-nav-item.active{color:#fff;border-bottom-color:#fff}
+.header-nav-sep{color:rgba(255,255,255,.25);font-size:13px;user-select:none}
 
 /* ── Gallery sort control ── */
 .gallery-sort{
@@ -291,7 +292,11 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 <body>
 
 <header>
-  <h1>Photo &amp; Story Sources</h1>
+  <div class="header-nav">
+    <span class="header-nav-item active" id="nav-gallery" onclick="setView('gallery')" title="Photo Archive">Photo Archive</span>
+    <span class="header-nav-sep">|</span>
+    <span class="header-nav-item" id="nav-list" onclick="setView('list')" title="Editorial Archive">Editorial Archive</span>
+  </div>
   <div class="logo">UNDP</div>
 </header>
 
@@ -332,14 +337,6 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="#232E3D" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
 
-  <div class="view-toggle">
-    <button class="view-btn active" id="btnList" onclick="setView('list')" title="List view">
-      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-    </button>
-    <button class="view-btn" id="btnGallery" onclick="setView('gallery')" title="Gallery view">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-    </button>
-  </div>
 </div>
 
 <div class="table-wrap">
@@ -661,7 +658,7 @@ function render() {
 }
 
 // ── View state ───────────────────────────────────────────────────────────────
-let currentView = 'list';
+let currentView = 'gallery';
 const FLICKR_ARCHIVE = {};   // nsid → [{date, url, image_url, title, count}]
 const CARDS_PER_PAGE = 24;
 let galleryPage = 0;          // current page (0-indexed)
@@ -673,8 +670,8 @@ function renderAll() {
 
 function setView(v) {
   currentView = v;
-  document.getElementById('btnList').classList.toggle('active', v === 'list');
-  document.getElementById('btnGallery').classList.toggle('active', v === 'gallery');
+  document.getElementById('nav-gallery').classList.toggle('active', v === 'gallery');
+  document.getElementById('nav-list').classList.toggle('active', v === 'list');
   document.querySelector('.table-wrap').style.display = v === 'list' ? '' : 'none';
   document.getElementById('galleryWrap').classList.toggle('visible', v === 'gallery');
   document.getElementById('gallerySortWrap').classList.toggle('visible', v === 'gallery');
@@ -1213,14 +1210,14 @@ fetch('data.json')
   .then(r => r.json())
   .then(json => {
     DATA = merge(META, json.offices);
-    render();
+    setView('gallery');
     fetchAllExposureStories();
     fetchAllFlickrArchives();
     fetchAllFlickrRealnames();
   })
   .catch(() => {
     DATA = merge(META, null);
-    render();
+    setView('gallery');
     fetchAllExposureStories();
     fetchAllFlickrArchives();
     fetchAllFlickrRealnames();
