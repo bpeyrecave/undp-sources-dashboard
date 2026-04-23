@@ -277,6 +277,18 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 .selected-empty p{font-size:14px;line-height:1.6;}
 .selected-empty strong{color:var(--navy);}
 
+/* Browse hint overlay on hoverable album cards */
+.gcard-img-browse-hint{
+  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
+  color:#fff;font-size:11px;font-weight:600;font-family:var(--font);
+  border-radius:20px;padding:5px 14px;
+  display:flex;align-items:center;gap:5px;white-space:nowrap;
+  opacity:0;transition:opacity .18s;pointer-events:none;
+}
+.gcard-img-browse-hint svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.gcard-img-clickable:hover .gcard-img-browse-hint{opacity:1;}
+
 /* Old bottom chip — keep for non-Flickr platforms */
 .gcard-platform{
   display:inline-flex;align-items:center;
@@ -312,6 +324,127 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
   grid-column:1/-1;
 }
 .gallery-nodata.visible{display:block}
+/* ── Lightbox ──────────────────────────────────────────────────────────────── */
+.lb-overlay{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,.88);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.lb-overlay.open{opacity:1;pointer-events:all;}
+.lb-box{
+  position:relative;width:100%;max-width:1080px;height:100vh;
+  display:flex;flex-direction:column;padding:0 64px;
+  box-sizing:border-box;
+}
+/* Header row */
+.lb-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 0 14px;flex-shrink:0;
+}
+.lb-title-wrap{display:flex;flex-direction:column;gap:2px;}
+.lb-album-name{font-size:13px;font-weight:700;color:#fff;letter-spacing:.04em;}
+.lb-sub{font-size:11px;color:rgba(255,255,255,.5);}
+.lb-close{
+  background:none;border:none;cursor:pointer;padding:6px;
+  color:rgba(255,255,255,.6);transition:color .15s;
+}
+.lb-close:hover{color:#fff;}
+.lb-close svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;}
+/* Main image area */
+.lb-stage{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  position:relative;min-height:0;
+}
+.lb-img-wrap{
+  max-width:100%;max-height:100%;display:flex;align-items:center;justify-content:center;
+}
+.lb-img-wrap img{
+  max-width:100%;max-height:calc(100vh - 220px);
+  object-fit:contain;display:block;
+  border-radius:2px;
+}
+.lb-spinner{
+  width:40px;height:40px;border:3px solid rgba(255,255,255,.2);
+  border-top-color:#fff;border-radius:50%;
+  animation:lb-spin .7s linear infinite;
+}
+@keyframes lb-spin{to{transform:rotate(360deg)}}
+/* Arrows */
+.lb-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);
+  color:#fff;cursor:pointer;border-radius:50%;
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;z-index:2;
+}
+.lb-arrow:hover{background:rgba(255,255,255,.22);}
+.lb-arrow svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.5;}
+.lb-arrow.prev{left:-52px;}
+.lb-arrow.next{right:-52px;}
+.lb-arrow[disabled]{opacity:.25;cursor:default;pointer-events:none;}
+/* Footer row */
+.lb-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0 18px;flex-shrink:0;gap:12px;
+}
+.lb-counter{font-size:12px;color:rgba(255,255,255,.5);white-space:nowrap;}
+.lb-photo-info{font-size:11px;color:rgba(255,255,255,.45);flex:1;text-align:center;}
+.lb-actions{display:flex;align-items:center;gap:10px;}
+/* Star button inside lightbox */
+.lb-star{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);
+  color:#fff;border-radius:24px;padding:7px 16px;cursor:pointer;
+  font-size:13px;font-weight:600;font-family:var(--font);
+  transition:background .15s,border-color .15s;white-space:nowrap;
+}
+.lb-star:hover{background:rgba(255,255,255,.18);}
+.lb-star.faved{background:rgba(245,166,35,.18);border-color:#F5A623;color:#F5A623;}
+.lb-star svg{width:15px;height:15px;fill:transparent;stroke:currentColor;stroke-width:2;transition:fill .15s,stroke .15s;}
+.lb-star.faved svg{fill:#F5A623;stroke:#F5A623;}
+/* Tag pill input area */
+.lb-tags-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1;}
+.lb-tag{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;padding:3px 10px;font-size:11px;color:#fff;
+  font-family:var(--font);
+}
+.lb-tag-del{
+  background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;
+  font-size:13px;line-height:1;padding:0 0 0 2px;
+}
+.lb-tag-del:hover{color:#fff;}
+.lb-tag-input{
+  background:none;border:none;outline:none;color:#fff;
+  font-size:12px;font-family:var(--font);width:100px;
+  border-bottom:1px solid rgba(255,255,255,.25);padding:2px 4px;
+}
+.lb-tag-input::placeholder{color:rgba(255,255,255,.3);}
+/* Tag filter row in gallery controls */
+.tag-filter-wrap{display:none;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 32px;background:#fff;border-bottom:1px solid #E0E0E0;}
+.tag-filter-wrap.visible{display:flex;}
+.tag-filter-label{font-size:11px;font-weight:700;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
+.tag-chip{
+  display:inline-flex;align-items:center;gap:4px;
+  background:#EDEFF0;border:1.5px solid transparent;border-radius:20px;
+  padding:3px 12px;font-size:12px;color:var(--navy);cursor:pointer;
+  font-family:var(--font);transition:all .12s;
+}
+.tag-chip:hover{border-color:var(--blue);color:var(--blue);}
+.tag-chip.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+/* Individual fav cards in favs view */
+.gcard-indiv-photo{
+  font-size:10px;font-weight:600;color:var(--blue);
+  letter-spacing:.04em;text-transform:uppercase;margin-top:4px;
+}
+.gcard-tag-list{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.gcard-tag{
+  display:inline-block;background:#EEF4FB;border:1px solid #C8DCF5;
+  border-radius:20px;padding:2px 9px;font-size:10px;color:var(--blue);
+  font-family:var(--font);
+}
 </style>
 </head>
 <body>
@@ -370,6 +503,48 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="#232E3D" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
 
+</div>
+
+<!-- ── Tag filter bar (shown in favs mode) ─────────────────────────────── -->
+<div class="tag-filter-wrap" id="tagFilterBar">
+  <span class="tag-filter-label">Filter by tag:</span>
+  <span class="tag-chip active" data-tag="" onclick="setTagFilter('')">All</span>
+</div>
+
+<!-- ── Lightbox ────────────────────────────────────────────────────────── -->
+<div class="lb-overlay" id="lbOverlay" onclick="lbClickOutside(event)">
+  <div class="lb-box" id="lbBox">
+    <div class="lb-header">
+      <div class="lb-title-wrap">
+        <span class="lb-album-name" id="lbAlbumName"></span>
+        <span class="lb-sub" id="lbSub"></span>
+      </div>
+      <button class="lb-close" onclick="closeLightbox()" title="Close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="lb-stage">
+      <button class="lb-arrow prev" id="lbPrev" onclick="lbNav(-1)">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="lb-img-wrap" id="lbImgWrap">
+        <div class="lb-spinner"></div>
+      </div>
+      <button class="lb-arrow next" id="lbNext" onclick="lbNav(1)">
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="lb-footer">
+      <span class="lb-counter" id="lbCounter"></span>
+      <div class="lb-tags-wrap" id="lbTagsWrap"></div>
+      <div class="lb-actions">
+        <button class="lb-star" id="lbStarBtn" onclick="lbToggleStar()">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span id="lbStarLabel">Add to Favourites</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="table-wrap">
@@ -697,18 +872,41 @@ const FLICKR_ARCHIVE = {};   // nsid → [{date, url, image_url, title, count}]
 const CARDS_PER_PAGE = 24;
 let galleryPage = 0;
 
-// ── Favourites ────────────────────────────────────────────────────────────────
-// Each card is identified by a stable key that won't break when new photos are uploaded:
-//   Flickr album cards:      flickr|<country>|album:<album_title>
-//   Flickr date-group cards: flickr|<country>|date:<YYYY-MM-DD>
-//   Other platforms:         <platform>|<url>
-let FAVS = new Set(JSON.parse(localStorage.getItem('undp_favs') || '[]'));
+// ── View state ───────────────────────────────────────────────────────────────
+let currentView = 'gallery';
+const FLICKR_ARCHIVE = {};   // nsid → [{date, url, image_url, title, count}]
+const CARDS_PER_PAGE = 24;
+let galleryPage = 0;
+
+// ── Favourites (individual photos) ───────────────────────────────────────────
+// FAVS is a Map: key → {key, photoUrl, imageUrl, title, country, album, date, tags:[]}
+// Key format:
+//   Individual Flickr photo: "photo|<photoUrl>"
+//   Album/date card (no lightbox opened): "flickr|<country>|album:<album>" or "flickr|<country>|date:<date>"
+//   Other platforms: "<platform>|<url>"
+
+function _loadFavs() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('undp_favs_v2') || 'null');
+    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+      return new Map(Object.entries(raw));
+    }
+  } catch(e) {}
+  return new Map();
+}
+
+let FAVS = _loadFavs();
+
+function saveFavs() {
+  const obj = {};
+  FAVS.forEach((v, k) => { obj[k] = v; });
+  localStorage.setItem('undp_favs_v2', JSON.stringify(obj));
+  updateTagFilterBar();
+}
+
+function updateFavBadge() { /* badge removed */ }
 
 function favKey(c) {
-  // Use a stable key that won't change when new photos are added:
-  // For album cards: platform|country|album_title
-  // For date-group cards: platform|country|date
-  // For non-flickr: platform|url (URLs are stable for stories/blogs/exposure)
   if (c.platform === 'flickr') {
     return c.album
       ? `flickr|${c.country}|album:${c.album}`
@@ -717,31 +915,317 @@ function favKey(c) {
   return `${c.platform}|${c.url}`;
 }
 
-function saveFavs() {
-  localStorage.setItem('undp_favs', JSON.stringify([...FAVS]));
-  updateFavBadge();
+function photoFavKey(photoUrl) {
+  return `photo|${photoUrl}`;
 }
 
-function updateFavBadge() {
-  // badge removed — nothing to update
-}
+function isFaved(key) { return FAVS.has(key); }
 
-function toggleFav(key, btn) {
+function toggleFav(key, meta, btn) {
   if (FAVS.has(key)) {
     FAVS.delete(key);
-    btn.classList.remove('faved');
-    btn.title = 'Add to Selected Photos';
+    if (btn) { btn.classList.remove('faved'); btn.title = 'Add to Favourites'; }
   } else {
-    FAVS.add(key);
-    btn.classList.add('faved');
-    btn.title = 'Remove from Favourites';
+    FAVS.set(key, { key, ...meta, tags: [] });
+    if (btn) { btn.classList.add('faved'); btn.title = 'Remove from Favourites'; }
   }
   saveFavs();
-  // Re-render gallery live so favs filter updates instantly
   if (currentView === 'gallery') renderGallery();
 }
 
+function addTagToFav(key, tag) {
+  tag = tag.trim().toLowerCase();
+  if (!tag) return;
+  const fav = FAVS.get(key);
+  if (!fav) return;
+  if (!fav.tags.includes(tag)) fav.tags.push(tag);
+  saveFavs();
+}
+
+function removeTagFromFav(key, tag) {
+  const fav = FAVS.get(key);
+  if (!fav) return;
+  fav.tags = fav.tags.filter(t => t !== tag);
+  saveFavs();
+}
+
+function allTags() {
+  const tags = new Set();
+  FAVS.forEach(f => f.tags?.forEach(t => tags.add(t)));
+  return [...tags].sort();
+}
+
+// ── Tag filter state ──────────────────────────────────────────────────────────
+let activeTag = '';  // '' = all
+
+function setTagFilter(tag) {
+  activeTag = tag;
+  renderGallery();
+  // Update chips
+  document.querySelectorAll('.tag-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.tag === tag);
+  });
+}
+
+function updateTagFilterBar() {
+  const bar = document.getElementById('tagFilterBar');
+  const favMode = document.getElementById('favFilter')?.value;
+  if (favMode !== 'favs') { bar.classList.remove('visible'); return; }
+
+  const tags = allTags();
+  if (!tags.length) { bar.classList.remove('visible'); return; }
+
+  bar.classList.add('visible');
+  bar.innerHTML = `<span class="tag-filter-label">Filter by tag:</span>`
+    + `<span class="tag-chip${activeTag === '' ? ' active' : ''}" data-tag="" onclick="setTagFilter('')">All</span>`
+    + tags.map(t => `<span class="tag-chip${activeTag === t ? ' active' : ''}" data-tag="${t}" onclick="setTagFilter('${t}')">${t}</span>`).join('');
+}
+
 const STAR_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+
+// ── Lightbox ──────────────────────────────────────────────────────────────────
+let LB = {
+  photos: [],       // [{url, image_url, title}]
+  index: 0,
+  albumName: '',
+  country: '',
+  cardKey: null,    // key of the parent album/date card
+};
+
+function openLightbox(card) {
+  if (card.platform !== 'flickr') return false;
+  // Only open for multi-photo cards (albums or date groups with count > 1)
+  if (!card.count || card.count <= 1) return false;
+  if (!card.album && !card.url) return false;
+
+  LB.albumName = card.album || fmtDateFull(card.date) || 'Photos';
+  LB.country = card.flickr_realname || card.country;
+  LB.cardKey = favKey(card);
+  LB.photos = [];
+  LB.index = 0;
+
+  // Show overlay immediately with spinner
+  const overlay = document.getElementById('lbOverlay');
+  overlay.classList.add('open');
+  document.getElementById('lbAlbumName').textContent = LB.albumName;
+  document.getElementById('lbSub').textContent = LB.country + (card.count ? ` · ${card.count} photos` : '');
+  document.body.style.overflow = 'hidden';
+  lbSetImg(null); // show spinner
+  lbUpdateFooter();
+
+  // Fetch photos for this album/date-group
+  fetchLightboxPhotos(card).then(photos => {
+    LB.photos = photos;
+    if (photos.length) lbSetImg(photos[0]);
+    lbUpdateFooter();
+  });
+
+  return true;
+}
+
+async function fetchLightboxPhotos(card) {
+  // Strategy: use the Flickr public feed for the user, filtered to this album
+  // The album URL looks like .../photos/<nsid>/albums/<setId>/
+  // We can fetch the album's Atom feed directly
+  const albumUrlMatch = card.url && card.url.match(/flickr\.com\/photos\/([^/]+)\/(\d+)\/in\/album-(\d+)/);
+  const albumPageMatch = card.url && card.url.match(/flickr\.com\/photos\/([^/]+)\/albums\/(\d+)/);
+  const setId = albumUrlMatch ? albumUrlMatch[3] : (albumPageMatch ? albumPageMatch[2] : null);
+  const nsid = albumUrlMatch ? albumUrlMatch[1] : (albumPageMatch ? albumPageMatch[1] : null);
+
+  if (setId && nsid) {
+    // Flickr has a public photoset feed: /services/feeds/photoset.gne?set=<id>&nsid=<nsid>
+    try {
+      const feedUrl = `https://www.flickr.com/services/feeds/photoset.gne?set=${setId}&nsid=${encodeURIComponent(nsid)}&format=atom`;
+      const r = await fetch(feedUrl, { signal: AbortSignal.timeout(10000) });
+      if (r.ok) {
+        const text = await r.text();
+        const photos = parseFlickrFeedPhotos(text);
+        if (photos.length) return photos;
+      }
+    } catch(e) {}
+  }
+
+  // Fallback: use the general public feed for this account
+  const nsidFromUrl = nsidFromFlickrUrl(card.url || '');
+  if (nsidFromUrl) {
+    try {
+      const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(nsidFromUrl)}&format=atom`;
+      const r = await fetch(feedUrl, { signal: AbortSignal.timeout(10000) });
+      if (r.ok) {
+        const text = await r.text();
+        const photos = parseFlickrFeedPhotos(text);
+        if (photos.length) return photos;
+      }
+    } catch(e) {}
+  }
+
+  // Last resort: show just the cover photo
+  if (card.image_url) {
+    return [{ url: card.url, image_url: card.image_url, title: card.title || '', date: card.date }];
+  }
+  return [];
+}
+
+function parseFlickrFeedPhotos(text) {
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+  const entries = Array.from(doc.querySelectorAll('entry'));
+  return entries.map(entry => {
+    const linkEl = entry.querySelector('link[rel="alternate"]') || entry.querySelector('link');
+    const url = linkEl?.getAttribute('href') || null;
+
+    let img = null;
+    const enc = entry.querySelector('link[rel="enclosure"]');
+    if (enc) img = enc.getAttribute('href');
+    if (!img) {
+      const med = entry.querySelector('content[url], thumbnail[url]');
+      if (med) img = med.getAttribute('url');
+    }
+    if (!img) {
+      const content = entry.querySelector('content');
+      const m = (content?.textContent || '').match(/https:\/\/live\.staticflickr\.com\/[^\s"'<>]+\.jpg/);
+      if (m) img = m[0];
+    }
+    if (img?.includes('_m.jpg')) img = img.replace('_m.jpg', '_b.jpg');
+    if (img?.includes('_n.jpg')) img = img.replace('_n.jpg', '_b.jpg');
+
+    const pub = entry.querySelector('published') || entry.querySelector('updated');
+    const date = pub ? pub.textContent.trim().slice(0, 10) : null;
+    const titleEl = entry.querySelector('title');
+    const title = titleEl?.textContent?.trim() || '';
+
+    return { url, image_url: img, title, date };
+  }).filter(p => p.url || p.image_url);
+}
+
+function lbSetImg(photo) {
+  const wrap = document.getElementById('lbImgWrap');
+  if (!photo || !photo.image_url) {
+    wrap.innerHTML = `<div class="lb-spinner"></div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="lb-spinner"></div>`;
+  const img = new Image();
+  img.onload = () => { wrap.innerHTML = ''; wrap.appendChild(img); };
+  img.onerror = () => { wrap.innerHTML = `<div style="color:rgba(255,255,255,.4);font-size:13px;">Image unavailable</div>`; };
+  img.src = photo.image_url;
+  img.alt = photo.title || '';
+  img.style.cssText = 'max-width:100%;max-height:calc(100vh - 220px);object-fit:contain;display:block;border-radius:2px;';
+}
+
+function lbUpdateFooter() {
+  const total = LB.photos.length;
+  const photo = LB.photos[LB.index];
+
+  // Counter
+  document.getElementById('lbCounter').textContent = total ? `${LB.index + 1} / ${total}` : '';
+
+  // Arrows
+  document.getElementById('lbPrev').toggleAttribute('disabled', LB.index === 0);
+  document.getElementById('lbNext').toggleAttribute('disabled', LB.index >= total - 1);
+
+  // Star button
+  const starBtn = document.getElementById('lbStarBtn');
+  const starLabel = document.getElementById('lbStarLabel');
+  if (photo) {
+    const key = photoFavKey(photo.url || photo.image_url);
+    const faved = FAVS.has(key);
+    starBtn.classList.toggle('faved', faved);
+    starLabel.textContent = faved ? 'Saved' : 'Add to Favourites';
+  }
+
+  // Tags
+  lbRenderTags();
+}
+
+function lbRenderTags() {
+  const photo = LB.photos[LB.index];
+  const wrap = document.getElementById('lbTagsWrap');
+  if (!photo) { wrap.innerHTML = ''; return; }
+
+  const key = photoFavKey(photo.url || photo.image_url);
+  const fav = FAVS.get(key);
+  const tags = fav?.tags || [];
+
+  const tagPills = tags.map(t =>
+    `<span class="lb-tag">${t}<button class="lb-tag-del" onclick="lbRemoveTag('${t}')" title="Remove tag">×</button></span>`
+  ).join('');
+
+  const inputHtml = fav
+    ? `<input class="lb-tag-input" id="lbTagInput" placeholder="Add tag…" onkeydown="lbTagKeydown(event)">`
+    : '';
+
+  wrap.innerHTML = tagPills + inputHtml;
+}
+
+function lbTagKeydown(e) {
+  if (e.key === 'Enter') {
+    const val = e.target.value.trim();
+    const photo = LB.photos[LB.index];
+    if (!photo || !val) return;
+    const key = photoFavKey(photo.url || photo.image_url);
+    addTagToFav(key, val);
+    e.target.value = '';
+    lbRenderTags();
+  }
+}
+
+function lbRemoveTag(tag) {
+  const photo = LB.photos[LB.index];
+  if (!photo) return;
+  const key = photoFavKey(photo.url || photo.image_url);
+  removeTagFromFav(key, tag);
+  lbRenderTags();
+  updateTagFilterBar();
+}
+
+function lbToggleStar() {
+  const photo = LB.photos[LB.index];
+  if (!photo) return;
+  const key = photoFavKey(photo.url || photo.image_url);
+  const meta = {
+    photoUrl: photo.url,
+    imageUrl: photo.image_url,
+    title: photo.title,
+    date: photo.date,
+    country: LB.country,
+    album: LB.albumName,
+    flickrUrl: photo.url,
+  };
+  toggleFav(key, meta, null);
+  lbUpdateFooter();
+  // Also update the parent card's star if visible
+  document.querySelectorAll('.gcard-fav').forEach(btn => {
+    const cardKey = btn.dataset.key;
+    if (cardKey) btn.classList.toggle('faved', FAVS.has(cardKey));
+  });
+}
+
+function lbNav(dir) {
+  const newIdx = LB.index + dir;
+  if (newIdx < 0 || newIdx >= LB.photos.length) return;
+  LB.index = newIdx;
+  lbSetImg(LB.photos[LB.index]);
+  lbUpdateFooter();
+}
+
+function closeLightbox() {
+  document.getElementById('lbOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function lbClickOutside(e) {
+  if (e.target === document.getElementById('lbOverlay')) closeLightbox();
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  const overlay = document.getElementById('lbOverlay');
+  if (!overlay.classList.contains('open')) return;
+  if (e.key === 'ArrowLeft')  lbNav(-1);
+  if (e.key === 'ArrowRight') lbNav(1);
+  if (e.key === 'Escape')     closeLightbox();
+});
+
 
 function renderAll() {
   if (currentView === 'gallery') renderGallery();
@@ -756,7 +1240,7 @@ function setView(v) {
   document.getElementById('galleryWrap').classList.toggle('visible', v === 'gallery');
   document.getElementById('gallerySortWrap').classList.toggle('visible', v === 'gallery');
   document.getElementById('favFilterWrap').classList.toggle('visible', v === 'gallery');
-  if (v === 'gallery') renderGallery();
+  if (v === 'gallery') { updateTagFilterBar(); renderGallery(); }
   else render();
 }
 
@@ -854,7 +1338,7 @@ function buildGalleryCards(rows) {
   return cards;
 }
 
-// ── Shared card builder (used by both renderGallery and renderSelected) ────────
+// ── Shared card builder ────────────────────────────────────────────────────────
 function buildCard(c) {
   const flag = FLAGS[c.country] || '🌐';
   const PLACEHOLDER = `<div class="img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>`;
@@ -872,18 +1356,24 @@ function buildCard(c) {
   const dateStr = fmtDateFull(c.date);
 
   const key = favKey(c);
-  const isFaved = FAVS.has(key);
+  const isCardFaved = isFaved(key);
+  // Multi-photo Flickr card = can open lightbox
+  const canLightbox = c.platform === 'flickr' && c.count > 1;
 
-  const card = document.createElement('a');
+  const card = document.createElement(canLightbox ? 'div' : 'a');
   card.className = 'gcard';
-  card.href = c.url || '#';
-  card.target = '_blank';
-  card.rel = 'noopener';
+  if (!canLightbox) {
+    card.href = c.url || '#';
+    card.target = '_blank';
+    card.rel = 'noopener';
+  }
+
   card.innerHTML = `
-    <div class="gcard-img">
+    <div class="gcard-img${canLightbox ? ' gcard-img-clickable' : ''}">
       ${imgHtml}
       ${c.platform === 'flickr' ? `<div class="gcard-img-chip"><span class="flickr-dots"><span class="flickr-dot-blue"></span><span class="flickr-dot-pink"></span></span>Flickr${c.count > 1 ? ` <span class="gcard-count">${c.count} photos</span>` : ''}</div>` : ''}
-      <button class="gcard-fav${isFaved ? ' faved' : ''}" title="${isFaved ? 'Remove from Favourites' : 'Add to Favourites'}">${STAR_SVG}</button>
+      <button class="gcard-fav${isCardFaved ? ' faved' : ''}" data-key="${key}" title="${isCardFaved ? 'Remove from Favourites' : 'Add to Favourites'}">${STAR_SVG}</button>
+      ${canLightbox ? `<div class="gcard-img-browse-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg> Browse photos</div>` : ''}
     </div>
     <div class="gcard-body">
       <div class="gcard-meta">
@@ -899,7 +1389,7 @@ function buildCard(c) {
             ? (c.album ? c.album : (c.count > 1 ? `${c.count} photos` : (c.title || 'Flickr')))
             : (c.title || PLATFORM_LABELS[c.platform])
         }</span>
-        <span class="gcard-ext">${EXT}</span>
+        ${canLightbox ? '' : `<span class="gcard-ext">${EXT}</span>`}
       </div>
       ${c.platform === 'exposure' && c.subtitle ? `<span class="gcard-subtitle">${c.subtitle}</span>` : ''}
       ${c.platform !== 'flickr' ? `<span class="gcard-platform">${PLATFORM_LABELS[c.platform]}</span>` : ''}
@@ -911,12 +1401,36 @@ function buildCard(c) {
         </div>` : ''}
     </div>`;
 
-  // Wire up star button — stop propagation so the card link doesn't fire
+  // Image area click → open lightbox (multi-photo Flickr cards only)
+  if (canLightbox) {
+    const imgArea = card.querySelector('.gcard-img');
+    imgArea.style.cursor = 'pointer';
+    imgArea.addEventListener('click', e => {
+      if (e.target.closest('.gcard-fav')) return;
+      openLightbox(c);
+    });
+    // Title row: link to Flickr
+    const titleRow = card.querySelector('.gcard-title-row');
+    titleRow.style.cursor = 'pointer';
+    titleRow.addEventListener('click', () => window.open(c.url, '_blank'));
+  }
+
+  // Star button — card-level star (favs the whole card, not an individual photo)
   const favBtn = card.querySelector('.gcard-fav');
+  const cardMeta = {
+    photoUrl: c.url,
+    imageUrl: c.image_url,
+    title: c.album || c.title,
+    date: c.date,
+    country: c.flickr_realname || c.country,
+    album: c.album || null,
+    flickrUrl: c.url,
+    isCard: true,
+  };
   favBtn.addEventListener('click', e => {
     e.preventDefault();
     e.stopPropagation();
-    toggleFav(key, favBtn);
+    toggleFav(key, cardMeta, favBtn);
   });
 
   // Lazy-load Flickr image via oEmbed
@@ -951,6 +1465,63 @@ function renderGallery() {
   const sortVal = document.getElementById('gallerySort').value;
   const favMode = document.getElementById('favFilter').value; // 'favs' | 'all'
 
+  // Show/hide tag filter bar
+  updateTagFilterBar();
+
+  const wrap = document.getElementById('galleryWrap');
+  const nodata = document.getElementById('galleryNodata');
+  Array.from(wrap.children).forEach(el => { if (!el.id) el.remove(); });
+  const existingPager = document.getElementById('galleryPager');
+  if (existingPager) existingPager.remove();
+
+  // ── Favs mode: show individual photo favs ────────────────────────────────
+  if (favMode === 'favs') {
+    // Collect all fav entries, filtering by tag if active
+    let favEntries = [...FAVS.values()];
+    if (q) favEntries = favEntries.filter(f => (f.country||'').toLowerCase().includes(q) || (f.title||'').toLowerCase().includes(q) || (f.album||'').toLowerCase().includes(q));
+    if (activeTag) favEntries = favEntries.filter(f => f.tags?.includes(activeTag));
+
+    // Sort
+    favEntries.sort((a, b) => {
+      if (sortVal === 'date_desc')    return (b.date||'') < (a.date||'') ? -1 : 1;
+      if (sortVal === 'date_asc')     return (a.date||'') < (b.date||'') ? -1 : 1;
+      if (sortVal === 'country_asc')  return (a.country||'') < (b.country||'') ? -1 : 1;
+      if (sortVal === 'country_desc') return (b.country||'') < (a.country||'') ? -1 : 1;
+      return 0;
+    });
+
+    if (!favEntries.length) {
+      nodata.innerHTML = `<div class="selected-empty"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><p>${activeTag ? `No favourites tagged <strong>${activeTag}</strong>.` : 'No favourites yet.<br>Switch to <strong>All Photos</strong> and star cards or individual photos inside albums.'}</p></div>`;
+      nodata.classList.add('visible');
+      return;
+    }
+    nodata.classList.remove('visible');
+
+    const totalCards = favEntries.length;
+    const totalPages = Math.ceil(totalCards / CARDS_PER_PAGE);
+    galleryPage = Math.max(0, Math.min(galleryPage, totalPages - 1));
+    const pageCards = favEntries.slice(galleryPage * CARDS_PER_PAGE, (galleryPage + 1) * CARDS_PER_PAGE);
+
+    pageCards.forEach(f => {
+      const card = buildFavCard(f);
+      wrap.appendChild(card);
+    });
+
+    if (totalPages > 1) {
+      const pager = document.createElement('div');
+      pager.id = 'galleryPager'; pager.className = 'gallery-pager';
+      const prevDis = galleryPage === 0 ? ' disabled' : '';
+      const nextDis = galleryPage >= totalPages - 1 ? ' disabled' : '';
+      pager.innerHTML = `
+        <button class="pager-btn"${prevDis} onclick="galleryPage=Math.max(0,galleryPage-1);renderGallery()">← Prev</button>
+        <span class="pager-info">Page ${galleryPage + 1} of ${totalPages} &nbsp;·&nbsp; ${totalCards} cards</span>
+        <button class="pager-btn"${nextDis} onclick="galleryPage=Math.min(${totalPages-1},galleryPage+1);renderGallery()">Next →</button>`;
+      wrap.after(pager);
+    }
+    return;
+  }
+
+  // ── All Photos mode ───────────────────────────────────────────────────────
   let rows = DATA.filter(r => {
     if (q  && !r.country.toLowerCase().includes(q)) return false;
     if (fS && r.type !== fS)                         return false;
@@ -962,14 +1533,8 @@ function renderGallery() {
   });
 
   let cards = buildGalleryCards(rows);
-
-  // Apply platform filter to cards too
   if (fP) cards = cards.filter(c => c.platform === fP);
 
-  // Apply favourites filter
-  if (favMode === 'favs') cards = cards.filter(c => FAVS.has(favKey(c)));
-
-  // Sort
   cards.sort((a, b) => {
     if (sortVal === 'date_desc')    return (b.date||'') < (a.date||'') ? -1 : 1;
     if (sortVal === 'date_asc')     return (a.date||'') < (b.date||'') ? -1 : 1;
@@ -980,47 +1545,78 @@ function renderGallery() {
 
   const totalCards = cards.length;
   const totalPages = Math.ceil(totalCards / CARDS_PER_PAGE);
-  // Clamp page to valid range (filters may reduce total)
   galleryPage = Math.max(0, Math.min(galleryPage, totalPages - 1));
   const pageStart = galleryPage * CARDS_PER_PAGE;
-  cards = cards.slice(pageStart, pageStart + CARDS_PER_PAGE);
-
-  const wrap = document.getElementById('galleryWrap');
-  const nodata = document.getElementById('galleryNodata');
-
-  // Remove old cards and pagination (keep nodata div)
-  Array.from(wrap.children).forEach(el => { if (!el.id) el.remove(); });
-  const existingPager = document.getElementById('galleryPager');
-  if (existingPager) existingPager.remove();
+  const paginated = cards.slice(pageStart, pageStart + CARDS_PER_PAGE);
 
   if (!totalCards) {
-    nodata.innerHTML = favMode === 'favs'
-      ? `<div class="selected-empty"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><p>No favourites yet.<br>Switch to <strong>All Photos</strong> and click the ★ on any card to save it here.</p></div>`
-      : 'No results match your filters.';
+    nodata.innerHTML = 'No results match your filters.';
     nodata.classList.add('visible');
     return;
   }
   nodata.classList.remove('visible');
 
-  cards.forEach(c => {
-    const cardEl = buildCard(c);
-    wrap.appendChild(cardEl);
-  });
+  paginated.forEach(c => wrap.appendChild(buildCard(c)));
 
-  // ── Pagination controls ──────────────────────────────────────────────────
   if (totalPages > 1) {
     const pager = document.createElement('div');
-    pager.id = 'galleryPager';
-    pager.className = 'gallery-pager';
+    pager.id = 'galleryPager'; pager.className = 'gallery-pager';
     const prevDis = galleryPage === 0 ? ' disabled' : '';
     const nextDis = galleryPage >= totalPages - 1 ? ' disabled' : '';
     pager.innerHTML = `
       <button class="pager-btn"${prevDis} onclick="galleryPage=Math.max(0,galleryPage-1);renderGallery();window.scrollTo({top:document.getElementById('galleryWrap').offsetTop-80,behavior:'smooth'})">← Prev</button>
       <span class="pager-info">Page ${galleryPage + 1} of ${totalPages} &nbsp;·&nbsp; ${totalCards} cards</span>
-      <button class="pager-btn"${nextDis} onclick="galleryPage=Math.min(${totalPages-1},galleryPage+1);renderGallery();window.scrollTo({top:document.getElementById('galleryWrap').offsetTop-80,behavior:'smooth'})">Next →</button>
-    `;
+      <button class="pager-btn"${nextDis} onclick="galleryPage=Math.min(${totalPages-1},galleryPage+1);renderGallery();window.scrollTo({top:document.getElementById('galleryWrap').offsetTop-80,behavior:'smooth'})">Next →</button>`;
     wrap.after(pager);
   }
+}
+
+// ── Individual fav card (used in Favourites view) ─────────────────────────────
+function buildFavCard(f) {
+  const PLACEHOLDER = `<div class="img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>`;
+  const card = document.createElement('a');
+  card.className = 'gcard';
+  card.href = f.photoUrl || f.flickrUrl || '#';
+  card.target = '_blank';
+  card.rel = 'noopener';
+
+  const imgHtml = f.imageUrl ? `<img src="${f.imageUrl}" alt="" loading="lazy" onerror="imgError(this)">` : PLACEHOLDER;
+  const tagHtml = f.tags?.length
+    ? `<div class="gcard-tag-list">${f.tags.map(t => `<span class="gcard-tag">${t}</span>`).join('')}</div>`
+    : '';
+  const isPhoto = f.key?.startsWith('photo|');
+  const sourceLabel = isPhoto ? (f.album || 'Flickr photo') : (f.title || f.album || '');
+  const dateStr = fmtDateFull(f.date);
+
+  card.innerHTML = `
+    <div class="gcard-img">
+      ${imgHtml}
+      ${isPhoto ? '' : `<div class="gcard-img-chip"><span class="flickr-dots"><span class="flickr-dot-blue"></span><span class="flickr-dot-pink"></span></span>Flickr</div>`}
+      <button class="gcard-fav faved" data-key="${f.key}" title="Remove from Favourites">${STAR_SVG}</button>
+    </div>
+    <div class="gcard-body">
+      <div class="gcard-meta">
+        <div class="gcard-meta-top">
+          <span class="gcard-flag">🌐</span>
+          <span class="gcard-country">${f.country || ''}</span>
+        </div>
+        ${dateStr ? `<span class="gcard-date">${dateStr}</span>` : ''}
+      </div>
+      <div class="gcard-title-row">
+        <span class="gcard-title">${f.title || sourceLabel || 'Photo'}</span>
+      </div>
+      ${f.album ? `<span class="gcard-album">📂 ${f.album}</span>` : ''}
+      ${isPhoto ? `<span class="gcard-indiv-photo">★ Individual photo</span>` : ''}
+      ${tagHtml}
+    </div>`;
+
+  const favBtn = card.querySelector('.gcard-fav');
+  favBtn.addEventListener('click', e => {
+    e.preventDefault(); e.stopPropagation();
+    toggleFav(f.key, f, favBtn);
+  });
+
+  return card;
 }
 
 // ── Client-side Exposure.co story fetcher ─────────────────────────────────
