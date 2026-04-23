@@ -1017,21 +1017,53 @@ function openLightbox(card) {
   return true;
 }
 
-async function fetchLightboxPhotos(card) {
-  // Flickr feeds block CORS from non-Flickr origins — route through a proxy.
-  const proxy = url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+// Proxy a URL through multiple CORS proxies with fallback
+async function proxiedFetch(url, timeout = 12000) {
+  const proxies = [
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+    u => `https://thingproxy.freeboard.io/fetch/${u}`,
+  ];
+  for (const makeProxy of proxies) {
+    try {
+      const r = await fetch(makeProxy(url), { signal: AbortSignal.timeout(timeout) });
+      if (r.ok) return r;
+    } catch(e) {}
+  }
+  return null;
+}
 
-  // Strategy 1: photoset feed (most accurate — only photos in this album)
+// Resolve a vanity Flickr name to numeric NSID via their lookup API (no auth needed)
+async function resolveFlickrNsid(vanity) {
+  if (/^\d+@N\d+$/.test(vanity)) return vanity; // already numeric
+  try {
+    // Flickr's public lookup URL embeds the NSID in the page source
+    const r = await proxiedFetch(`https://www.flickr.com/people/${vanity}/`, 8000);
+    if (!r) return vanity;
+    const text = await r.text();
+    const m = text.match(/"nsid"\s*:\s*"(\d+@N\d+)"/)
+           || text.match(/data-track-nsid="(\d+@N\d+)"/)
+           || text.match(/"person_id"\s*:\s*"(\d+@N\d+)"/);
+    return m ? m[1] : vanity;
+  } catch(e) {
+    return vanity;
+  }
+}
+
+async function fetchLightboxPhotos(card) {
+  // Extract set ID and user ID from the card URL
   const albumUrlMatch = card.url && card.url.match(/flickr\.com\/photos\/([^/]+)\/(\d+)\/in\/album-(\d+)/);
   const albumPageMatch = card.url && card.url.match(/flickr\.com\/photos\/([^/]+)\/albums\/(\d+)/);
-  const setId = albumUrlMatch ? albumUrlMatch[3] : (albumPageMatch ? albumPageMatch[2] : null);
-  const nsid  = albumUrlMatch ? albumUrlMatch[1] : (albumPageMatch ? albumPageMatch[1] : null);
+  const setId   = albumUrlMatch ? albumUrlMatch[3] : (albumPageMatch ? albumPageMatch[2] : null);
+  const rawNsid = albumUrlMatch ? albumUrlMatch[1] : (albumPageMatch ? albumPageMatch[1] : null);
 
-  if (setId && nsid) {
+  // Strategy 1: photoset feed — needs numeric NSID, so resolve vanity names first
+  if (setId && rawNsid) {
     try {
-      const feedUrl = `https://www.flickr.com/services/feeds/photoset.gne?set=${setId}&nsid=${encodeURIComponent(nsid)}&format=atom`;
-      const r = await fetch(proxy(feedUrl), { signal: AbortSignal.timeout(12000) });
-      if (r.ok) {
+      const numericNsid = await resolveFlickrNsid(rawNsid);
+      const feedUrl = `https://www.flickr.com/services/feeds/photoset.gne?set=${setId}&nsid=${encodeURIComponent(numericNsid)}&format=atom`;
+      const r = await proxiedFetch(feedUrl);
+      if (r) {
         const text = await r.text();
         const photos = parseFlickrFeedPhotos(text);
         if (photos.length) return photos;
@@ -1039,13 +1071,14 @@ async function fetchLightboxPhotos(card) {
     } catch(e) {}
   }
 
-  // Strategy 2: general public feed for this account (recent ~20 photos)
-  const nsidFromUrl = nsidFromFlickrUrl(card.url || '') || nsid;
+  // Strategy 2: general public feed for this account
+  const nsidFromUrl = nsidFromFlickrUrl(card.url || '') || rawNsid;
   if (nsidFromUrl) {
     try {
-      const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(nsidFromUrl)}&format=atom`;
-      const r = await fetch(proxy(feedUrl), { signal: AbortSignal.timeout(12000) });
-      if (r.ok) {
+      const numericNsid = await resolveFlickrNsid(nsidFromUrl);
+      const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(numericNsid)}&format=atom`;
+      const r = await proxiedFetch(feedUrl);
+      if (r) {
         const text = await r.text();
         const photos = parseFlickrFeedPhotos(text);
         if (photos.length) return photos;
@@ -1791,10 +1824,9 @@ async function fetchAllExposureStories() {
 
 async function fetchFlickrFeedPage(nsid, page) {
   const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(nsid)}&format=atom&count=500`;
-  const proxy = `https://corsproxy.io/?url=${encodeURIComponent(feedUrl)}`;
   try {
-    const r = await fetch(proxy, { signal: AbortSignal.timeout(12000) });
-    if (!r.ok) return [];
+    const r = await proxiedFetch(feedUrl, 12000);
+    if (!r) return [];
     const text = await r.text();
     return parseFlickrAtom(text);
   } catch(e) {
@@ -1968,10 +2000,9 @@ function nsidFromFlickrUrl(url) {
 // The feed is CORS-accessible and includes <author><name>…</name></author>.
 async function fetchFlickrRealname(nsid) {
   const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(nsid)}&format=atom`;
-  const proxy = `https://corsproxy.io/?url=${encodeURIComponent(feedUrl)}`;
   try {
-    const r = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
-    if (!r.ok) return null;
+    const r = await proxiedFetch(feedUrl, 8000);
+    if (!r) return null;
     const text = await r.text();
     // Parse the Atom XML — grab the feed-level <author><name>
     const parser = new DOMParser();
