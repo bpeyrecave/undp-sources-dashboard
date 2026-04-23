@@ -1018,19 +1018,19 @@ function openLightbox(card) {
 }
 
 async function fetchLightboxPhotos(card) {
-  // Strategy: use the Flickr public feed for the user, filtered to this album
-  // The album URL looks like .../photos/<nsid>/albums/<setId>/
-  // We can fetch the album's Atom feed directly
+  // Flickr feeds block CORS from non-Flickr origins — route through a proxy.
+  const proxy = url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+
+  // Strategy 1: photoset feed (most accurate — only photos in this album)
   const albumUrlMatch = card.url && card.url.match(/flickr\.com\/photos\/([^/]+)\/(\d+)\/in\/album-(\d+)/);
   const albumPageMatch = card.url && card.url.match(/flickr\.com\/photos\/([^/]+)\/albums\/(\d+)/);
   const setId = albumUrlMatch ? albumUrlMatch[3] : (albumPageMatch ? albumPageMatch[2] : null);
-  const nsid = albumUrlMatch ? albumUrlMatch[1] : (albumPageMatch ? albumPageMatch[1] : null);
+  const nsid  = albumUrlMatch ? albumUrlMatch[1] : (albumPageMatch ? albumPageMatch[1] : null);
 
   if (setId && nsid) {
-    // Flickr has a public photoset feed: /services/feeds/photoset.gne?set=<id>&nsid=<nsid>
     try {
       const feedUrl = `https://www.flickr.com/services/feeds/photoset.gne?set=${setId}&nsid=${encodeURIComponent(nsid)}&format=atom`;
-      const r = await fetch(feedUrl, { signal: AbortSignal.timeout(10000) });
+      const r = await fetch(proxy(feedUrl), { signal: AbortSignal.timeout(12000) });
       if (r.ok) {
         const text = await r.text();
         const photos = parseFlickrFeedPhotos(text);
@@ -1039,12 +1039,12 @@ async function fetchLightboxPhotos(card) {
     } catch(e) {}
   }
 
-  // Fallback: use the general public feed for this account
-  const nsidFromUrl = nsidFromFlickrUrl(card.url || '');
+  // Strategy 2: general public feed for this account (recent ~20 photos)
+  const nsidFromUrl = nsidFromFlickrUrl(card.url || '') || nsid;
   if (nsidFromUrl) {
     try {
       const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(nsidFromUrl)}&format=atom`;
-      const r = await fetch(feedUrl, { signal: AbortSignal.timeout(10000) });
+      const r = await fetch(proxy(feedUrl), { signal: AbortSignal.timeout(12000) });
       if (r.ok) {
         const text = await r.text();
         const photos = parseFlickrFeedPhotos(text);
@@ -1790,12 +1790,10 @@ async function fetchAllExposureStories() {
 //   • Photos with no album on the same date → 1 card per date
 
 async function fetchFlickrFeedPage(nsid, page) {
-  // The public feed doesn't support real pagination, but we can shift the window
-  // using tags or date params. Best available: fetch with count=500 (Flickr caps at 500).
-  // We also try the flickr.photos.getPublicPhotos REST endpoint (no API key needed for public feeds).
   const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(nsid)}&format=atom&count=500`;
+  const proxy = `https://corsproxy.io/?url=${encodeURIComponent(feedUrl)}`;
   try {
-    const r = await fetch(feedUrl, { signal: AbortSignal.timeout(12000) });
+    const r = await fetch(proxy, { signal: AbortSignal.timeout(12000) });
     if (!r.ok) return [];
     const text = await r.text();
     return parseFlickrAtom(text);
@@ -1970,8 +1968,9 @@ function nsidFromFlickrUrl(url) {
 // The feed is CORS-accessible and includes <author><name>…</name></author>.
 async function fetchFlickrRealname(nsid) {
   const feedUrl = `https://www.flickr.com/services/feeds/photos_public.gne?id=${encodeURIComponent(nsid)}&format=atom`;
+  const proxy = `https://corsproxy.io/?url=${encodeURIComponent(feedUrl)}`;
   try {
-    const r = await fetch(feedUrl, { signal: AbortSignal.timeout(8000) });
+    const r = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
     if (!r.ok) return null;
     const text = await r.text();
     // Parse the Atom XML — grab the feed-level <author><name>
