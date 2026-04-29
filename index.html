@@ -434,56 +434,6 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
 }
 .tag-chip:hover{border-color:var(--blue);color:var(--blue);}
 .tag-chip.active{background:var(--blue);color:#fff;border-color:var(--blue);}
-/* ── Google Sheets / Favourites panel ─────────────────────────────────── */
-.gs-panel{
-  background:var(--white);border-radius:10px;border:1.5px solid #E0E8F0;
-  padding:16px 24px;margin:16px 32px 0;display:flex;flex-direction:column;gap:10px;
-}
-.gs-panel.live{border-color:#006EB5;background:#F0F7FF;}
-.gs-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.gs-label{
-  display:flex;align-items:center;gap:6px;white-space:nowrap;
-  font-size:11px;font-weight:700;color:var(--navy);letter-spacing:.05em;text-transform:uppercase;
-}
-.gs-label svg{width:14px;height:14px;flex-shrink:0;}
-.gs-input{
-  flex:1;min-width:200px;padding:7px 11px;font-size:12px;font-family:var(--font);
-  border:1.5px solid #C8DCF5;border-radius:6px;color:var(--navy);background:#fff;
-  outline:none;transition:border-color .15s;
-}
-.gs-input:focus{border-color:var(--blue);}
-.gs-input::placeholder{color:#aab;}
-.gs-btn{
-  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
-  background:var(--blue);color:#fff;border:none;border-radius:6px;
-  padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;
-  font-family:var(--font);letter-spacing:.04em;text-transform:uppercase;
-  transition:background .15s,opacity .2s;flex-shrink:0;
-}
-.gs-btn:hover{background:#005a94;}
-.gs-btn:disabled{opacity:.45;cursor:not-allowed;}
-.gs-btn.ghost{background:transparent;border:1.5px solid #C8DCF5;color:var(--gray-dark);}
-.gs-btn.ghost:hover{border-color:#999;color:var(--navy);}
-.gs-btn svg{width:11px;height:11px;}
-.gs-status{
-  font-size:11.5px;padding:8px 12px;border-radius:6px;display:none;
-  border:1px solid #C8DCF5;background:#EEF4FB;color:var(--navy);line-height:1.5;
-}
-.gs-status.on{display:block;}
-.gs-status.err{background:#fff5f5;border-color:#f5c6c0;color:#c0392b;}
-.gs-status.ok{background:#f0faf0;border-color:#b2dfb2;color:#1a6b1a;}
-.gs-status.spin{background:#FFF8E7;border-color:#ffe082;color:#7a5800;}
-.gs-chips{display:flex;flex-wrap:wrap;gap:5px;}
-.gs-chip{
-  font-size:10px;padding:2px 8px;border-radius:20px;
-  border:1px solid #dde;background:#f9f9fb;color:#666;
-  display:inline-flex;align-items:center;gap:3px;max-width:220px;
-}
-.gs-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.gs-chip.pend{border-color:#aac6e8;background:#EEF4FB;color:#006EB5;}
-.gs-chip.done{border-color:#b2dfb2;background:#f0faf0;color:#1a6b1a;}
-.gs-chip.fail{border-color:#f5c6c0;background:#fff5f5;color:#c0392b;}
-.gs-chip svg{width:9px;height:9px;flex-shrink:0;}
 /* Individual fav cards in favs view */
 .gcard-indiv-photo{
   font-size:10px;font-weight:600;color:var(--blue);
@@ -640,26 +590,6 @@ tr:not(.sec-row):hover td{background:#F7F9FC}
     <tr class="nodata-row"><td colspan="5">Loading…</td></tr>
   </tbody>
 </table>
-</div>
-
-<!-- ── Google Sheets live-sync panel (shown in Favourites mode) ─────────── -->
-<div id="gsPanel" class="gs-panel" style="display:none;">
-  <div class="gs-row">
-    <span class="gs-label">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-      Google Sheet
-    </span>
-    <input class="gs-input" id="gsUrlInput" type="url"
-      placeholder="Paste Google Sheets share URL…"
-      value="https://docs.google.com/spreadsheets/d/1mYE9JgBoHZJq7p6w-M2G-4qviMD4jc8DLPJMJ7lzQng/edit?gid=0#gid=0"
-      onkeydown="if(event.key==='Enter')gsFetch()">
-    <button class="gs-btn" id="gsFetchBtn" onclick="gsFetch()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-      Sync
-    </button>
-  </div>
-  <div class="gs-status" id="gsStatus"></div>
-  <div class="gs-chips" id="gsChips"></div>
 </div>
 
 <div class="gallery-wrap" id="galleryWrap">
@@ -1034,8 +964,7 @@ function setTagFilter(tag) {
 function updateTagFilterBar() {
   const bar = document.getElementById('tagFilterBar');
   const favMode = document.getElementById('favFilter')?.value;
-  // Tag filter bar is not shown in favs mode (Excel imports don't use the old tag system)
-  if (favMode !== 'all' && favMode !== 'all_photos') { bar.classList.remove('visible'); return; }
+  if (favMode !== 'favs') { bar.classList.remove('visible'); return; }
 
   const tags = allTags();
   if (!tags.length) { bar.classList.remove('visible'); return; }
@@ -1047,264 +976,6 @@ function updateTagFilterBar() {
 }
 
 const STAR_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-
-// ── Google Sheets live-sync (Favourites) ─────────────────────────────────────
-// Converts any Google Sheets share/edit URL → CSV export URL, fetches on every
-// Favourites view open, extracts Flickr individual photo URLs from every cell,
-// then fetches oEmbed metadata for each photo and renders fav cards.
-
-const GS_URL_KEY   = 'undp_gs_url_v1';     // persisted sheet URL
-const GS_CACHE_KEY = 'undp_gs_cache_v1';   // persisted fetched card data
-
-// The hard-coded default sheet URL (user can override via the input)
-const GS_DEFAULT_URL = 'https://docs.google.com/spreadsheets/d/1mYE9JgBoHZJq7p6w-M2G-4qviMD4jc8DLPJMJ7lzQng/edit?gid=0#gid=0';
-
-let EXCEL_FAVS = _loadGsCache(); // Map: key → card meta object (same structure as before)
-
-function _loadGsCache() {
-  try {
-    const raw = JSON.parse(localStorage.getItem(GS_CACHE_KEY) || 'null');
-    if (raw && typeof raw === 'object' && !Array.isArray(raw))
-      return new Map(Object.entries(raw));
-  } catch(e) {}
-  return new Map();
-}
-
-function _saveGsCache() {
-  const obj = {};
-  EXCEL_FAVS.forEach((v, k) => { obj[k] = v; });
-  localStorage.setItem(GS_CACHE_KEY, JSON.stringify(obj));
-}
-
-function _getSavedSheetUrl() {
-  return localStorage.getItem(GS_URL_KEY) || GS_DEFAULT_URL;
-}
-
-// Convert any Google Sheets URL → CSV export URL for a given gid
-function sheetUrlToCsvUrl(url) {
-  try {
-    const u = new URL(url);
-    // Extract spreadsheet ID
-    const idMatch = u.pathname.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if (!idMatch) return null;
-    const id = idMatch[1];
-    // Extract gid from hash or query
-    const gidMatch = (u.hash + u.search).match(/gid=(\d+)/);
-    const gid = gidMatch ? gidMatch[1] : '0';
-    return `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${gid}`;
-  } catch(e) { return null; }
-}
-
-// Extract all Flickr individual photo URLs from raw CSV text
-function extractFlickrUrlsFromCsv(csvText) {
-  const seen = new Set();
-  const re = /https?:\/\/(?:www\.)?flickr\.com\/photos\/[^\s,"'<>\r\n]+\/\d{7,}/g;
-  const matches = csvText.match(re) || [];
-  const out = [];
-  for (const m of matches) {
-    // Normalise: strip trailing slashes, query params, fragments
-    let clean = m.split(/[?#]/)[0].replace(/\/+$/, '');
-    // Only individual photo pages (path depth ≥ 4 segments)
-    try {
-      const parts = new URL(clean).pathname.split('/').filter(Boolean);
-      if (parts.length < 3) continue; // skip profile/album pages
-    } catch(e) { continue; }
-    if (!seen.has(clean)) { seen.add(clean); out.push(clean); }
-  }
-  return out;
-}
-
-// Show/hide the panel + mark it live when there's data
-function showExcelImportPanel(visible) {
-  const panel = document.getElementById('gsPanel');
-  if (!panel) return;
-  panel.style.display = visible ? '' : 'none';
-  if (visible) {
-    panel.classList.toggle('live', EXCEL_FAVS.size > 0);
-    // Restore saved URL into input
-    const saved = _getSavedSheetUrl();
-    const inp = document.getElementById('gsUrlInput');
-    if (inp && saved && inp.value !== saved) inp.value = saved;
-  }
-}
-
-function gsSetStatus(msg, type = '') {
-  const el = document.getElementById('gsStatus');
-  if (!el) return;
-  el.textContent = msg;
-  el.className = 'gs-status on' + (type ? ' ' + type : '');
-}
-
-function gsHideStatus() {
-  const el = document.getElementById('gsStatus');
-  if (el) el.className = 'gs-status';
-}
-
-// Small progress chips per URL
-function gsSetChips(urls, states) {
-  const el = document.getElementById('gsChips');
-  if (!el) return;
-  const icons = {
-    pend: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
-    done: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,
-    fail: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-  };
-  el.innerHTML = urls.map((u, i) => {
-    const st = states[i] || 'pend';
-    const short = u.replace(/https?:\/\/(www\.)?flickr\.com\/photos\//, '');
-    return `<span class="gs-chip ${st}" title="${u}">${icons[st]}<span>${short}</span></span>`;
-  }).join('');
-}
-
-// Main fetch + render triggered on every Favourites open
-async function gsFetchOnLoad() {
-  const url = _getSavedSheetUrl();
-  const inp = document.getElementById('gsUrlInput');
-  if (inp) inp.value = url;
-  await _gsDoFetch(url, /*silent=*/true);
-}
-
-// Triggered by Sync button
-async function gsFetch() {
-  const inp = document.getElementById('gsUrlInput');
-  const url = (inp?.value || '').trim();
-  if (!url) { gsSetStatus('Please enter a Google Sheets URL.', 'err'); return; }
-  localStorage.setItem(GS_URL_KEY, url);
-  await _gsDoFetch(url, false);
-}
-
-async function _gsDoFetch(sheetUrl, silent) {
-  const csvUrl = sheetUrlToCsvUrl(sheetUrl);
-  if (!csvUrl) {
-    gsSetStatus('Invalid Google Sheets URL. Make sure it's a /spreadsheets/d/… link.', 'err');
-    return;
-  }
-
-  const btn = document.getElementById('gsFetchBtn');
-  if (btn) btn.disabled = true;
-  if (!silent) gsSetStatus('Fetching sheet…', 'spin');
-
-  // Fetch CSV — try direct first, then CORS proxy
-  let csvText = null;
-  try {
-    const r = await fetch(csvUrl, { signal: AbortSignal.timeout(10000) });
-    if (r.ok) csvText = await r.text();
-  } catch(e) {}
-
-  if (!csvText) {
-    try {
-      const r = await proxiedFetch(csvUrl, 12000);
-      if (r) csvText = await r.text();
-    } catch(e) {}
-  }
-
-  if (!csvText) {
-    gsSetStatus('Could not fetch the sheet. Make sure it is shared publicly ("Anyone with the link can view").', 'err');
-    if (btn) btn.disabled = false;
-    return;
-  }
-
-  const urls = extractFlickrUrlsFromCsv(csvText);
-  if (!urls.length) {
-    gsSetStatus('Sheet fetched but no Flickr photo URLs found. Add URLs like flickr.com/photos/…/[photo-id] to any cell.', 'err');
-    if (btn) btn.disabled = false;
-    return;
-  }
-
-  gsSetStatus(`Sheet synced — fetching metadata for ${urls.length} photo${urls.length !== 1 ? 's' : ''}…`, 'spin');
-
-  // Init chips
-  const states = urls.map(() => 'pend');
-  gsSetChips(urls, states);
-
-  // Fetch all metadata in parallel, updating chips as each resolves
-  let done = 0, failed = 0;
-  await Promise.all(urls.map(async (url, i) => {
-    let meta = null;
-    try { meta = await fetchFlickrPhotoMeta(url); } catch(e) {}
-    if (!meta && !meta?.imageUrl && !meta?.title) {
-      try { meta = await fetchFlickrPhotoMeta(url); } catch(e) {}
-    }
-
-    if (meta && (meta.imageUrl || meta.title)) {
-      const key = `photo|${url}`;
-      EXCEL_FAVS.set(key, {
-        key,
-        photoUrl: url,
-        flickrUrl: url,
-        imageUrl: meta.imageUrl || null,
-        title: meta.title || '',
-        country: meta.author || '',
-        album: meta.description || '',
-        date: meta.date || '',
-        tags: EXCEL_FAVS.get(key)?.tags || [],
-      });
-      states[i] = 'done';
-      done++;
-    } else {
-      states[i] = 'fail';
-      failed++;
-    }
-    gsSetChips(urls, [...states]);
-  }));
-
-  _saveGsCache();
-
-  const summary = `✓ ${done} photo${done !== 1 ? 's' : ''} loaded from sheet${failed ? ` · ${failed} could not be fetched` : ''}.`;
-  gsSetStatus(summary, done ? 'ok' : 'err');
-  document.getElementById('gsPanel')?.classList.toggle('live', done > 0);
-
-  if (btn) btn.disabled = false;
-  renderGallery();
-}
-
-// Fetch oEmbed + fallback og: scrape for one Flickr photo URL
-async function fetchFlickrPhotoMeta(photoUrl) {
-  // Strategy 1: Flickr oEmbed (no API key, CORS-safe)
-  try {
-    const oembedUrl = `https://www.flickr.com/services/oembed/?url=${encodeURIComponent(photoUrl)}&format=json`;
-    const r = await fetch(oembedUrl, { signal: AbortSignal.timeout(8000) });
-    if (r.ok) {
-      const d = await r.json();
-      let imageUrl = d.url || d.thumbnail_url || null;
-      if (imageUrl) imageUrl = imageUrl.replace(/_[sqtmnzbc]\.jpg$/, '_b.jpg');
-      return {
-        imageUrl,
-        title: d.title || '',
-        author: d.author_name || '',
-        description: '',
-        date: null,
-        photoUrl,
-      };
-    }
-  } catch(e) {}
-
-  // Strategy 2: proxied HTML → og: tags
-  try {
-    const r = await proxiedFetch(photoUrl, 10000);
-    if (r) {
-      const html = await r.text();
-      const og = prop => {
-        const m = html.match(new RegExp(`<meta[^>]+property=["']og:${prop}["'][^>]+content=["']([^"']+)["']`, 'i'))
-                || html.match(new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:${prop}["']`, 'i'));
-        return m ? m[1] : null;
-      };
-      const dateM = html.match(/datePublished[":\s]+"(\d{4}-\d{2}-\d{2})/)
-                 || html.match(/"taken"\s*:\s*"(\d{4}-\d{2}-\d{2})/)
-                 || html.match(/data-datetime=["'](\d{4}-\d{2}-\d{2})/);
-      return {
-        imageUrl: og('image'),
-        title: og('title') || '',
-        author: '',
-        description: og('description') || '',
-        date: dateM ? dateM[1] : null,
-        photoUrl,
-      };
-    }
-  } catch(e) {}
-
-  return { imageUrl: null, title: '', author: '', description: '', date: null, photoUrl };
-}
 
 // ── Lightbox ──────────────────────────────────────────────────────────────────
 let LB = {
@@ -1596,7 +1267,6 @@ function setView(v) {
   document.getElementById('galleryWrap').classList.toggle('visible', v === 'gallery');
   document.getElementById('gallerySortWrap').classList.toggle('visible', v === 'gallery');
   document.getElementById('favFilterWrap').classList.toggle('visible', v === 'gallery');
-  if (v !== 'gallery') showExcelImportPanel(false);
   if (v === 'gallery') { updateTagFilterBar(); renderGallery(); }
   else render();
 }
@@ -1831,27 +1501,14 @@ function renderGallery() {
   const existingPager = document.getElementById('galleryPager');
   if (existingPager) existingPager.remove();
 
-  // Show/hide Google Sheets panel
-  showExcelImportPanel(favMode === 'favs');
-
-  // ── Favourites mode: show Google Sheets–sourced Flickr photo cards ────────
+  // ── Favs mode: show individual photo favs ────────────────────────────────
   if (favMode === 'favs') {
-    // Trigger a live fetch from the sheet every time this view opens.
-    // gsFetchOnLoad() is async — it calls renderGallery() again once done.
-    // On this first (synchronous) pass we render whatever is already cached.
-    if (!renderGallery._gsFetching) {
-      renderGallery._gsFetching = true;
-      gsFetchOnLoad().finally(() => { renderGallery._gsFetching = false; });
-    }
+    // Collect all fav entries, filtering by tag if active
+    let favEntries = [...FAVS.values()];
+    if (q) favEntries = favEntries.filter(f => (f.country||'').toLowerCase().includes(q) || (f.title||'').toLowerCase().includes(q) || (f.album||'').toLowerCase().includes(q));
+    if (activeTag) favEntries = favEntries.filter(f => f.tags?.includes(activeTag));
 
-    // Render from cache while fetch runs
-    let favEntries = [...EXCEL_FAVS.values()];
-    if (q) favEntries = favEntries.filter(f =>
-      (f.country||'').toLowerCase().includes(q) ||
-      (f.title||'').toLowerCase().includes(q) ||
-      (f.album||'').toLowerCase().includes(q)
-    );
-
+    // Sort
     favEntries.sort((a, b) => {
       if (sortVal === 'date_desc')    return (b.date||'') < (a.date||'') ? -1 : 1;
       if (sortVal === 'date_asc')     return (a.date||'') < (b.date||'') ? -1 : 1;
@@ -1861,7 +1518,7 @@ function renderGallery() {
     });
 
     if (!favEntries.length) {
-      nodata.innerHTML = `<div class="selected-empty"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><p>Syncing photos from Google Sheet…</p></div>`;
+      nodata.innerHTML = `<div class="selected-empty"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><p>${activeTag ? `No favourites tagged <strong>${activeTag}</strong>.` : 'No favourites yet.<br>Switch to <strong>All Photos</strong> and star cards or individual photos inside albums.'}</p></div>`;
       nodata.classList.add('visible');
       return;
     }
@@ -1872,7 +1529,10 @@ function renderGallery() {
     galleryPage = Math.max(0, Math.min(galleryPage, totalPages - 1));
     const pageCards = favEntries.slice(galleryPage * CARDS_PER_PAGE, (galleryPage + 1) * CARDS_PER_PAGE);
 
-    pageCards.forEach(f => wrap.appendChild(buildFavCard(f)));
+    pageCards.forEach(f => {
+      const card = buildFavCard(f);
+      wrap.appendChild(card);
+    });
 
     if (totalPages > 1) {
       const pager = document.createElement('div');
@@ -1938,51 +1598,50 @@ function renderGallery() {
   }
 }
 
-// ── Individual fav card (used in Favourites / Excel-import view) ─────────────
+// ── Individual fav card (used in Favourites view) ─────────────────────────────
 function buildFavCard(f) {
-  const PLACEHOLDER = `<div class="img-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="#C4C9CE" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
+  const PLACEHOLDER = `<div class="img-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>`;
   const card = document.createElement('a');
   card.className = 'gcard';
   card.href = f.photoUrl || f.flickrUrl || '#';
   card.target = '_blank';
   card.rel = 'noopener';
 
-  const imgHtml = f.imageUrl
-    ? `<img src="${f.imageUrl}" alt="${f.title || ''}" loading="lazy" onerror="imgError(this)">`
-    : PLACEHOLDER;
-
-  const dateStr = fmtDateFull(f.date);
-
-  // Author / Flickr account shown in "country" slot
-  const authorLine = f.country
-    ? `<span class="gcard-flag">📷</span><span class="gcard-country">${f.country}</span>`
-    : `<span class="gcard-flag">🔗</span><span class="gcard-country">Flickr</span>`;
-
-  // Description (stored in album field from og:description)
-  const descHtml = f.album
-    ? `<span class="gcard-album" style="font-size:11px;color:var(--gray-dark);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:4px;">${f.album}</span>`
+  const imgHtml = f.imageUrl ? `<img src="${f.imageUrl}" alt="" loading="lazy" onerror="imgError(this)">` : PLACEHOLDER;
+  const tagHtml = f.tags?.length
+    ? `<div class="gcard-tag-list">${f.tags.map(t => `<span class="gcard-tag">${t}</span>`).join('')}</div>`
     : '';
+  const isPhoto = f.key?.startsWith('photo|');
+  const sourceLabel = isPhoto ? (f.album || 'Flickr photo') : (f.title || f.album || '');
+  const dateStr = fmtDateFull(f.date);
 
   card.innerHTML = `
     <div class="gcard-img">
       ${imgHtml}
-      <div class="gcard-img-chip">
-        <span class="flickr-dots"><span class="flickr-dot-blue"></span><span class="flickr-dot-pink"></span></span>Flickr
-      </div>
+      ${isPhoto ? '' : `<div class="gcard-img-chip"><span class="flickr-dots"><span class="flickr-dot-blue"></span><span class="flickr-dot-pink"></span></span>Flickr</div>`}
+      <button class="gcard-fav faved" data-key="${f.key}" title="Remove from Favourites">${STAR_SVG}</button>
     </div>
     <div class="gcard-body">
       <div class="gcard-meta">
         <div class="gcard-meta-top">
-          ${authorLine}
+          <span class="gcard-flag">🌐</span>
+          <span class="gcard-country">${f.country || ''}</span>
         </div>
         ${dateStr ? `<span class="gcard-date">${dateStr}</span>` : ''}
       </div>
       <div class="gcard-title-row">
-        <span class="gcard-title">${f.title || 'Flickr Photo'}</span>
+        <span class="gcard-title">${f.title || sourceLabel || 'Photo'}</span>
       </div>
-      ${descHtml}
-      <span class="gcard-indiv-photo">📎 Imported from Excel</span>
+      ${f.album ? `<span class="gcard-album">📂 ${f.album}</span>` : ''}
+      ${isPhoto ? `<span class="gcard-indiv-photo">★ Individual photo</span>` : ''}
+      ${tagHtml}
     </div>`;
+
+  const favBtn = card.querySelector('.gcard-fav');
+  favBtn.addEventListener('click', e => {
+    e.preventDefault(); e.stopPropagation();
+    toggleFav(f.key, f, favBtn);
+  });
 
   return card;
 }
